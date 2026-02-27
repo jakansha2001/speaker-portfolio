@@ -1584,15 +1584,31 @@
                 display: block;
             }
 
+            .hero {
+                min-height: auto;
+                padding-top: clamp(5rem, 10vh, 7rem);
+                padding-bottom: clamp(2rem, 4vh, 3rem);
+            }
+
             .hero-headshot {
                 position: relative;
                 right: auto;
                 top: auto;
                 transform: none;
-                width: 160px;
-                height: 210px;
-                margin-bottom: 2rem;
+                width: 120px;
+                height: 120px;
+                margin-bottom: 1.5rem;
+                border-radius: 50%;
                 animation-name: headshotRevealMobile;
+            }
+
+            .hero-headshot::before {
+                border-radius: 50%;
+            }
+
+            .hero-headshot::after {
+                border-radius: 50%;
+                inset: -12px;
             }
 
             .hero-title {
@@ -1700,6 +1716,16 @@
         @media (max-width: 480px) {
             section {
                 padding: clamp(3rem, 8vh, 5rem) clamp(1.25rem, 4vw, 4rem);
+            }
+
+            .hero-headshot {
+                width: 100px;
+                height: 100px;
+                margin-bottom: 1.25rem;
+            }
+
+            .hero-title {
+                font-size: clamp(2.25rem, 10vw, 3rem);
             }
 
             .hero-stats-row {
