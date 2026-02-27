@@ -1586,8 +1586,8 @@
 
             .hero {
                 min-height: auto;
-                padding-top: 7rem;
-                padding-bottom: clamp(2rem, 4vh, 3rem);
+                padding-top: calc(72px + 2rem);
+                padding-bottom: 2rem;
             }
 
             .hero-headshot {
@@ -1602,15 +1602,16 @@
             }
 
             .hero-overline {
-                margin-bottom: 1rem;
-            }
-
-            .hero-bottom {
-                padding-top: 2rem;
+                margin-bottom: 0.75rem;
             }
 
             .hero-title {
                 max-width: 100%;
+                margin-bottom: 1.5rem;
+            }
+
+            .hero-bottom {
+                padding-top: 1.5rem;
             }
 
             @keyframes headshotRevealMobile {
