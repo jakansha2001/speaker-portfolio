@@ -1587,20 +1587,12 @@
 
             .hero {
                 min-height: auto;
-                padding: 0 clamp(1.5rem, 4vw, 4rem) 2rem;
-                padding-top: 8rem;
+                padding: 6rem clamp(1.5rem, 4vw, 4rem) 2rem;
                 justify-content: flex-start;
             }
 
             .hero-headshot {
-                position: relative;
-                right: auto;
-                top: auto;
-                transform: none;
-                width: 120px;
-                height: 160px;
-                margin-bottom: 1.25rem;
-                animation-name: headshotRevealMobile;
+                display: none;
             }
 
             .hero-overline {
@@ -1612,8 +1604,14 @@
                 margin-bottom: 1.5rem;
             }
 
+            .hero-cta {
+                align-self: center;
+            }
+
             .hero-bottom {
                 flex-direction: column;
+                align-items: center;
+                text-align: center;
                 gap: 2rem;
                 padding-top: 1.5rem;
             }
@@ -1715,12 +1713,6 @@
         @media (max-width: 480px) {
             section {
                 padding: clamp(3rem, 8vh, 5rem) clamp(1.25rem, 4vw, 4rem);
-            }
-
-            .hero-headshot {
-                width: 100px;
-                height: 130px;
-                margin-bottom: 1rem;
             }
 
             .hero-title {
@@ -2552,18 +2544,6 @@
             document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 50);
         });
 
-        // ---- DYNAMIC NAV CLEARANCE (mobile) ----
-        function setHeroPadding() {
-            if (window.innerWidth <= 900) {
-                const nav = document.getElementById('nav');
-                const navHeight = nav.getBoundingClientRect().height;
-                const hero = document.querySelector('.hero');
-                hero.style.paddingTop = (navHeight + 24) + 'px';
-                document.documentElement.style.scrollPaddingTop = (navHeight + 8) + 'px';
-            }
-        }
-        setHeroPadding();
-        window.addEventListener('resize', setHeroPadding);
 
         // ---- MOBILE NAV ----
         document.getElementById('hamburger').addEventListener('click', () => {
