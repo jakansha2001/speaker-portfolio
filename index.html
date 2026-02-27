@@ -1,0 +1,2584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Akansha Jain — Speaker & Community Builder</title>
+    <meta name="description" content="Akansha Jain — 54+ talks, 28K+ attendees, international speaker across Europe & Asia. Flutter expert, Google Women Techmakers Ambassador, and community builder.">
+    <meta name="keywords" content="Akansha Jain, Flutter speaker, tech speaker, conference speaker, mobile development, Google Women Techmakers, Flutter Delhi, community builder">
+    <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="#0a0a0a">
+    <link rel="canonical" href="https://akanshajain.dev/">
+
+    <!-- Open Graph / Social -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Akansha Jain — Speaker & Community Builder">
+    <meta property="og:description" content="54+ talks | 28K+ attendees | International speaker across Europe & Asia | Flutter Expert | Google Women Techmakers Ambassador">
+    <meta property="og:url" content="https://akanshajain.dev/">
+    <meta property="og:image" content="https://akanshajain.dev/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Akansha Jain — Speaker & Community Builder | 54+ talks across 4 countries">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:site_name" content="Akansha Jain">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Akansha Jain — Speaker & Community Builder">
+    <meta name="twitter:description" content="54+ talks | 28K+ attendees | International speaker across Europe & Asia">
+    <meta name="twitter:creator" content="@Akansha2001">
+    <meta name="twitter:image" content="https://akanshajain.dev/og-image.png">
+    <meta name="twitter:image:alt" content="Akansha Jain — Speaker & Community Builder | 54+ talks across 4 countries">
+
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300;1,9..40,400&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --black: #0a0a0a;
+            --dark: #141414;
+            --dark-2: #1a1a1a;
+            --dark-3: #222222;
+            --cream: #f0e6df;
+            --cream-light: #f7f0eb;
+            --warm: #d4b5a0;
+            --warm-muted: #a08978;
+            --text: #fafaf9;
+            --text-secondary: #9a9a9a;
+            --text-muted: #737373;
+            --accent: #e8cdb8;
+            --line: rgba(255, 255, 255, 0.08);
+            --line-hover: rgba(255, 255, 255, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .skip-to-content {
+            position: absolute;
+            top: -100%;
+            left: 1rem;
+            padding: 0.75rem 1.5rem;
+            background: var(--cream);
+            color: var(--black);
+            border-radius: 4px;
+            font-size: 0.875rem;
+            z-index: 200;
+            text-decoration: none;
+        }
+
+        .skip-to-content:focus {
+            top: 1rem;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 99;
+            opacity: 0.035;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+            background-repeat: repeat;
+            background-size: 128px 128px;
+        }
+
+        .scroll-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 2px;
+            width: 0%;
+            background: linear-gradient(90deg, var(--cream), var(--warm-muted));
+            z-index: 101;
+            transition: width 0.1s linear;
+        }
+
+        body {
+            font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--black);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        ::selection {
+            background: var(--warm);
+            color: var(--black);
+        }
+
+        /* ---- HELLO SPLASH ---- */
+        .hello-splash {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: var(--black);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+                        visibility 0.8s;
+        }
+
+        .hello-splash.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .hello-word {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2.5rem, 10vw, 8rem);
+            font-weight: 400;
+            font-style: italic;
+            color: var(--cream);
+            position: absolute;
+            opacity: 0;
+            transform: translateY(20px) scale(0.96);
+            transition: opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+                        transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+            white-space: nowrap;
+            padding: 0 1rem;
+        }
+
+        .hello-word.active {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        .hello-word.fading {
+            opacity: 0;
+            transform: translateY(-20px) scale(0.96);
+        }
+
+        /* ---- CURSOR FOLLOWER ---- */
+        .cursor-glow {
+            position: fixed;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(228, 205, 184, 0.04) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 1;
+            transform: translate(-50%, -50%);
+            transition: transform 0.1s ease;
+            will-change: transform;
+        }
+
+        /* ---- NAVIGATION ---- */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 100;
+            padding: 0 clamp(1.5rem, 4vw, 4rem);
+            transition: background 0.4s;
+        }
+
+        nav.scrolled {
+            background: rgba(10, 10, 10, 0.9);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+        }
+
+        .nav-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 72px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .nav-logo {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.8125rem;
+            font-weight: 500;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--text);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 2.5rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            font-size: 0.8125rem;
+            font-weight: 400;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+            text-decoration: none;
+            text-transform: uppercase;
+            transition: color 0.3s;
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: var(--text);
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -2px;
+            width: 0;
+            height: 1px;
+            background: var(--cream);
+            transition: width 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .nav-cta-btn {
+            font-size: 0.75rem !important;
+            letter-spacing: 0.15em !important;
+            padding: 0.6rem 1.5rem;
+            border: 1px solid var(--line-hover);
+            border-radius: 100px;
+            transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1) !important;
+        }
+
+        .nav-cta-btn:hover {
+            background: var(--cream) !important;
+            color: var(--black) !important;
+            border-color: var(--cream) !important;
+        }
+
+        .nav-cta-btn::after {
+            display: none !important;
+        }
+
+        .hamburger {
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+        }
+
+        .hamburger span {
+            display: block;
+            width: 22px;
+            height: 1px;
+            background: var(--text);
+            margin: 6px 0;
+            transition: all 0.3s;
+        }
+
+        /* ---- HERO ---- */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: clamp(6rem, 12vh, 10rem) clamp(1.5rem, 4vw, 4rem) clamp(3rem, 6vh, 5rem);
+            position: relative;
+        }
+
+        .hero-headshot {
+            position: absolute;
+            right: clamp(2rem, 6vw, 8rem);
+            top: 50%;
+            transform: translateY(-50%);
+            width: clamp(180px, 18vw, 280px);
+            height: clamp(240px, 24vw, 380px);
+            border-radius: 200px;
+            overflow: hidden;
+            opacity: 0;
+            z-index: 2;
+        }
+
+        .hero-animate .hero-headshot {
+            animation: headshotReveal 1.2s cubic-bezier(0.22, 1, 0.36, 1) 0.6s forwards;
+        }
+
+        .hero-headshot::before {
+            content: '';
+            position: absolute;
+            inset: -1px;
+            border-radius: 200px;
+            border: 1px solid var(--line-hover);
+            z-index: 1;
+            transition: border-color 0.6s;
+        }
+
+        .hero-headshot:hover::before {
+            border-color: var(--warm-muted);
+        }
+
+        .hero-headshot::after {
+            content: '';
+            position: absolute;
+            inset: -20px;
+            border-radius: 200px;
+            background: radial-gradient(ellipse at center, rgba(228, 205, 184, 0.06) 0%, transparent 70%);
+            z-index: 0;
+            animation: headshotGlow 4s ease-in-out infinite alternate;
+        }
+
+        .hero-headshot img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center top;
+            filter: grayscale(20%) contrast(1.05);
+            transition: filter 0.6s, transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-headshot:hover img {
+            filter: grayscale(0%) contrast(1);
+            transform: scale(1.03);
+        }
+
+        @keyframes headshotReveal {
+            from {
+                opacity: 0;
+                transform: translateY(-48%) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(-50%) scale(1);
+            }
+        }
+
+        @keyframes headshotGlow {
+            from { opacity: 0.5; }
+            to { opacity: 1; }
+        }
+
+        .hero-overline {
+            font-size: 0.75rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--warm-muted);
+            margin-bottom: 2rem;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .hero-animate .hero-overline {
+            animation: revealUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.1s forwards;
+        }
+
+        .hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(3rem, 8vw, 8rem);
+            font-weight: 400;
+            line-height: 1.05;
+            letter-spacing: -0.02em;
+            margin-bottom: 2.5rem;
+            max-width: 1100px;
+        }
+
+        .hero-title .line {
+            display: block;
+            overflow: hidden;
+        }
+
+        .hero-title .line-inner {
+            display: block;
+            opacity: 0;
+            transform: translateY(100%);
+        }
+
+        .hero-animate .hero-title .line:nth-child(1) .line-inner {
+            animation: revealLine 1s cubic-bezier(0.22, 1, 0.36, 1) 0.2s forwards;
+        }
+        .hero-animate .hero-title .line:nth-child(2) .line-inner {
+            animation: revealLine 1s cubic-bezier(0.22, 1, 0.36, 1) 0.55s forwards;
+        }
+        .hero-animate .hero-title .line:nth-child(3) .line-inner {
+            animation: revealLine 1s cubic-bezier(0.22, 1, 0.36, 1) 0.9s forwards;
+        }
+
+        .hero-title em {
+            font-style: italic;
+            color: var(--cream);
+        }
+
+        .hero-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-top: auto;
+            padding-top: 4rem;
+            opacity: 0;
+        }
+
+        .hero-animate .hero-bottom {
+            animation: fadeIn 1s ease 1.2s forwards;
+        }
+
+        .hero-description {
+            font-size: clamp(0.9rem, 1.2vw, 1.0625rem);
+            color: var(--text-secondary);
+            max-width: 420px;
+            line-height: 1.7;
+            font-weight: 300;
+        }
+
+        .hero-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.9rem 2rem;
+            background: var(--cream);
+            color: var(--black);
+            text-decoration: none;
+            font-size: 0.8125rem;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            border-radius: 100px;
+            margin-top: 1.5rem;
+            transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .hero-cta:hover {
+            background: var(--text);
+            transform: translateY(-2px);
+            box-shadow: 0 20px 60px rgba(228, 205, 184, 0.15);
+        }
+
+        .hero-cta svg {
+            transition: transform 0.3s;
+        }
+
+        .hero-cta:hover svg {
+            transform: translateX(4px);
+        }
+
+        .hero-stats-row {
+            display: flex;
+            gap: clamp(2rem, 4vw, 4rem);
+        }
+
+        .hero-stat {
+            text-align: right;
+        }
+
+        .hero-stat-number {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2rem, 4vw, 3.5rem);
+            font-weight: 400;
+            color: var(--cream);
+            line-height: 1;
+        }
+
+        .hero-stat-label {
+            font-size: 0.6875rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            opacity: 0;
+        }
+
+        .hero-animate .scroll-indicator {
+            animation: fadeIn 1s ease 1.8s forwards;
+        }
+
+        .scroll-indicator span {
+            font-size: 0.625rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+
+        .scroll-line {
+            width: 1px;
+            height: 40px;
+            background: var(--line);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .scroll-line::after {
+            content: '';
+            position: absolute;
+            top: -100%;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--cream);
+            animation: scrollDown 2s ease-in-out infinite;
+        }
+
+        @keyframes scrollDown {
+            0% { top: -100%; }
+            100% { top: 100%; }
+        }
+
+        /* ---- MARQUEE ---- */
+        .marquee-section {
+            border-top: 1px solid var(--line);
+            border-bottom: 1px solid var(--line);
+            padding: 1.25rem 0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .marquee-track {
+            display: flex;
+            animation: marquee 30s linear infinite;
+            width: max-content;
+        }
+
+        .marquee-item {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            padding: 0 2rem;
+            white-space: nowrap;
+        }
+
+        .marquee-item span {
+            font-size: 0.75rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .marquee-dot {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: var(--warm-muted);
+        }
+
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* ---- SECTIONS SHARED ---- */
+        section {
+            padding: clamp(5rem, 10vh, 8rem) clamp(1.5rem, 4vw, 4rem);
+        }
+
+        .section-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: clamp(3rem, 6vh, 5rem);
+            gap: 2rem;
+        }
+
+        .section-label {
+            font-size: 0.6875rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--warm-muted);
+            margin-bottom: 1rem;
+        }
+
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2rem, 4vw, 3.5rem);
+            font-weight: 400;
+            line-height: 1.15;
+            max-width: 600px;
+        }
+
+        .section-title em {
+            font-style: italic;
+            color: var(--cream);
+        }
+
+        .section-desc {
+            font-size: 0.9375rem;
+            color: var(--text-secondary);
+            max-width: 350px;
+            line-height: 1.7;
+            font-weight: 300;
+        }
+
+        /* ---- SPEAKER OF THE DAY (in roles grid) ---- */
+        .role-highlight {
+            grid-column: 1 / -1;
+            background: var(--dark);
+            padding: clamp(2rem, 4vh, 3rem) clamp(1.5rem, 3vw, 2.5rem);
+            display: flex;
+            align-items: center;
+            gap: clamp(1.5rem, 3vw, 2.5rem);
+            transition: background 0.4s;
+        }
+
+        .role-highlight:hover {
+            background: var(--dark-2);
+        }
+
+        .role-highlight-img {
+            flex-shrink: 0;
+            width: 180px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .role-highlight-img img {
+            width: 100%;
+            display: block;
+        }
+
+        .role-highlight-content {
+            flex: 1;
+        }
+
+        @media (max-width: 600px) {
+            .role-highlight {
+                flex-direction: column;
+            }
+
+            .role-highlight-img {
+                width: 200px;
+            }
+        }
+
+        /* ---- FEATURED TALKS ---- */
+        .featured {
+            background: var(--black);
+        }
+
+        .featured-grid {
+            display: grid;
+            gap: 1px;
+            background: var(--line);
+        }
+
+        .featured-item {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            background: var(--black);
+            transition: background 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+            cursor: default;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .featured-item:hover {
+            background: var(--dark);
+        }
+
+        .featured-item-left {
+            padding: clamp(2rem, 4vh, 3.5rem) clamp(1.5rem, 3vw, 3rem);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            border-right: 1px solid var(--line);
+            min-height: 280px;
+        }
+
+        .featured-number {
+            font-family: 'Playfair Display', serif;
+            font-size: 0.875rem;
+            color: var(--warm-muted);
+            font-style: italic;
+        }
+
+        .featured-talk-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(1.5rem, 2.5vw, 2.25rem);
+            font-weight: 400;
+            line-height: 1.2;
+            margin: 1rem 0;
+            transition: color 0.3s;
+        }
+
+        .featured-item:hover .featured-talk-title {
+            color: var(--cream);
+        }
+
+        .featured-tag {
+            display: inline-block;
+            font-size: 0.625rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            padding: 0.35rem 0.85rem;
+            border: 1px solid var(--line);
+            border-radius: 100px;
+            color: var(--text-secondary);
+            width: fit-content;
+        }
+
+        .featured-item-right {
+            padding: clamp(2rem, 4vh, 3.5rem) clamp(1.5rem, 3vw, 3rem);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+        }
+
+        .featured-venue {
+            font-size: 0.9375rem;
+            color: var(--text-secondary);
+            font-weight: 300;
+            margin-bottom: 0.5rem;
+        }
+
+        .featured-venue-flag {
+            color: var(--warm-muted);
+            margin-right: 0.5rem;
+        }
+
+        .featured-meta {
+            display: flex;
+            gap: 2rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .featured-meta-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .featured-meta-value {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            color: var(--cream);
+        }
+
+        .featured-meta-label {
+            font-size: 0.625rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        .featured-description {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            line-height: 1.7;
+            margin-top: 1.5rem;
+            max-width: 400px;
+            font-weight: 300;
+        }
+
+        .featured-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.6875rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--cream);
+            text-decoration: none;
+            margin-top: 1.25rem;
+            transition: all 0.3s;
+        }
+
+        .featured-link:hover {
+            color: var(--text);
+            gap: 0.75rem;
+        }
+
+        .featured-link svg {
+            transition: transform 0.3s;
+        }
+
+        .featured-link:hover svg {
+            transform: translateX(3px);
+        }
+
+        /* Video embed section */
+        .video-highlight {
+            background: var(--dark);
+            padding: clamp(4rem, 8vh, 6rem) clamp(1.5rem, 4vw, 4rem);
+        }
+
+        .video-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: clamp(2rem, 4vw, 4rem);
+            align-items: center;
+        }
+
+        .video-wrapper {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--line);
+            background: #000;
+            cursor: pointer;
+        }
+
+        .video-wrapper img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: opacity 0.4s, transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .video-wrapper:hover img {
+            transform: scale(1.03);
+            opacity: 0.8;
+        }
+
+        .video-play-btn {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+            z-index: 2;
+        }
+
+        .video-wrapper:hover .video-play-btn {
+            background: var(--cream);
+            border-color: var(--cream);
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+
+        .video-play-btn svg {
+            margin-left: 3px;
+            color: var(--text);
+            transition: color 0.3s;
+        }
+
+        .video-wrapper:hover .video-play-btn svg {
+            color: var(--black);
+        }
+
+        .video-info {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .video-label {
+            font-size: 0.6875rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--warm-muted);
+        }
+
+        .video-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(1.5rem, 2.5vw, 2rem);
+            font-weight: 400;
+            line-height: 1.25;
+        }
+
+        .video-title em {
+            font-style: italic;
+            color: var(--cream);
+        }
+
+        .video-desc {
+            font-size: 0.9375rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            font-weight: 300;
+        }
+
+        .video-stats {
+            display: flex;
+            gap: 2rem;
+            margin-top: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .video-stat {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .video-stat-value {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.25rem;
+            color: var(--cream);
+        }
+
+        .video-stat-label {
+            font-size: 0.625rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        /* Decorative line that slides in on hover */
+        .featured-item::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: var(--cream);
+            transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .featured-item:hover::after {
+            width: 100%;
+        }
+
+        /* ---- JOURNEY / TIMELINE ---- */
+        .journey {
+            background: var(--dark);
+        }
+
+        .timeline {
+            position: relative;
+        }
+
+        .timeline-row {
+            display: grid;
+            grid-template-columns: 140px 1fr;
+            gap: 0;
+            border-top: 1px solid var(--line);
+            transition: background 0.4s;
+            cursor: default;
+        }
+
+        .timeline-row:last-child {
+            border-bottom: 1px solid var(--line);
+        }
+
+        .timeline-row:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .timeline-year {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(1.5rem, 3vw, 2.5rem);
+            font-style: italic;
+            color: var(--warm-muted);
+            padding: 2.5rem 0;
+            border-right: 1px solid var(--line);
+            display: flex;
+            align-items: flex-start;
+            transition: color 0.4s;
+        }
+
+        .timeline-row:hover .timeline-year {
+            color: var(--cream);
+        }
+
+        .timeline-body {
+            padding: 2.5rem clamp(1.5rem, 3vw, 3rem);
+        }
+
+        .timeline-headline {
+            font-size: 1rem;
+            font-weight: 500;
+            margin-bottom: 0.75rem;
+            color: var(--text);
+        }
+
+        .timeline-text {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            line-height: 1.8;
+            font-weight: 300;
+            max-width: 600px;
+        }
+
+        .timeline-text strong {
+            color: var(--cream);
+            font-weight: 400;
+        }
+
+        .timeline-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .timeline-badge {
+            font-size: 0.625rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 0.3rem 0.75rem;
+            border: 1px solid var(--line);
+            border-radius: 100px;
+            color: var(--text-muted);
+        }
+
+        /* ---- ALL TALKS ---- */
+        .all-talks {
+            background: var(--black);
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.6875rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 0.5rem 1.25rem;
+            border: 1px solid var(--line);
+            border-radius: 100px;
+            background: transparent;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .filter-btn:hover {
+            color: var(--text);
+            border-color: var(--line-hover);
+        }
+
+        .filter-btn.active {
+            background: var(--cream);
+            color: var(--black);
+            border-color: var(--cream);
+        }
+
+        .talks-list {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .talk-row {
+            display: grid;
+            grid-template-columns: 2fr 1.5fr 0.75fr 0.75fr;
+            gap: 1rem;
+            align-items: center;
+            padding: 1.25rem 0;
+            border-bottom: 1px solid var(--line);
+            transition: all 0.3s;
+            cursor: default;
+        }
+
+        .talk-row:hover {
+            padding-left: 1rem;
+            background: rgba(255, 255, 255, 0.01);
+        }
+
+        .talk-row:hover .talk-name {
+            color: var(--cream);
+        }
+
+        .talk-name {
+            font-size: 0.9375rem;
+            font-weight: 400;
+            color: var(--text);
+            transition: color 0.3s;
+        }
+
+        .talk-venue {
+            font-size: 0.8125rem;
+            color: var(--text-muted);
+            font-weight: 300;
+        }
+
+        .talk-audience {
+            font-family: 'Playfair Display', serif;
+            font-size: 1rem;
+            color: var(--warm);
+            text-align: center;
+        }
+
+        .talk-level {
+            text-align: right;
+        }
+
+        .level-pill {
+            font-size: 0.5625rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            padding: 0.25rem 0.65rem;
+            border-radius: 100px;
+            border: 1px solid;
+        }
+
+        .level-advanced {
+            color: var(--cream);
+            border-color: rgba(228, 205, 184, 0.3);
+        }
+
+        .level-intermediate {
+            color: var(--text-secondary);
+            border-color: rgba(154, 154, 154, 0.3);
+        }
+
+        .level-beginner {
+            color: var(--text-muted);
+            border-color: rgba(90, 90, 90, 0.3);
+        }
+
+        .talks-count {
+            text-align: center;
+            margin-top: 2rem;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            letter-spacing: 0.1em;
+        }
+
+        .load-more-btn {
+            display: block;
+            margin: 2rem auto 0;
+            padding: 0.75rem 2.5rem;
+            background: transparent;
+            color: var(--cream);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 50px;
+            font-family: var(--font-body);
+            font-size: 0.85rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .load-more-btn:hover {
+            background: rgba(255,255,255,0.06);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .load-more-btn.hidden {
+            display: none;
+        }
+
+        /* ---- IMPACT NUMBERS ---- */
+        .impact {
+            background: var(--dark);
+        }
+
+        .impact-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1px;
+            background: var(--line);
+        }
+
+        .impact-cell {
+            background: var(--dark);
+            padding: clamp(2.5rem, 5vh, 4rem) clamp(1.5rem, 3vw, 3rem);
+            text-align: center;
+            transition: background 0.4s;
+        }
+
+        .impact-cell:hover {
+            background: var(--dark-2);
+        }
+
+        .impact-number {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 400;
+            color: var(--cream);
+            line-height: 1;
+            margin-bottom: 0.75rem;
+        }
+
+        .impact-label {
+            font-size: 0.6875rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        /* ---- EXPERTISE (Topic Grid) ---- */
+        .expertise {
+            background: var(--black);
+        }
+
+        .topic-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        .topic-tag {
+            padding: 0.6rem 1.25rem;
+            border: 1px solid var(--line);
+            border-radius: 100px;
+            font-size: 0.8125rem;
+            font-weight: 400;
+            color: var(--text-secondary);
+            cursor: default;
+            transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .topic-tag:hover {
+            color: var(--black);
+            background: var(--cream);
+            border-color: var(--cream);
+            transform: translateY(-2px);
+        }
+
+        .topic-tag.primary {
+            border-color: var(--warm-muted);
+            color: var(--cream);
+        }
+
+        /* ---- ROLES ---- */
+        .roles {
+            background: var(--dark);
+        }
+
+        .roles-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1px;
+            background: var(--line);
+        }
+
+        .role-cell {
+            background: var(--dark);
+            padding: clamp(2rem, 4vh, 3rem) clamp(1.5rem, 3vw, 2.5rem);
+            transition: background 0.4s;
+            cursor: default;
+        }
+
+        .role-cell:hover {
+            background: var(--dark-2);
+        }
+
+        .role-org {
+            font-size: 0.625rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--warm-muted);
+            margin-bottom: 0.75rem;
+        }
+
+        .role-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.25rem;
+            font-weight: 400;
+            margin-bottom: 0.75rem;
+            transition: color 0.3s;
+        }
+
+        .role-cell:hover .role-title {
+            color: var(--cream);
+        }
+
+        .role-desc {
+            font-size: 0.8125rem;
+            color: var(--text-muted);
+            line-height: 1.7;
+            font-weight: 300;
+        }
+
+        .role-year {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-size: 0.875rem;
+            color: var(--warm-muted);
+            margin-top: 1rem;
+        }
+
+        /* ---- CTA ---- */
+        .cta {
+            background: var(--dark);
+            padding: clamp(6rem, 12vh, 10rem) clamp(1.5rem, 4vw, 4rem);
+            text-align: center;
+        }
+
+        .cta-overline {
+            font-size: 0.6875rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--warm-muted);
+            margin-bottom: 1.5rem;
+        }
+
+        .cta-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2rem, 5vw, 4rem);
+            font-weight: 400;
+            line-height: 1.15;
+            margin-bottom: 1.5rem;
+        }
+
+        .cta-title em {
+            font-style: italic;
+            color: var(--cream);
+        }
+
+        .cta-subtitle {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            font-weight: 300;
+            max-width: 500px;
+            margin: 0 auto 3rem;
+            line-height: 1.7;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 3rem;
+        }
+
+        .btn-main {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 2.25rem;
+            background: var(--cream);
+            color: var(--black);
+            text-decoration: none;
+            font-size: 0.8125rem;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            border-radius: 100px;
+            transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .btn-main:hover {
+            background: var(--text);
+            transform: translateY(-2px);
+            box-shadow: 0 20px 60px rgba(228, 205, 184, 0.15);
+        }
+
+        .btn-main svg {
+            transition: transform 0.3s;
+        }
+
+        .btn-main:hover svg {
+            transform: translateX(4px);
+        }
+
+        .btn-outline {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 2.25rem;
+            background: transparent;
+            color: var(--text);
+            text-decoration: none;
+            font-size: 0.8125rem;
+            font-weight: 400;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            border-radius: 100px;
+            border: 1px solid var(--line-hover);
+            transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--cream);
+            color: var(--cream);
+            transform: translateY(-2px);
+        }
+
+        .social-links {
+            display: flex;
+            gap: 2.5rem;
+            justify-content: center;
+            padding-top: 2rem;
+            border-top: 1px solid var(--line);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .social-link {
+            font-size: 0.6875rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.3s;
+            position: relative;
+        }
+
+        .social-link:hover {
+            color: var(--cream);
+        }
+
+        .social-link::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -2px;
+            width: 0;
+            height: 1px;
+            background: var(--cream);
+            transition: width 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .social-link:hover::after {
+            width: 100%;
+        }
+
+        /* ---- FOOTER ---- */
+        footer {
+            padding: 2rem clamp(1.5rem, 4vw, 4rem);
+            border-top: 1px solid var(--line);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        footer span {
+            font-size: 0.6875rem;
+            color: var(--text-muted);
+            letter-spacing: 0.05em;
+        }
+
+        /* ---- ANIMATIONS ---- */
+        @keyframes revealUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes revealLine {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+                        transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Stagger children */
+        .stagger-children > * {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+                        transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .stagger-children.visible > *:nth-child(1) { transition-delay: 0s; }
+        .stagger-children.visible > *:nth-child(2) { transition-delay: 0.08s; }
+        .stagger-children.visible > *:nth-child(3) { transition-delay: 0.16s; }
+        .stagger-children.visible > *:nth-child(4) { transition-delay: 0.24s; }
+        .stagger-children.visible > *:nth-child(5) { transition-delay: 0.32s; }
+        .stagger-children.visible > *:nth-child(6) { transition-delay: 0.4s; }
+        .stagger-children.visible > *:nth-child(7) { transition-delay: 0.48s; }
+        .stagger-children.visible > *:nth-child(8) { transition-delay: 0.56s; }
+
+        .stagger-children.visible > * {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ---- RESPONSIVE ---- */
+        @media (max-width: 1100px) {
+            .hero-headshot {
+                width: clamp(140px, 14vw, 200px);
+                height: clamp(190px, 19vw, 270px);
+                right: clamp(1.5rem, 3vw, 3rem);
+            }
+
+            .hero-title {
+                max-width: 65%;
+                padding-right: 1rem;
+            }
+
+            .hero-bottom {
+                flex-wrap: wrap;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 72px;
+                left: 0;
+                right: 0;
+                background: rgba(10, 10, 10, 0.97);
+                backdrop-filter: blur(30px);
+                flex-direction: column;
+                padding: 2rem clamp(1.5rem, 4vw, 4rem);
+                gap: 1.5rem;
+                border-bottom: 1px solid var(--line);
+            }
+
+            .nav-links.open {
+                display: flex;
+            }
+
+            .hamburger {
+                display: block;
+            }
+
+            .hero-headshot {
+                position: relative;
+                right: auto;
+                top: auto;
+                transform: none;
+                width: 160px;
+                height: 210px;
+                margin-bottom: 2rem;
+                animation-name: headshotRevealMobile;
+            }
+
+            .hero-title {
+                max-width: 100%;
+            }
+
+            @keyframes headshotRevealMobile {
+                from { opacity: 0; transform: scale(0.95); }
+                to { opacity: 1; transform: scale(1); }
+            }
+
+            .video-inner {
+                grid-template-columns: 1fr;
+            }
+
+            .featured-item {
+                grid-template-columns: 1fr;
+            }
+
+            .featured-item-left {
+                border-right: none;
+                border-bottom: 1px solid var(--line);
+                min-height: auto;
+            }
+
+            .hero-bottom {
+                flex-direction: column;
+                gap: 3rem;
+            }
+
+            .hero-stats-row {
+                justify-content: flex-start;
+            }
+
+            .hero-stat {
+                text-align: left;
+            }
+
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .impact-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .roles-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .timeline-row {
+                grid-template-columns: 100px 1fr;
+            }
+
+            .talk-row {
+                grid-template-columns: 1fr 1fr;
+                gap: 0.5rem;
+            }
+
+            .talk-audience, .talk-level {
+                text-align: left;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .talk-row {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+                padding: 1.25rem 0;
+            }
+
+            .talk-row:hover {
+                padding-left: 0;
+            }
+
+            .impact-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .social-links {
+                gap: 1.5rem;
+                flex-wrap: wrap;
+            }
+
+            footer {
+                flex-direction: column;
+                gap: 0.5rem;
+                text-align: center;
+            }
+
+            .cursor-glow {
+                display: none;
+            }
+
+            .scroll-indicator {
+                display: none;
+            }
+
+            .social-links {
+                gap: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            section {
+                padding: clamp(3rem, 8vh, 5rem) clamp(1.25rem, 4vw, 4rem);
+            }
+
+            .hero-stats-row {
+                gap: 2rem;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .timeline-row {
+                grid-template-columns: 1fr;
+            }
+
+            .timeline-year {
+                border-right: none;
+                padding-bottom: 0;
+            }
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--black);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--dark-3);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--warm-muted);
+        }
+    </style>
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "name": "Akansha Jain",
+        "url": "https://akanshajain.dev",
+        "image": "https://akanshajain.dev/headshot.png",
+        "jobTitle": "Speaker & Community Builder",
+        "description": "International tech speaker with 54+ talks across 4 countries, Flutter expert, and Google Women Techmakers Ambassador.",
+        "sameAs": [
+            "https://twitter.com/Akansha2001",
+            "https://www.linkedin.com/in/akansha-jain-2001/",
+            "https://github.com/jakansha2001",
+            "https://medium.com/@akansha.jain1611",
+            "https://sessionize.com/akanshajain/"
+        ],
+        "knowsAbout": ["Flutter", "Dart", "Mobile App Development", "Firebase", "Community Building", "Public Speaking"],
+        "alumniOf": {
+            "@type": "Organization",
+            "name": "Google Women Techmakers"
+        },
+        "memberOf": [
+            {
+                "@type": "Organization",
+                "name": "Google Women Techmakers"
+            },
+            {
+                "@type": "Organization",
+                "name": "Flutter Delhi"
+            }
+        ]
+    }
+    </script>
+</head>
+<body>
+    <div class="scroll-progress" id="scrollProgress"></div>
+
+    <noscript>
+        <style>
+            .hello-splash { display: none !important; }
+            .hero .hero-overline, .hero .hero-title .line .line-inner,
+            .hero .hero-headshot, .hero .hero-bottom, .hero .scroll-indicator,
+            .reveal, .stagger-children > * { opacity: 1 !important; transform: none !important; }
+        </style>
+    </noscript>
+
+    <!-- Hello Splash -->
+    <div class="hello-splash" id="helloSplash">
+        <span class="hello-word">Hello</span>
+        <span class="hello-word" lang="hi">नमस्ते</span>
+        <span class="hello-word" lang="es">Hola</span>
+        <span class="hello-word" lang="fr">Bonjour</span>
+        <span class="hello-word" lang="de">Hallo</span>
+        <span class="hello-word" lang="ja">こんにちは</span>
+        <span class="hello-word" lang="pt">Olá</span>
+        <span class="hello-word" lang="ko">안녕하세요</span>
+        <span class="hello-word" lang="it">Ciao</span>
+        <span class="hello-word" lang="th">สวัสดี</span>
+        <span class="hello-word" lang="ar">سلام</span>
+        <span class="hello-word" lang="zh">你好</span>
+    </div>
+
+    <!-- Cursor glow -->
+    <div class="cursor-glow" id="cursorGlow"></div>
+
+    <!-- Navigation -->
+    <a href="#featured" class="skip-to-content">Skip to content</a>
+    <header>
+    <nav id="nav">
+        <div class="nav-inner">
+            <a href="#" class="nav-logo">Akansha Jain</a>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="#featured">Talks</a></li>
+                <li><a href="#all-talks">Archive</a></li>
+                <li><a href="#roles">About</a></li>
+                <li><a href="#contact" class="nav-cta-btn">Invite to Speak</a></li>
+            </ul>
+            <button class="hamburger" id="hamburger" aria-label="Toggle menu" aria-expanded="false">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+    </header>
+
+    <main>
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-headshot">
+            <img src="headshot.png" alt="Akansha Jain" width="1024" height="1024" fetchpriority="high">
+        </div>
+        <div class="hero-overline">Speaker &bull; Engineer &bull; Community Builder</div>
+        <h1 class="hero-title">
+            <span class="line"><span class="line-inner">Engineering code.</span></span>
+            <span class="line"><span class="line-inner"><em>Inspiring</em></span></span>
+            <span class="line"><span class="line-inner">communities.</span></span>
+        </h1>
+        <div class="hero-bottom">
+            <div>
+                <p class="hero-description">
+                    International conference speaker with 54+ talks across Europe and Asia. Google Women Techmakers Ambassador building the next generation of mobile developers.
+                </p>
+                <a href="https://sessionize.com/akanshajain/" target="_blank" rel="noopener noreferrer" class="hero-cta">
+                    Invite Me to Speak
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                </a>
+            </div>
+            <div class="hero-stats-row">
+                <div class="hero-stat">
+                    <div class="hero-stat-number" data-target="54">0+</div>
+                    <div class="hero-stat-label">Talks</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="hero-stat-number" data-target="28">0K+</div>
+                    <div class="hero-stat-label">Attendees</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="hero-stat-number" data-target="105">0K+</div>
+                    <div class="hero-stat-label">Community</div>
+                </div>
+            </div>
+        </div>
+        <div class="scroll-indicator">
+            <span>Scroll</span>
+            <div class="scroll-line"></div>
+        </div>
+    </section>
+
+    <!-- Marquee -->
+    <div class="marquee-section">
+        <div class="marquee-track">
+            <div class="marquee-item"><span>Google Women Techmakers</span><div class="marquee-dot"></div></div>
+            <div class="marquee-item"><span>A.P. Moller &ndash; Maersk</span><div class="marquee-dot"></div></div>
+            <div class="marquee-item"><span>Flutter Conf India</span><div class="marquee-dot"></div></div>
+            <div class="marquee-item"><span>Flutter Vikings &ndash; Oslo</span><div class="marquee-dot"></div></div>
+            <div class="marquee-item"><span>FlutterNinjas &ndash; Tokyo</span><div class="marquee-dot"></div></div>
+            <div class="marquee-item"><span>GDG London</span><div class="marquee-dot"></div></div>
+            <div class="marquee-item"><span>Google DevFest</span><div class="marquee-dot"></div></div>
+            <div class="marquee-item"><span>FOSS United</span><div class="marquee-dot"></div></div>
+            <div class="marquee-item"><span>Google I/O</span><div class="marquee-dot"></div></div>
+            <div class="marquee-item"><span>Flutter Forward</span><div class="marquee-dot"></div></div>
+            <!-- duplicate for seamless loop -->
+            <div class="marquee-item"><span>Google Women Techmakers</span><div class="marquee-dot"></div></div>
+            <div class="marquee-item"><span>A.P. Moller &ndash; Maersk</span><div class="marquee-dot"></div></div>
+            <div class="marquee-item"><span>Flutter Conf India</span><div class="marquee-dot"></div></div>
+            <div class="marquee-item"><span>Flutter Vikings &ndash; Oslo</span><div class="marquee-dot"></div></div>
+            <div class="marquee-item"><span>FlutterNinjas &ndash; Tokyo</span><div class="marquee-dot"></div></div>
+            <div class="marquee-item"><span>GDG London</span><div class="marquee-dot"></div></div>
+            <div class="marquee-item"><span>Google DevFest</span><div class="marquee-dot"></div></div>
+            <div class="marquee-item"><span>FOSS United</span><div class="marquee-dot"></div></div>
+            <div class="marquee-item"><span>Google I/O</span><div class="marquee-dot"></div></div>
+            <div class="marquee-item"><span>Flutter Forward</span><div class="marquee-dot"></div></div>
+        </div>
+    </div>
+
+    <!-- Featured Talks -->
+    <section class="featured" id="featured">
+        <div class="section-inner">
+            <div class="section-header reveal">
+                <div>
+                    <div class="section-label">Selected Talks</div>
+                    <h2 class="section-title">Talks that <em>moved</em> the room</h2>
+                </div>
+                <p class="section-desc">From community meetups to international conference stages &mdash; delivering ideas that resonate.</p>
+            </div>
+            <div class="featured-grid reveal">
+                <div class="featured-item">
+                    <div class="featured-item-left">
+                        <div class="featured-number">01</div>
+                        <div>
+                            <h3 class="featured-talk-title">Offline Mode, Online Impact</h3>
+                            <div class="featured-tag">International Conference</div>
+                        </div>
+                    </div>
+                    <div class="featured-item-right">
+                        <div class="featured-venue"><span class="featured-venue-flag">&#9670;</span> FlutterNinjas &mdash; Tokyo, Japan</div>
+                        <div class="featured-meta">
+                            <div class="featured-meta-item">
+                                <span class="featured-meta-value">2025</span>
+                                <span class="featured-meta-label">Year</span>
+                            </div>
+                            <div class="featured-meta-item">
+                                <span class="featured-meta-value">Advanced</span>
+                                <span class="featured-meta-label">Level</span>
+                            </div>
+                        </div>
+                        <p class="featured-description">Presented at Japan's premier Flutter conference on building offline-first applications with practical patterns for resilient, production-grade mobile experiences.</p>
+                        <a href="https://www.youtube.com/watch?v=y5F3L9v-uyI" target="_blank" rel="noopener noreferrer" class="featured-link">
+                            Watch Talk
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="featured-item">
+                    <div class="featured-item-left">
+                        <div class="featured-number">02</div>
+                        <div>
+                            <h3 class="featured-talk-title">Importance of Community & Leadership</h3>
+                            <div class="featured-tag">International Conference</div>
+                        </div>
+                    </div>
+                    <div class="featured-item-right">
+                        <div class="featured-venue"><span class="featured-venue-flag">&#9670;</span> Flutter Vikings &mdash; Oslo, Norway</div>
+                        <div class="featured-meta">
+                            <div class="featured-meta-item">
+                                <span class="featured-meta-value">3.2K</span>
+                                <span class="featured-meta-label">Views</span>
+                            </div>
+                            <div class="featured-meta-item">
+                                <span class="featured-meta-value">2022</span>
+                                <span class="featured-meta-label">Year</span>
+                            </div>
+                        </div>
+                        <p class="featured-description">Spoke at one of Europe's premier Flutter conferences about building and sustaining developer communities from the ground up.</p>
+                    </div>
+                </div>
+
+                <div class="featured-item">
+                    <div class="featured-item-left">
+                        <div class="featured-number">03</div>
+                        <div>
+                            <h3 class="featured-talk-title">Agentic Flutter Apps with Firebase AI Logic</h3>
+                            <div class="featured-tag">Conference</div>
+                        </div>
+                    </div>
+                    <div class="featured-item-right">
+                        <div class="featured-venue"><span class="featured-venue-flag">&#9670;</span> DevFest Jalandhar 2025</div>
+                        <div class="featured-meta">
+                            <div class="featured-meta-item">
+                                <span class="featured-meta-value">2025</span>
+                                <span class="featured-meta-label">Year</span>
+                            </div>
+                            <div class="featured-meta-item">
+                                <span class="featured-meta-value">Advanced</span>
+                                <span class="featured-meta-label">Level</span>
+                            </div>
+                        </div>
+                        <p class="featured-description">Exploring how AI-powered agentic workflows can be integrated into Flutter apps using Firebase for intelligent, autonomous mobile experiences.</p>
+                    </div>
+                </div>
+
+                <div class="featured-item">
+                    <div class="featured-item-left">
+                        <div class="featured-number">04</div>
+                        <div>
+                            <h3 class="featured-talk-title">Flutter DevCamp</h3>
+                            <div class="featured-tag">International Workshop</div>
+                        </div>
+                    </div>
+                    <div class="featured-item-right">
+                        <div class="featured-venue"><span class="featured-venue-flag">&#9670;</span> GDG London, United Kingdom</div>
+                        <div class="featured-meta">
+                            <div class="featured-meta-item">
+                                <span class="featured-meta-value">94</span>
+                                <span class="featured-meta-label">Attendees</span>
+                            </div>
+                            <div class="featured-meta-item">
+                                <span class="featured-meta-value">Advanced</span>
+                                <span class="featured-meta-label">Level</span>
+                            </div>
+                        </div>
+                        <p class="featured-description">Led an immersive hands-on Flutter workshop at GDG London, one of Europe's most active developer communities.</p>
+                    </div>
+                </div>
+
+                <div class="featured-item">
+                    <div class="featured-item-left">
+                        <div class="featured-number">05</div>
+                        <div>
+                            <h3 class="featured-talk-title">Hack the Future with Flutter: Building MVPs Fast</h3>
+                            <div class="featured-tag">Community Talk</div>
+                        </div>
+                    </div>
+                    <div class="featured-item-right">
+                        <div class="featured-venue"><span class="featured-venue-flag">&#9670;</span> GDG SRCASW</div>
+                        <div class="featured-meta">
+                            <div class="featured-meta-item">
+                                <span class="featured-meta-value">2026</span>
+                                <span class="featured-meta-label">Year</span>
+                            </div>
+                            <div class="featured-meta-item">
+                                <span class="featured-meta-value">Advanced</span>
+                                <span class="featured-meta-label">Level</span>
+                            </div>
+                        </div>
+                        <p class="featured-description">Most recent talk on rapid MVP development with Flutter &mdash; covering MVP-first thinking and using AI as an accelerator, not an autopilot.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Video Highlight -->
+    <div class="video-highlight">
+        <div class="video-inner reveal">
+            <a href="https://www.youtube.com/watch?v=y5F3L9v-uyI" target="_blank" rel="noopener noreferrer" class="video-wrapper" aria-label="Watch talk on YouTube">
+                <img src="speakng.jpg" alt="Akansha Jain speaking at FlutterNinjas Tokyo" width="4898" height="3265" loading="lazy">
+                <div class="video-play-btn">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+                </div>
+            </a>
+            <div class="video-info">
+                <div class="video-label">Featured Talk</div>
+                <h3 class="video-title">Offline Mode, <em>Online Impact</em></h3>
+                <p class="video-desc">Building offline-first Flutter applications with practical patterns for resilient, production-grade mobile experiences — live from FlutterNinjas in Tokyo, Japan.</p>
+                <div class="video-stats">
+                    <div class="video-stat">
+                        <span class="video-stat-value">Tokyo</span>
+                        <span class="video-stat-label">Japan</span>
+                    </div>
+                    <div class="video-stat">
+                        <span class="video-stat-value">2025</span>
+                        <span class="video-stat-label">Year</span>
+                    </div>
+                    <div class="video-stat">
+                        <span class="video-stat-value">Advanced</span>
+                        <span class="video-stat-label">Level</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Journey -->
+    <section class="journey" id="journey">
+        <div class="section-inner">
+            <div class="section-header reveal">
+                <div>
+                    <div class="section-label">The Journey</div>
+                    <h2 class="section-title">From learner to <em>international</em> stage</h2>
+                </div>
+            </div>
+            <div class="timeline stagger-children">
+                <div class="timeline-row">
+                    <div class="timeline-year">2020</div>
+                    <div class="timeline-body">
+                        <h3 class="timeline-headline">The Beginning</h3>
+                        <div class="timeline-text">Discovered <strong>Flutter</strong> through a GDSC orientation. Started learning, building, and fell in love with the framework and its community.</div>
+                    </div>
+                </div>
+                <div class="timeline-row">
+                    <div class="timeline-year">2021</div>
+                    <div class="timeline-body">
+                        <h3 class="timeline-headline">Building Foundations</h3>
+                        <div class="timeline-text">Became <strong>GDSC Lead</strong> and <strong>Gold Microsoft Learn Student Ambassador</strong>. Founded techtAKe (400+ members). Published first <strong>IEEE research paper</strong>. Started delivering talks and organizing workshops.</div>
+                        <div class="timeline-badges">
+                            <span class="timeline-badge">GDSC Lead</span>
+                            <span class="timeline-badge">Gold MLSA</span>
+                            <span class="timeline-badge">IEEE Published</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="timeline-row">
+                    <div class="timeline-year">2022</div>
+                    <div class="timeline-body">
+                        <h3 class="timeline-headline">Going International</h3>
+                        <div class="timeline-text">Spoke at <strong>Flutter Vikings</strong> in Oslo, Norway &mdash; first international conference. Co-organized <strong>Flutter Conf India</strong> (446 attendees). Spoke at <strong>DevFest Goa</strong> (422 attendees). Won <strong>Best Student Award</strong>.</div>
+                        <div class="timeline-badges">
+                            <span class="timeline-badge">Flutter Vikings</span>
+                            <span class="timeline-badge">Flutter Conf India</span>
+                            <span class="timeline-badge">DevFest Goa</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="timeline-row">
+                    <div class="timeline-year">2023</div>
+                    <div class="timeline-body">
+                        <h3 class="timeline-headline">Enterprise & Scale</h3>
+                        <div class="timeline-text">Became <strong>Google Women Techmakers Ambassador</strong>. Delivered corporate talks at <strong>A.P. Moller &ndash; Maersk</strong> (682 engineers). Co-organized <strong>Flutter Conf India 2023</strong> (604 attendees). Spoke at <strong>GDG London</strong>. Invited to <strong>Flutter Forward</strong>.</div>
+                        <div class="timeline-badges">
+                            <span class="timeline-badge">WTM Ambassador</span>
+                            <span class="timeline-badge">Maersk</span>
+                            <span class="timeline-badge">GDG London</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="timeline-row">
+                    <div class="timeline-year">2024</div>
+                    <div class="timeline-body">
+                        <h3 class="timeline-headline">Scaling Impact</h3>
+                        <div class="timeline-text">Invited to <strong>Google I/O</strong>. Spoke at multiple <strong>DevFests</strong>. Launched <strong>FlutterFlow Developer Group</strong> New Delhi. Joined <strong>Fluttercon India Programme Committee</strong>. Continued mentoring at hackathons (2000+ participants collectively).</div>
+                        <div class="timeline-badges">
+                            <span class="timeline-badge">Google I/O</span>
+                            <span class="timeline-badge">Fluttercon Committee</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="timeline-row">
+                    <div class="timeline-year">2025</div>
+                    <div class="timeline-body">
+                        <h3 class="timeline-headline">New Horizons</h3>
+                        <div class="timeline-text">Spoke at <strong>FlutterNinjas Tokyo</strong> and <strong>Fluttercon India</strong>. Spoke at multiple <strong>DevFests</strong> across India. Continuing to push boundaries as both a speaker and community leader across the globe.</div>
+                        <div class="timeline-badges">
+                            <span class="timeline-badge">Tokyo</span>
+                            <span class="timeline-badge">Fluttercon India</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="timeline-row">
+                    <div class="timeline-year">2026</div>
+                    <div class="timeline-body">
+                        <h3 class="timeline-headline">Onwards &amp; Upwards</h3>
+                        <div class="timeline-text">Named <strong>Sessionize Speaker of the Day</strong>. Mentoring at <strong>HackNagpur</strong>. Speaking at <strong>GDG SRCASW</strong> on building MVPs with Flutter. The journey continues.</div>
+                        <div class="timeline-badges">
+                            <span class="timeline-badge">Speaker of the Day</span>
+                            <span class="timeline-badge">HackNagpur</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- All Talks -->
+    <section class="all-talks" id="all-talks">
+        <div class="section-inner">
+            <div class="section-header reveal">
+                <div>
+                    <div class="section-label">Complete Archive</div>
+                    <h2 class="section-title">54+ talks & <em>counting</em></h2>
+                </div>
+            </div>
+
+            <div class="filter-row reveal">
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="international">International</button>
+                <button class="filter-btn" data-filter="conference">Conference</button>
+                <button class="filter-btn" data-filter="corporate">Corporate</button>
+                <button class="filter-btn" data-filter="workshop">Workshop</button>
+                <button class="filter-btn" data-filter="community">Community</button>
+            </div>
+
+            <div class="talks-list" id="talksBody"></div>
+            <button class="load-more-btn" id="loadMoreBtn">Load More</button>
+            <div class="talks-count" id="talksCount"></div>
+        </div>
+    </section>
+
+    <!-- Impact Numbers -->
+    <section class="impact" id="impact">
+        <div class="section-inner">
+            <div class="section-header reveal">
+                <div>
+                    <div class="section-label">By the Numbers</div>
+                    <h2 class="section-title">More than <em>just</em> talks</h2>
+                </div>
+            </div>
+            <div class="impact-grid reveal">
+                <div class="impact-cell">
+                    <div class="impact-number">54+</div>
+                    <div class="impact-label">Talks & Workshops</div>
+                </div>
+                <div class="impact-cell">
+                    <div class="impact-number">12+</div>
+                    <div class="impact-label">Cities, 4 Countries</div>
+                </div>
+                <div class="impact-cell">
+                    <div class="impact-number">28K+</div>
+                    <div class="impact-label">Attendees Reached</div>
+                </div>
+                <div class="impact-cell">
+                    <div class="impact-number">21+</div>
+                    <div class="impact-label">Events Organized</div>
+                </div>
+                <div class="impact-cell">
+                    <div class="impact-number">8+</div>
+                    <div class="impact-label">Hackathons Mentored</div>
+                </div>
+                <div class="impact-cell">
+                    <div class="impact-number">105K+</div>
+                    <div class="impact-label">Community Reach</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Expertise -->
+    <section class="expertise" id="expertise">
+        <div class="section-inner">
+            <div class="section-header reveal">
+                <div>
+                    <div class="section-label">I Speak About</div>
+                    <h2 class="section-title">Topics I <em>cover</em></h2>
+                </div>
+                <p class="section-desc">Complex topics made accessible &mdash; from beginner workshops to advanced conference talks.</p>
+            </div>
+            <div class="topic-grid reveal">
+                <span class="topic-tag primary">Flutter & Dart</span>
+                <span class="topic-tag primary">Mobile App Architecture</span>
+                <span class="topic-tag primary">Firebase & FlutterFire</span>
+                <span class="topic-tag">State Management (BLoC)</span>
+                <span class="topic-tag">Cross-Platform Development</span>
+                <span class="topic-tag">App Size Optimization</span>
+                <span class="topic-tag">Offline-First Patterns</span>
+                <span class="topic-tag">UI/UX & Animations</span>
+                <span class="topic-tag">Platform Channels</span>
+                <span class="topic-tag">FlutterFlow</span>
+                <span class="topic-tag">AI in Mobile Apps</span>
+                <span class="topic-tag">Community Building & Leadership</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Roles -->
+    <section class="roles" id="roles">
+        <div class="section-inner">
+            <div class="section-header reveal">
+                <div>
+                    <div class="section-label">Leadership</div>
+                    <h2 class="section-title">Roles & <em>recognition</em></h2>
+                </div>
+            </div>
+            <div class="roles-grid reveal">
+                <div class="role-highlight">
+                    <div class="role-highlight-img">
+                        <img src="speaker_of_the_day_sessionize.png" alt="Akansha Jain — Sessionize Speaker of the Day" width="714" height="508" loading="lazy">
+                    </div>
+                    <div class="role-highlight-content">
+                        <div class="role-org">Sessionize &bull; February 27, 2026</div>
+                        <h3 class="role-title">Speaker of the Day</h3>
+                        <div class="role-desc">Featured by Sessionize as Speaker of the Day, recognizing impactful contributions across 6 events and 6 sessions on the global speaking circuit.</div>
+                        <div class="role-year">Recognition</div>
+                    </div>
+                </div>
+                <div class="role-cell">
+                    <div class="role-org">Google</div>
+                    <h3 class="role-title">Women Techmakers Ambassador</h3>
+                    <div class="role-desc">Part of Google's global program empowering women in technology through visibility, community, and resources.</div>
+                    <div class="role-year">Since 2023</div>
+                </div>
+                <div class="role-cell">
+                    <div class="role-org">Microsoft</div>
+                    <h3 class="role-title">Gold Learn Student Ambassador</h3>
+                    <div class="role-desc">Highest tier student ambassador. Impacted 2,900+ students across programs and workshops.</div>
+                    <div class="role-year">2021 &ndash; 2022</div>
+                </div>
+                <div class="role-cell">
+                    <div class="role-org">Flutter Conf India</div>
+                    <h3 class="role-title">Co-Organizer</h3>
+                    <div class="role-desc">Co-organized India's largest content-focused Flutter conference. 1,054+ total attendees across editions.</div>
+                    <div class="role-year">Since 2022</div>
+                </div>
+                <div class="role-cell">
+                    <div class="role-org">Flutter Delhi &bull; 9,100+ Members</div>
+                    <h3 class="role-title">Co-Organizer</h3>
+                    <div class="role-desc">Leading one of India's largest Flutter developer communities with regular meetups, workshops, and events.</div>
+                    <div class="role-year">Since 2023</div>
+                </div>
+                <div class="role-cell">
+                    <div class="role-org">Fluttercon India 2025</div>
+                    <h3 class="role-title">Programme Committee</h3>
+                    <div class="role-desc">Selected as programme committee member for one of the most significant Flutter conferences in the region.</div>
+                    <div class="role-year">2025</div>
+                </div>
+                <div class="role-cell">
+                    <div class="role-org">Google Developer Student Clubs</div>
+                    <h3 class="role-title">GDSC Lead</h3>
+                    <div class="role-desc">Led campus developer community impacting 1,986+ students through workshops, study jams, and hackathons.</div>
+                    <div class="role-year">2021 &ndash; 2022</div>
+                </div>
+                <div class="role-cell">
+                    <div class="role-org">Google Developers</div>
+                    <h3 class="role-title">Featured Contributor</h3>
+                    <div class="role-desc">Featured by Google Developers for outstanding community contributions. Articles published in Google DevLibrary.</div>
+                    <div class="role-year">Recognition</div>
+                </div>
+                <div class="role-cell">
+                    <div class="role-org">FlutterFlow &bull; New Delhi</div>
+                    <h3 class="role-title">Developer Group Lead</h3>
+                    <div class="role-desc">Leading the official FlutterFlow developer community in the Delhi NCR region.</div>
+                    <div class="role-year">Since 2024</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta" id="contact">
+        <div class="cta-overline">Get in Touch</div>
+        <h2 class="cta-title">Let's make your<br>event <em>unforgettable</em></h2>
+        <p class="cta-subtitle">Looking for a speaker who brings deep technical expertise, engaging delivery, and genuine passion for developer communities?</p>
+        <div class="cta-buttons">
+            <a href="https://sessionize.com/akanshajain/" target="_blank" rel="noopener noreferrer" class="btn-main">
+                Invite via Sessionize
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </a>
+            <a href="https://www.linkedin.com/in/akansha-jain-2001/" target="_blank" rel="noopener noreferrer" class="btn-outline">
+                Connect on LinkedIn
+            </a>
+        </div>
+        <div class="social-links">
+            <a href="https://twitter.com/Akansha2001" target="_blank" rel="noopener noreferrer" class="social-link">Twitter</a>
+            <a href="https://medium.com/@akansha.jain1611" target="_blank" rel="noopener noreferrer" class="social-link">Medium</a>
+            <a href="https://github.com/jakansha2001" target="_blank" rel="noopener noreferrer" class="social-link">GitHub</a>
+            <a href="https://www.linkedin.com/in/akansha-jain-2001/" target="_blank" rel="noopener noreferrer" class="social-link">LinkedIn</a>
+            <a href="https://sessionize.com/akanshajain/" target="_blank" rel="noopener noreferrer" class="social-link">Sessionize</a>
+        </div>
+    </section>
+
+    </main>
+    <footer>
+        <span>&copy; 2026 Akansha Jain</span>
+        <span>Speaker &bull; Engineer &bull; Community Builder</span>
+    </footer>
+
+    <script>
+        // ---- TALKS DATA ----
+        const talks = [
+            { name: "Hack the Future with Flutter: Building MVPs Fast", venue: "GDG SRCASW", audience: "Community", level: "advanced", type: "community" },
+            { name: "Mentor: HackNagpur", venue: "GDG Nagpur", audience: "Hackathon", level: "intermediate", type: "community" },
+            { name: "Speaker at DevFest New Delhi", venue: "DevFest New Delhi 2025", audience: "Conf", level: "advanced", type: "conference" },
+            { name: "Speaker at DevFest Nagpur", venue: "DevFest Nagpur 2025", audience: "Conf", level: "advanced", type: "conference" },
+            { name: "Entrepreneurship Session", venue: "Delhi Government School", audience: "School", level: "beginner", type: "community" },
+            { name: "Judge: DevCreate BuildFest 1.0", venue: "GDG Jalandhar", audience: "Hackathon", level: "intermediate", type: "community" },
+            { name: "Judge: HackHaven 2.0", venue: "GDG ABESEC", audience: "Hackathon", level: "intermediate", type: "community" },
+            { name: "Offline Mode, Online Impact", venue: "FlutterNinjas, Tokyo, Japan", audience: "Int'l", level: "advanced", type: "international" },
+            { name: "Agentic Flutter Apps with Firebase AI Logic", venue: "DevFest Jalandhar 2025", audience: "Conf", level: "advanced", type: "conference" },
+            { name: "The Developer's Guide to MultiPlatform Frontends", venue: "FlutterSphere Delhi", audience: "192", level: "advanced", type: "community" },
+            { name: "Mastering Flutter App Size Optimization", venue: "DevFest Noida 2024", audience: "107", level: "advanced", type: "conference" },
+            { name: "Mastering Flutter App Size Optimization", venue: "DevFest Jalandhar 2024", audience: "76", level: "advanced", type: "conference" },
+            { name: "Beyond the Swipe: Gamified App Experiences", venue: "SheBuilds Noida", audience: "74", level: "advanced", type: "community" },
+            { name: "Game of Screens: Where Widgets Win or Die", venue: "DevFest Noida", audience: "387", level: "advanced", type: "conference" },
+            { name: "F3: Flutter Firebase Fusion", venue: "Coffee with Frontend Club", audience: "77", level: "advanced", type: "community" },
+            { name: "Flutter DevCamp", venue: "GDG London, UK", audience: "94", level: "advanced", type: "international" },
+            { name: "Let's return Nothing", venue: "Flutter Conf India", audience: "446", level: "advanced", type: "conference" },
+            { name: "Make your apps powerful with Unit Testing", venue: "Flutter Conf India Pre-Event, Bengaluru", audience: "92", level: "advanced", type: "conference" },
+            { name: "Flutter AMA with Akansha", venue: "Twitter Space", audience: "630", level: "advanced", type: "community" },
+            { name: "Manage State with BLoC", venue: "University of Delhi", audience: "248", level: "advanced", type: "workshop" },
+            { name: "Platform Channels: Native Code Communication", venue: "RoundTechSquare", audience: "302", level: "advanced", type: "community" },
+            { name: "Integrating Latest Flutter Developments", venue: "Flutter Surat", audience: "89", level: "advanced", type: "community" },
+            { name: "Unleashing Flutter's Latest Advancements", venue: "GDSC MIET", audience: "112", level: "advanced", type: "community" },
+            { name: "Leveraging Flutter for Enterprise Apps", venue: "A.P. Moller \u2013 Maersk", audience: "682", level: "advanced", type: "corporate" },
+            { name: "Let's Explore Trees in Flutter", venue: "DevFest Noida", audience: "320", level: "advanced", type: "conference" },
+            { name: "Flutter Development Workshop", venue: "Flutter Festival, GDSC SRCASW", audience: "234", level: "advanced", type: "workshop" },
+            { name: "Mastering Asset Management in Flutter: Optimize, Organize, Automate!", venue: "Kotlin User Group, Gurugram (UDAAN 2025)", audience: "102", level: "intermediate", type: "community" },
+            { name: "Flutter Workshop: Learn and Build", venue: "Tech Winter Break", audience: "82", level: "advanced", type: "workshop" },
+            { name: "Will Your Code Crack the Cookie?", venue: "GirlScript Summer of Code", audience: "87", level: "intermediate", type: "community" },
+            { name: "Flutter in a Flash: Build Beautiful Apps in Minutes", venue: "GDSC University of Lucknow", audience: "52", level: "intermediate", type: "community" },
+            { name: "Streamlining Asset Management in Flutter", venue: "DevFest Jalandhar", audience: "291", level: "intermediate", type: "conference" },
+            { name: "Uncovering Flutter: Future of Cross-Platform", venue: "GDSC AKGEC", audience: "83", level: "intermediate", type: "community" },
+            { name: "Whirling through Widgets", venue: "FOSS United Delhi", audience: "52", level: "intermediate", type: "community" },
+            { name: "Showcase your Flutter website with Firebase Hosting", venue: "GDG Goa, DevFest Goa", audience: "422", level: "intermediate", type: "conference" },
+            { name: "Implicit Animations in Flutter", venue: "A.P. Moller \u2013 Maersk", audience: "256", level: "intermediate", type: "corporate" },
+            { name: "Flutter & Firebase: UI & Auth", venue: "HackNSUT TechWeek", audience: "584", level: "intermediate", type: "community" },
+            { name: "Streamlining Asset Management in Flutter", venue: "Flutter Delhi Meetup", audience: "148", level: "intermediate", type: "community" },
+            { name: "Fluttering into the Future: Crafting Cross-Platform Wonders", venue: "BML Munjal University", audience: "89", level: "beginner", type: "community" },
+            { name: "Flutter Basics Workshop", venue: "Shaheed Rajguru College", audience: "54", level: "beginner", type: "workshop" },
+            { name: "Flutter Odyssey: Cross-Platform Mastery", venue: "GDSC SRCASW, DU", audience: "97", level: "beginner", type: "workshop" },
+            { name: "What is Flutter, Community & Flutter Conf India", venue: "A.P. Moller \u2013 Maersk", audience: "224", level: "beginner", type: "corporate" },
+            { name: "Flutter Conf India Pre-Event Meetup", venue: "Surat", audience: "123", level: "beginner", type: "conference" },
+            { name: "Importance of Community & Leadership", venue: "Flutter Vikings, Oslo, Norway", audience: "3.2K", level: "beginner", type: "international" },
+            { name: "Panelist: Safer With Google", venue: "Google India", audience: "679", level: "advanced", type: "corporate" },
+            { name: "Research Paper Presentation", venue: "9th Int'l Conference, IEEE", audience: "163", level: "advanced", type: "international" },
+            { name: "Career Panel for Wo(men) in Tech", venue: "Online Panel", audience: "153", level: "intermediate", type: "community" },
+            { name: "How to become a GDSC Lead", venue: "GDSC SRCASW", audience: "47", level: "beginner", type: "community" },
+            { name: "Introduction to GitHub using github.dev", venue: "Online Workshop", audience: "551", level: "beginner", type: "workshop" },
+            { name: "Introduction to Git, GitHub & PowerShell", venue: "Online Workshop", audience: "371", level: "beginner", type: "workshop" },
+            { name: "Let's enter the Flutterscape", venue: "Online", audience: "84", level: "intermediate", type: "community" },
+            { name: "Flutter Flight 101", venue: "Online", audience: "50", level: "beginner", type: "community" },
+            { name: "Interview at Google Developer Reboot Program", venue: "Google Developer Reboot Program", audience: "1.4K", level: "beginner", type: "corporate" },
+            { name: "Anchored in GDSC WOW", venue: "GDSC WOW", audience: "19K", level: "beginner", type: "community" },
+            { name: "Let's Kickstart with GDSC SRCASW 2022-23", venue: "GDSC SRCASW", audience: "72", level: "beginner", type: "community" },
+        ];
+
+        // ---- RENDER TALKS ----
+        const TALKS_PER_PAGE = 8;
+        let currentFilter = 'all';
+        let visibleCount = TALKS_PER_PAGE;
+
+        function getFilteredTalks() {
+            return currentFilter === 'all' ? talks : talks.filter(t => t.type === currentFilter);
+        }
+
+        function renderTalks(filter = 'all', reset = true) {
+            currentFilter = filter;
+            if (reset) visibleCount = TALKS_PER_PAGE;
+
+            const container = document.getElementById('talksBody');
+            const countEl = document.getElementById('talksCount');
+            const loadMoreBtn = document.getElementById('loadMoreBtn');
+            const filtered = getFilteredTalks();
+            const toShow = filtered.slice(0, visibleCount);
+
+            container.innerHTML = toShow.map(t => `
+                <div class="talk-row" data-type="${t.type}">
+                    <span class="talk-name">${t.name}</span>
+                    <span class="talk-venue">${t.venue}</span>
+                    <span class="talk-audience">${t.audience}</span>
+                    <span class="talk-level"><span class="level-pill level-${t.level}">${t.level}</span></span>
+                </div>
+            `).join('');
+
+            countEl.textContent = `Showing ${toShow.length} of ${filtered.length} talks`;
+
+            if (visibleCount >= filtered.length) {
+                loadMoreBtn.classList.add('hidden');
+            } else {
+                loadMoreBtn.classList.remove('hidden');
+            }
+        }
+
+        // ---- LOAD MORE ----
+        document.getElementById('loadMoreBtn').addEventListener('click', () => {
+            visibleCount += TALKS_PER_PAGE;
+            renderTalks(currentFilter, false);
+        });
+
+        // ---- FILTERS ----
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                renderTalks(btn.dataset.filter);
+            });
+        });
+
+        renderTalks();
+
+        // ---- HELLO SPLASH ----
+        (function() {
+            const splash = document.getElementById('helloSplash');
+            const words = splash.querySelectorAll('.hello-word');
+            let idx = 0;
+            const showDuration = 420; // hold each word 420ms
+            const totalWords = 8; // show 8 greetings then dismiss
+
+            words[0].classList.add('active');
+
+            const interval = setInterval(() => {
+                words[idx].classList.remove('active');
+                words[idx].classList.add('fading');
+                idx++;
+
+                if (idx >= totalWords) {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        splash.classList.add('hidden');
+                        document.querySelector('.hero').classList.add('hero-animate');
+                        document.dispatchEvent(new Event('splashDone'));
+                    }, 350);
+                    return;
+                }
+
+                // Slight delay before showing next word for breathing room
+                setTimeout(() => {
+                    words[idx].classList.add('active');
+                }, 60);
+
+                // Clean up previous fading class
+                if (idx > 0) {
+                    words[idx - 1].classList.remove('fading');
+                }
+            }, showDuration);
+        })();
+
+        // ---- SCROLL REVEAL ----
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1, rootMargin: '0px 0px -60px 0px' });
+
+        document.querySelectorAll('.reveal, .stagger-children').forEach(el => observer.observe(el));
+
+        // ---- NAVBAR SCROLL ----
+        window.addEventListener('scroll', () => {
+            document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 50);
+        });
+
+        // ---- MOBILE NAV ----
+        document.getElementById('hamburger').addEventListener('click', () => {
+            const navLinks = document.getElementById('navLinks');
+            const hamburger = document.getElementById('hamburger');
+            navLinks.classList.toggle('open');
+            hamburger.setAttribute('aria-expanded', navLinks.classList.contains('open'));
+        });
+
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                document.getElementById('navLinks').classList.remove('open');
+            });
+        });
+
+        // ---- CURSOR GLOW ----
+        if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+            const glow = document.getElementById('cursorGlow');
+            let mouseX = 0, mouseY = 0;
+            let glowX = 0, glowY = 0;
+
+            document.addEventListener('mousemove', (e) => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+            });
+
+            function animateGlow() {
+                glowX += (mouseX - glowX) * 0.08;
+                glowY += (mouseY - glowY) * 0.08;
+                glow.style.left = glowX + 'px';
+                glow.style.top = glowY + 'px';
+                requestAnimationFrame(animateGlow);
+            }
+            animateGlow();
+        }
+
+        // ---- HERO COUNTER ANIMATION ----
+        function animateCounter(el) {
+            const target = parseInt(el.dataset.target);
+            let current = 0;
+            const suffix = el.textContent.replace(/[0-9]/g, '');
+            const increment = target / 50;
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    el.textContent = target + suffix;
+                    clearInterval(timer);
+                } else {
+                    el.textContent = Math.floor(current) + suffix;
+                }
+            }, 25);
+        }
+
+        document.addEventListener('splashDone', () => {
+            setTimeout(() => {
+                document.querySelectorAll('[data-target]').forEach(el => animateCounter(el));
+            }, 1300);
+        });
+
+        // ---- SCROLL PROGRESS BAR ----
+        const scrollProgressBar = document.getElementById('scrollProgress');
+        window.addEventListener('scroll', () => {
+            const scrollTop = document.documentElement.scrollTop;
+            const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const progress = (scrollTop / scrollHeight) * 100;
+            scrollProgressBar.style.width = progress + '%';
+        }, { passive: true });
+    </script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#0a0a0a"/>
+  <text x="100" y="200" font-family="Georgia, serif" font-size="72" font-style="italic" fill="#f0e6df">Akansha Jain</text>
+  <text x="100" y="280" font-family="Arial, sans-serif" font-size="28" fill="#9a9a9a" letter-spacing="0.15em">SPEAKER &amp; COMMUNITY BUILDER</text>
+  <line x1="100" y1="310" x2="400" y2="310" stroke="#f0e6df" stroke-width="1" opacity="0.3"/>
+  <text x="100" y="380" font-family="Georgia, serif" font-size="48" fill="#f0e6df" opacity="0.9">54+ Talks</text>
+  <text x="420" y="380" font-family="Georgia, serif" font-size="48" fill="#f0e6df" opacity="0.9">28K+ Attendees</text>
+  <text x="100" y="440" font-family="Arial, sans-serif" font-size="20" fill="#737373">Flutter Expert  |  4 Countries  |  Google Women Techmakers Ambassador</text>
+  <text x="100" y="560" font-family="Arial, sans-serif" font-size="18" fill="#737373" letter-spacing="0.1em">akanshajain.dev</text>
+</svg>
