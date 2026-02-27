@@ -86,6 +86,7 @@
         html {
             scroll-behavior: smooth;
             font-size: 16px;
+            scroll-padding-top: 80px;
         }
 
         body::before {
@@ -1586,8 +1587,9 @@
 
             .hero {
                 min-height: auto;
-                padding-top: calc(72px + 2rem);
-                padding-bottom: 2rem;
+                padding: 0 clamp(1.5rem, 4vw, 4rem) 2rem;
+                padding-top: calc(72px + 2.5rem) !important;
+                justify-content: flex-start;
             }
 
             .hero-headshot {
@@ -1597,7 +1599,7 @@
                 transform: none;
                 width: 120px;
                 height: 160px;
-                margin-bottom: 1rem;
+                margin-bottom: 1.25rem;
                 animation-name: headshotRevealMobile;
             }
 
@@ -1611,7 +1613,18 @@
             }
 
             .hero-bottom {
+                flex-direction: column;
+                gap: 2rem;
                 padding-top: 1.5rem;
+            }
+
+            .hero-stats-row {
+                justify-content: center;
+                width: 100%;
+            }
+
+            .hero-stat {
+                text-align: center;
             }
 
             @keyframes headshotRevealMobile {
@@ -1631,19 +1644,6 @@
                 border-right: none;
                 border-bottom: 1px solid var(--line);
                 min-height: auto;
-            }
-
-            .hero-bottom {
-                flex-direction: column;
-                gap: 3rem;
-            }
-
-            .hero-stats-row {
-                justify-content: flex-start;
-            }
-
-            .hero-stat {
-                text-align: left;
             }
 
             .section-header {
@@ -1717,18 +1717,27 @@
                 padding: clamp(3rem, 8vh, 5rem) clamp(1.25rem, 4vw, 4rem);
             }
 
+            .hero {
+                padding-top: calc(72px + 1.5rem) !important;
+            }
+
             .hero-headshot {
                 width: 100px;
                 height: 130px;
-                margin-bottom: 1.25rem;
+                margin-bottom: 1rem;
             }
 
             .hero-title {
                 font-size: clamp(2.25rem, 10vw, 3rem);
+                margin-bottom: 1rem;
             }
 
             .hero-stats-row {
-                gap: 2rem;
+                gap: 1.5rem;
+            }
+
+            .hero-stat-number {
+                font-size: clamp(1.5rem, 6vw, 2rem);
             }
 
             .cta-buttons {
