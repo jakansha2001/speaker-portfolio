@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Building Generative Interfaces with Flutter's GenUI SDK — Akansha Jain</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --blue:#4285F4; --red:#EA4335; --yellow:#FBBC04; --green:#34A853;
+    --ink:#202124;            /* google grey 900 */
+    --muted:#5F6368;          /* google grey 600 */
+    --line:#DADCE0;           /* google grey 300 */
+    --paper:#F8F9FA;          /* google grey 50  */
+    --bg:#FFFFFF;
+    --display:'Google Sans','Product Sans','Roboto',sans-serif;
+    --body:'Roboto',sans-serif;
+    --mono:'Roboto Mono',monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    background:var(--bg); color:var(--ink); font-family:var(--body);
+    overflow:hidden; -webkit-font-smoothing:antialiased;
+  }
+
+  /* ---------- spectrum bar (signature motif) ---------- */
+  .spectrum{height:6px;width:100%;border-radius:99px;
+    background:linear-gradient(90deg,var(--blue) 0 25%,var(--red) 25% 50%,var(--yellow) 50% 75%,var(--green) 75% 100%);}
+  .spectrum.sm{height:4px}
+
+  /* ---------- top progress ---------- */
+  #progress{position:fixed;top:0;left:0;height:4px;width:0;z-index:50;
+    background:linear-gradient(90deg,var(--blue),var(--red),var(--yellow),var(--green));
+    transition:width .35s cubic-bezier(.4,0,.2,1)}
+
+  /* ---------- deck / slides ---------- */
+  .deck{height:100vh;width:100vw;position:relative}
+  .slide{
+    position:absolute;inset:0;opacity:0;visibility:hidden;
+    display:flex;flex-direction:column;justify-content:center;
+    padding:clamp(28px,6vw,110px);
+    transition:opacity .4s ease;
+    overflow:hidden;
+  }
+  .slide.active{opacity:1;visibility:visible}
+  .slide.dark{background:var(--ink);color:#fff}
+  .slide.paper{background:var(--paper)}
+  /* center alignment used as punctuation on the big pull-quote beats */
+  .slide.centered{align-items:center;text-align:center}
+  .slide.centered .pull{max-width:24ch}
+  .slide.centered .dmline{justify-content:center}
+
+  /* ---------- shared editorial bits ---------- */
+  .eyebrow{font-family:var(--mono);font-size:clamp(12px,1.15vw,15px);
+    letter-spacing:.18em;text-transform:uppercase;color:var(--muted);
+    display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+  .eyebrow .dot{width:6px;height:6px;border-radius:99px;background:var(--blue)}
+  .slide.dark .eyebrow{color:#9aa0a6}
+  .kicker{font-family:var(--mono);font-size:clamp(12px,1.05vw,14px);letter-spacing:.16em;
+    text-transform:uppercase;color:var(--muted)}
+  .fullform{font-family:var(--mono);font-weight:400;font-size:.42em;letter-spacing:.02em;
+    color:var(--muted);white-space:nowrap}
+  .fullform.below{display:block;font-size:clamp(13px,1.4vw,18px);letter-spacing:.08em;margin-top:8px;margin-bottom:clamp(16px,3vh,32px);white-space:normal}
+  .slide.dark .fullform{color:#9aa0a6}
+  h1{font-family:var(--display);font-weight:700;line-height:1.02;letter-spacing:-.02em;
+    font-size:clamp(36px,6vw,84px)}
+  h2{font-family:var(--display);font-weight:700;line-height:1.05;letter-spacing:-.02em;
+    font-size:clamp(32px,5vw,70px)}
+  h3{font-family:var(--display);font-weight:500;font-size:clamp(21px,2.5vw,33px);letter-spacing:-.01em}
+  p.lead{font-size:clamp(18px,2vw,29px);line-height:1.5;color:#3c4043;max-width:60ch}
+  .slide.dark p.lead{color:#e8eaed}
+  .max{max-width:62ch}
+  .mt8{margin-top:8px}.mt16{margin-top:16px}.mt24{margin-top:24px}.mt32{margin-top:32px}
+  .mt48{margin-top:clamp(24px,4vh,48px)}
+  .accent-blue{color:var(--blue)}.accent-red{color:var(--red)}
+  .accent-yellow{color:#F09B00}.accent-green{color:var(--green)}
+
+  /* ---------- speaker cue ---------- */
+  .cue{position:absolute;left:clamp(28px,6vw,110px);bottom:26px;
+    font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--muted);display:flex;gap:10px;align-items:center}
+  .cue .pill{border:1px solid var(--line);border-radius:99px;padding:3px 9px}
+  .pageno{position:absolute;right:clamp(28px,6vw,110px);bottom:26px;
+    font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--muted)}
+  .slide.dark .pageno,.slide.dark .cue{color:#9aa0a6}
+  .slide.dark .cue .pill{border-color:#3c4043}
+
+  /* ---------- title slide ---------- */
+  .title-wrap{max-width:18ch}
+  .who{margin-top:clamp(28px,5vh,56px);display:flex;gap:18px;align-items:center}
+  .who .ava{width:60px;height:60px;border-radius:99px;object-fit:cover;border:2px solid var(--line)}
+  .who .meta{font-size:14px;line-height:1.5}
+  .who .meta b{font-family:var(--display);font-weight:700;font-size:17px}
+  .who .meta span{color:var(--muted);display:block;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase}
+
+  /* ---------- bullet lists ---------- */
+  ul.ticks{list-style:none;margin-top:clamp(20px,3vh,34px);display:grid;gap:16px;max-width:70ch}
+  ul.ticks li{display:flex;gap:16px;align-items:flex-start;font-size:clamp(17px,1.85vw,25px);line-height:1.4}
+  ul.ticks li .n{font-family:var(--mono);font-size:14px;color:var(--muted);min-width:26px;padding-top:4px}
+  ul.ticks li b{font-family:var(--display);font-weight:500}
+
+  /* ---------- three-up / cards ---------- */
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(14px,2vw,26px);margin-top:clamp(22px,3.5vh,40px)}
+  .grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:clamp(16px,2.4vw,32px);margin-top:clamp(22px,3.5vh,40px)}
+  .card{background:var(--bg);border:1px solid var(--line);border-radius:18px;padding:clamp(18px,2vw,26px);
+    display:flex;flex-direction:column;gap:10px}
+  .slide.paper .card{background:#fff}
+  .card .idx{font-family:var(--mono);font-size:clamp(12px,1.1vw,14px);letter-spacing:.14em;color:var(--muted)}
+  .card h3{font-size:clamp(19px,2.1vw,26px)}
+  .card p{font-size:clamp(15px,1.5vw,19px);line-height:1.5;color:#3c4043}
+  .card .bar{height:4px;width:46px;border-radius:99px;margin-bottom:2px}
+  .b-blue{background:var(--blue)}.b-red{background:var(--red)}.b-yellow{background:var(--yellow)}.b-green{background:var(--green)}
+
+  /* ---------- big pull quote ---------- */
+  .pull{font-family:var(--display);font-weight:700;letter-spacing:-.02em;line-height:1.08;
+    font-size:clamp(34px,5.6vw,74px);max-width:20ch}
+  .pull .mark{color:var(--blue)}
+
+  /* ---------- code ---------- */
+  .codewrap{margin-top:clamp(18px,3vh,30px);background:#1f2023;border-radius:16px;
+    border:1px solid #303134;overflow:hidden;max-width:92ch}
+  .codewrap .bar{display:flex;gap:7px;padding:13px 16px;border-bottom:1px solid #303134;align-items:center}
+  .codewrap .bar i{width:11px;height:11px;border-radius:99px;display:inline-block}
+  .codewrap .bar .fname{margin-left:10px;font-family:var(--mono);font-size:clamp(12px,1.1vw,14px);color:#9aa0a6}
+  pre{margin:0;padding:clamp(16px,2vw,24px);overflow:auto}
+  code{font-family:var(--mono);font-size:clamp(13px,1.3vw,16px);line-height:1.65;color:#e8eaed;white-space:pre}
+  code .c{color:#80868b}            /* comment */
+  code .k{color:#8ab4f8}            /* keyword/type — google blue-ish */
+  code .s{color:#81c995}            /* string — green */
+  code .f{color:#fdd663}            /* field/name — yellow */
+  code .r{color:#f28b82}            /* highlight/red */
+  .codenote{margin-top:14px;font-size:clamp(15px,1.5vw,19px);color:var(--muted);max-width:60ch}
+
+  /* ---------- demo (two-column: copy left, phone right) ---------- */
+  .demogrid{display:grid;grid-template-columns:1fr auto;gap:clamp(28px,4vw,72px);align-items:center;width:100%;margin-top:clamp(14px,2vh,26px)}
+  .demo-copy{max-width:48ch}
+  ul.ticks.demo-ticks{margin-top:clamp(14px,2vh,22px);gap:12px}
+  ul.ticks.demo-ticks li{font-size:clamp(15px,1.6vw,21px)}
+  ul.ticks.demo-ticks li .n{color:var(--blue)}
+  /* the recording already has a phone frame baked in — just round off the
+     video's square corners and float it with a soft shadow. */
+  .device{width:clamp(236px,26vw,320px);aspect-ratio:380/790;border-radius:46px;overflow:hidden;
+    background:#000;box-shadow:0 26px 60px rgba(32,33,36,.28);justify-self:center}
+  .device video{width:100%;height:100%;object-fit:cover;display:block}
+  .rec{display:inline-flex;gap:8px;align-items:center;font-family:var(--mono);font-size:12px;letter-spacing:.14em;color:var(--red)}
+  .rec .blink{width:9px;height:9px;border-radius:99px;background:var(--red);animation:blink 1.3s infinite}
+  @keyframes blink{50%{opacity:.25}}
+
+  /* ---------- demo stills (fallback grid) ---------- */
+  .shotrow{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(14px,2.2vw,32px);
+    margin-top:clamp(18px,3vh,34px);justify-items:center}
+  .shot{display:flex;flex-direction:column;align-items:center;gap:14px;margin:0}
+  .shotph{height:clamp(300px,58vh,580px);aspect-ratio:380/790;border-radius:28px;overflow:hidden;
+    background:#000;box-shadow:0 16px 40px rgba(32,33,36,.18)}
+  .shotph img{width:100%;height:100%;object-fit:cover;display:block}
+  .shot figcaption{text-align:center;font-size:clamp(13px,1.4vw,17px);color:#3c4043;line-height:1.4;max-width:22ch}
+  .shot figcaption b{display:block;font-family:var(--display);font-weight:500;color:var(--ink);margin-bottom:3px}
+
+  /* ---------- svg diagrams (loop + trust boundary) ---------- */
+  .diagram{width:100%;margin-top:clamp(16px,2.6vh,32px)}
+  .diagram svg{width:100%;height:auto;display:block;max-height:48vh}
+  .minidia{width:100%;margin:6px 0 2px}
+  .minidia svg{width:100%;height:auto;display:block;max-height:30vh}
+
+  /* ---------- "in the wild" — one app per slide ---------- */
+  .wildslide{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.25fr);
+    gap:clamp(28px,4vw,72px);align-items:center;width:100%;margin-top:clamp(10px,1.8vh,22px)}
+  .wildslide .copy{max-width:46ch}
+  .wildslide .hero{display:flex;align-items:center;justify-content:center;min-width:0}
+  .wildslide .hero img{max-width:100%;max-height:68vh;object-fit:contain;border-radius:18px;
+    border:1px solid var(--line);background:#fff;box-shadow:0 18px 48px rgba(32,33,36,.20)}
+  .wildslide .hero.phone img{max-height:76vh;border-radius:30px}
+  .wildslide .hero .yt{width:100%;aspect-ratio:16/9;max-height:68vh;border:0;border-radius:18px;
+    box-shadow:0 18px 48px rgba(32,33,36,.22);background:#000;display:block}
+  .wild-tags{display:flex;gap:10px;flex-wrap:wrap;margin-top:clamp(14px,2.4vh,24px)}
+  .wild-tag{font-family:var(--mono);font-size:clamp(11px,1.1vw,14px);letter-spacing:.12em;text-transform:uppercase;
+    border:1px solid var(--line);border-radius:99px;padding:6px 13px;color:var(--muted)}
+  .slide.dark .wild-tag{border-color:#3c4043;color:#9aa0a6}
+
+  /* ---------- architecture / concept map ---------- */
+  .arch{position:relative;margin-top:clamp(12px,2vh,24px);max-width:110ch}
+  .arch::before{content:'';position:absolute;left:18px;top:16px;bottom:30px;width:2px;background:var(--line)}
+  .arow{display:grid;grid-template-columns:38px 1fr;gap:clamp(14px,1.6vw,24px);align-items:start;
+    padding-bottom:clamp(10px,1.6vh,20px)}
+  .arow:last-child{padding-bottom:0}
+  .abadge{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+    font-family:var(--mono);font-weight:500;font-size:15px;color:#fff;z-index:1}
+  .aname{font-family:var(--display);font-weight:500;font-size:clamp(18px,2vw,25px);letter-spacing:-.01em;line-height:1.1}
+  .aname small{font-family:var(--mono);font-weight:400;color:var(--muted);font-size:.58em;letter-spacing:.06em;margin-left:9px}
+  .arole{font-size:clamp(14px,1.45vw,18px);color:#3c4043;line-height:1.45;margin-top:3px;max-width:78ch}
+  .acatitem{margin-top:11px;display:inline-flex;flex-wrap:wrap;gap:7px 11px;align-items:center;
+    border:1px dashed var(--line);border-radius:12px;padding:9px 14px;background:#fff}
+  .acatitem b{font-family:var(--display);font-weight:500;font-size:clamp(14px,1.4vw,17px)}
+  .acatitem .tok{font-family:var(--mono);font-size:clamp(11px,1.1vw,13px);color:var(--ink);
+    background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:2px 8px}
+  .acatitem .plus{color:var(--muted);font-family:var(--mono)}
+  .aloop{margin-top:11px;display:flex;align-items:center;gap:10px;font-size:clamp(13px,1.35vw,17px);color:var(--green)}
+  .aloop b{font-size:1.3em;line-height:1}
+
+  /* ---------- loop diagram ---------- */
+  .loop{display:grid;grid-template-columns:repeat(3,1fr);gap:14px 18px;margin-top:clamp(22px,3.5vh,40px);max-width:100ch}
+  .step{border:1px solid var(--line);border-radius:16px;padding:16px 18px;background:#fff;position:relative}
+  .step .n{font-family:var(--mono);font-size:12px;color:#fff;background:var(--ink);width:26px;height:26px;
+    border-radius:99px;display:flex;align-items:center;justify-content:center;margin-bottom:10px}
+  .step.s1 .n{background:var(--blue)}.step.s2 .n{background:var(--red)}.step.s3 .n{background:#F09B00}
+  .step.s4 .n{background:var(--green)}.step.s5 .n{background:var(--blue)}.step.s6 .n{background:var(--red)}
+  .step b{font-family:var(--display);font-weight:500;font-size:clamp(15px,1.5vw,18px)}
+  .step p{font-size:13px;color:var(--muted);margin-top:4px;line-height:1.4}
+
+  /* ---------- contrast (text vs ui) ---------- */
+  .vs{display:grid;grid-template-columns:1fr auto 1fr;gap:clamp(14px,2vw,28px);align-items:stretch;margin-top:clamp(20px,3vh,36px)}
+  .panel{border:1px solid var(--line);border-radius:18px;padding:20px;background:#fff;display:flex;flex-direction:column;gap:10px}
+  .panel .tag{font-family:var(--mono);font-size:clamp(11px,1.1vw,14px);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  .panel .txt span{display:block;height:9px;border-radius:99px;background:#e8eaed;margin-bottom:8px}
+  .panel .chips{display:flex;gap:8px;flex-wrap:wrap}
+  .panel .chip{font-size:clamp(12px,1.15vw,14px);border:1px solid var(--line);border-radius:99px;padding:6px 12px;background:var(--paper)}
+  .panel .chip.on{background:#e7f0ff;border-color:var(--blue);color:var(--blue)}
+  .panel .uicard{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .panel .uicard .img{height:54px;background:linear-gradient(135deg,#e7f0ff,#e6f4ea)}
+  .panel .uicard .meta{padding:8px 10px;font-size:12px}
+  .panel .btn{margin-top:auto;background:var(--green);color:#fff;border-radius:8px;text-align:center;
+    padding:8px;font-size:12px;font-family:var(--display);font-weight:500}
+  .vsmid{display:flex;align-items:center;justify-content:center;font-family:var(--display);font-weight:700;color:var(--muted);font-size:20px}
+
+  /* ---------- resources ---------- */
+  .res{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(14px,1.8vw,22px);margin-top:clamp(16px,2.5vh,30px)}
+  .res a{display:flex;flex-direction:column;align-items:center;text-align:center;text-decoration:none;color:inherit;
+    border:1px solid var(--line);border-radius:16px;padding:clamp(14px,1.6vw,22px);transition:border-color .2s,transform .2s}
+  .res a:hover{border-color:var(--blue);transform:translateY(-2px)}
+  .res .qr{width:clamp(140px,20vh,224px);height:clamp(140px,20vh,224px);background:#fff;border:1px solid var(--line);
+    border-radius:12px;padding:8px;display:flex;align-items:center;justify-content:center;margin-bottom:14px}
+  .res .qr img{width:100%;height:100%;object-fit:contain;image-rendering:pixelated}
+  .res .rk{font-family:var(--mono);font-size:clamp(11px,1.1vw,13px);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  .res h3{font-size:clamp(17px,1.8vw,22px);margin-top:4px}
+  .res .url{font-family:var(--mono);font-size:clamp(12px,1.2vw,14px);color:var(--blue);margin-top:6px;word-break:break-all}
+
+  /* ---------- title hero (two-column) ---------- */
+  .titlegrid{display:grid;grid-template-columns:1.5fr 1fr;gap:clamp(28px,5vw,72px);align-items:center;width:100%}
+  .titlecol{display:flex;flex-direction:column;justify-content:center}
+  .herocol{display:flex;flex-direction:column;align-items:flex-end;gap:clamp(14px,2.4vh,26px)}
+  .hero-photo{width:clamp(230px,26vw,360px);aspect-ratio:4/5;border-radius:20px;overflow:hidden;
+    border:3px solid transparent;
+    background:linear-gradient(var(--bg),var(--bg)) padding-box,
+      linear-gradient(135deg,var(--blue),var(--red) 38%,var(--yellow) 66%,var(--green)) border-box;
+    box-shadow:0 10px 34px rgba(32,33,36,.12)}
+  .hero-photo img{width:100%;height:100%;object-fit:cover;object-position:center top;display:block}
+  .hero-meta{text-align:right}
+  .hero-meta b{font-family:var(--display);font-weight:700;font-size:clamp(22px,2.3vw,32px);display:block;letter-spacing:-.01em}
+  .hero-meta span{display:block;color:var(--muted);font-family:var(--mono);font-weight:500;
+    font-size:clamp(12px,1.3vw,16px);letter-spacing:.1em;text-transform:uppercase;margin-top:7px}
+  .hero-meta span.accent{color:var(--blue)}
+
+  /* ---------- thank-you ---------- */
+  .tygrid{display:grid;grid-template-columns:.82fr 1fr;gap:clamp(28px,5vw,80px);align-items:center;width:100%}
+  .ty-photo{width:100%;max-width:clamp(280px,30vw,420px);aspect-ratio:4/5;border-radius:20px;overflow:hidden;
+    border:3px solid transparent;
+    background:linear-gradient(var(--bg),var(--bg)) padding-box,
+      linear-gradient(135deg,var(--blue),var(--red) 38%,var(--yellow) 66%,var(--green)) border-box;
+    box-shadow:0 10px 34px rgba(32,33,36,.12);justify-self:center}
+  .ty-photo img{width:100%;height:100%;object-fit:cover;object-position:center top;display:block}
+  .tytitle{font-family:var(--display);font-weight:700;font-size:clamp(54px,9vw,118px);line-height:1;letter-spacing:-.02em}
+  .tyrule{width:80px;height:4px;border-radius:99px;background:var(--blue);margin:clamp(14px,2.4vh,26px) 0}
+  .ty-meta b{font-family:var(--display);font-weight:700;font-size:clamp(22px,2.4vw,34px);display:block;letter-spacing:-.01em}
+  .ty-meta span{display:block;color:var(--muted);font-size:clamp(15px,1.6vw,20px);margin-top:8px}
+  .ty-meta span.tag{color:var(--blue);font-family:var(--display);font-weight:500}
+  .tyconnect{display:flex;gap:clamp(18px,2.6vw,36px);margin-top:clamp(18px,3.2vh,38px);flex-wrap:wrap}
+  .tyqr{display:flex;flex-direction:column;align-items:center;gap:10px}
+  .tyqr img{width:clamp(144px,15vw,184px);height:clamp(144px,15vw,184px);border:1px solid var(--line);
+    border-radius:12px;background:#fff;padding:8px;image-rendering:pixelated}
+  .tyqr span{font-family:var(--mono);font-size:clamp(11px,1.1vw,13px);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+
+  /* ---------- community ---------- */
+  .commrow{display:flex;gap:clamp(28px,5vw,80px);margin-top:clamp(22px,3.5vh,46px);flex-wrap:wrap;align-items:flex-start}
+  .commcard{display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px;text-decoration:none;color:inherit;
+    transition:transform .2s}
+  .commcard:hover{transform:translateY(-3px)}
+  .commcard img{width:clamp(168px,19vw,220px);height:clamp(168px,19vw,220px);border:1px solid var(--line);
+    border-radius:14px;background:#fff;padding:10px;image-rendering:pixelated}
+  .commcard b{font-family:var(--display);font-weight:500;font-size:clamp(17px,1.9vw,22px)}
+  .commcard span{font-family:var(--mono);font-size:clamp(11px,1.1vw,13px);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+
+  /* ---------- big questions ---------- */
+  .qbig{font-family:var(--display);font-weight:700;font-size:clamp(72px,17vw,260px);line-height:.9;max-width:none}
+  .dmline{display:flex;align-items:center;gap:clamp(14px,1.6vw,20px)}
+  .dmline .rule{width:clamp(48px,5vw,72px);height:4px;border-radius:99px;flex-shrink:0;
+    background:linear-gradient(90deg,var(--blue) 0 25%,var(--red) 25% 50%,var(--yellow) 50% 75%,var(--green) 75% 100%)}
+
+  /* ---------- nav hint ---------- */
+  #hint{position:fixed;bottom:26px;left:50%;transform:translateX(-50%);z-index:40;
+    font-family:var(--mono);font-size:11px;letter-spacing:.12em;color:var(--muted);opacity:.0;transition:opacity .3s;pointer-events:none}
+  body.show-hint #hint{opacity:.7}
+
+  @media (max-width:760px){
+    .grid3,.res,.loop,.shotrow{grid-template-columns:1fr 1fr}
+    .grid2,.vs,.titlegrid,.tygrid,.demogrid{grid-template-columns:1fr}
+    .herocol{align-items:flex-start}
+    .hero-meta{text-align:left}
+    .vsmid{display:none}
+    .cue{display:none}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none!important;animation:none!important}
+  }
+</style>
+</head>
+<body>
+<div id="progress"></div>
+<div class="deck" id="deck">
+
+  <!-- ============ ACT I — THE PROBLEM ============ -->
+
+  <!-- 1 · TITLE -->
+  <section class="slide" data-act="GENERATIVE UI · FLUTTER · 2026">
+    <div class="titlegrid">
+      <div class="titlecol">
+        <div class="eyebrow"><span class="dot"></span> THE TALK</div>
+        <h1 class="mt24">Building <span class="accent-blue">generative</span> interfaces with Flutter's GenUI&nbsp;SDK</h1>
+        <div class="spectrum mt32" style="max-width:360px"></div>
+      </div>
+      <div class="herocol">
+        <div class="hero-photo"><img src="assets/headshot.png" alt="Akansha Jain" /></div>
+        <div class="hero-meta">
+          <b>Akansha Jain</b>
+          <span>Senior Software Engineer — Autonation Inc.</span>
+          <span class="accent">Organiser — Flutter Delhi · FFDG New Delhi</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 · AUDIENCE -->
+  <section class="slide paper" data-act="ACT I · THE PROBLEM">
+    <div class="eyebrow"><span class="dot"></span> WHO THIS IS FOR</div>
+    <h2 class="mt16">This one's for you if…</h2>
+    <ul class="ticks">
+      <li><span class="n">01</span><div>You build with Flutter, and you've already added an <b>AI feature</b> or two.</div></li>
+      <li><span class="n">02</span><div>That "AI feature" is a chatbox that answers with a <b>wall of text</b>.</div></li>
+      <li><span class="n">03</span><div>You want the model to actually <b>do things</b> in your app — not just talk.</div></li>
+      <li><span class="n">04</span><div>You like to <b>ship</b>.</div></li>
+    </ul>
+  </section>
+
+  <!-- 3 · THE PROBLEM -->
+  <section class="slide" data-act="ACT I · THE PROBLEM">
+    <div class="eyebrow"><span class="dot" style="background:var(--red)"></span> FIG. 01 — AI IN OUR APPS TODAY</div>
+    <h2 class="mt16">We bolted a chatbot on.<br>And called it <span class="accent-red">AI</span>.</h2>
+    <div class="vs">
+      <div class="panel">
+        <div class="tag">What we ship</div>
+        <div class="txt" style="margin-top:6px">
+          <span style="width:92%"></span><span style="width:98%"></span><span style="width:88%"></span>
+          <span style="width:95%"></span><span style="width:70%"></span><span style="width:84%"></span>
+        </div>
+        <div class="tag" style="color:var(--red)">a paragraph to read</div>
+      </div>
+      <div class="vsmid">vs</div>
+      <div class="panel">
+        <div class="tag">What people wanted</div>
+        <div class="chips" style="margin-top:6px"><span class="chip on">✓ Paneer</span><span class="chip">Onion</span><span class="chip on">✓ 10 min</span></div>
+        <div class="uicard"><div class="img"></div><div class="meta"><b>Quick Paneer Wrap</b><br>10 min · easy</div></div>
+        <div class="btn">View recipe</div>
+      </div>
+    </div>
+    <p class="lead mt16">You ask a question. You get back text. You still have to read it, decide, and go tap the real UI yourself.</p>
+  </section>
+
+  <!-- 4 · PIVOT -->
+  <section class="slide dark centered" data-act="ACT I · THE PROBLEM">
+    <div class="eyebrow"><span class="dot"></span> THE TURN</div>
+    <div class="pull mt24">What if the model could <span class="mark">hand you the screen</span> — not just describe it?</div>
+    <div class="spectrum sm mt32" style="max-width:240px"></div>
+  </section>
+
+  <!-- ============ ACT II — WHAT IT IS ============ -->
+
+  <!-- 5 · THE SHIFT (old way vs new way to build journeys) -->
+  <section class="slide paper" data-act="ACT II · WHAT IT IS">
+    <div class="eyebrow"><span class="dot"></span> THE SHIFT</div>
+    <h2 class="mt16">From <span class="accent-red">routes you draw</span> to <span class="accent-blue">screens it builds</span>.</h2>
+    <div class="grid2">
+      <div class="card">
+        <div class="bar b-red"></div>
+        <div class="idx">BEFORE</div>
+        <h3>You designed every screen</h3>
+        <div class="minidia">
+          <svg viewBox="0 0 460 190" role="img" aria-label="Old way: every screen designed and wired by hand">
+            <defs><marker id="arro" viewBox="0 0 10 10" refX="7.5" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#5F6368"/></marker></defs>
+            <text x="230" y="13" text-anchor="middle" font-family="'Roboto Mono',monospace" font-size="11" letter-spacing="1.5" fill="#9aa0a6">EVERY SCREEN, BY HAND</text>
+            <rect x="18" y="30" width="84" height="130" rx="11" fill="#F8F9FA" stroke="#DADCE0"/>
+            <rect x="30" y="44" width="60" height="9" rx="4" fill="#C8CDD2"/><rect x="30" y="64" width="60" height="7" rx="3" fill="#E2E5E9"/><rect x="30" y="78" width="44" height="7" rx="3" fill="#E2E5E9"/><rect x="30" y="128" width="60" height="16" rx="6" fill="#DADCE0"/>
+            <rect x="188" y="30" width="84" height="130" rx="11" fill="#F8F9FA" stroke="#DADCE0"/>
+            <rect x="200" y="44" width="60" height="9" rx="4" fill="#C8CDD2"/><rect x="200" y="64" width="60" height="7" rx="3" fill="#E2E5E9"/><rect x="200" y="78" width="44" height="7" rx="3" fill="#E2E5E9"/><rect x="200" y="128" width="60" height="16" rx="6" fill="#DADCE0"/>
+            <rect x="358" y="30" width="84" height="130" rx="11" fill="#F8F9FA" stroke="#DADCE0"/>
+            <rect x="370" y="44" width="60" height="9" rx="4" fill="#C8CDD2"/><rect x="370" y="64" width="60" height="7" rx="3" fill="#E2E5E9"/><rect x="370" y="78" width="44" height="7" rx="3" fill="#E2E5E9"/><rect x="370" y="128" width="60" height="16" rx="6" fill="#DADCE0"/>
+            <line x1="102" y1="95" x2="188" y2="95" stroke="#5F6368" stroke-width="2" marker-end="url(#arro)"/>
+            <line x1="272" y1="95" x2="358" y2="95" stroke="#5F6368" stroke-width="2" marker-end="url(#arro)"/>
+          </svg>
+        </div>
+        <p>Every screen drawn, every route wired by hand. The journey can only go where you predicted it would.</p>
+      </div>
+      <div class="card">
+        <div class="bar b-blue"></div>
+        <div class="idx">WITH GENUI</div>
+        <h3>The model assembles them</h3>
+        <div class="minidia">
+          <svg viewBox="0 0 460 190" role="img" aria-label="With GenUI: register widgets, the model assembles the screen at runtime">
+            <defs><marker id="arrn" viewBox="0 0 10 10" refX="7.5" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#5F6368"/></marker></defs>
+            <text x="51" y="13" text-anchor="middle" font-family="'Roboto Mono',monospace" font-size="10" letter-spacing="1" fill="#9aa0a6">YOUR WIDGETS</text>
+            <text x="392" y="13" text-anchor="middle" font-family="'Roboto Mono',monospace" font-size="10" letter-spacing="1" fill="#9aa0a6">A BUILT SCREEN</text>
+            <rect x="14" y="26" width="74" height="22" rx="7" fill="#4285F4"/><rect x="14" y="56" width="74" height="22" rx="7" fill="#EA4335"/><rect x="14" y="86" width="74" height="22" rx="7" fill="#F09B00"/><rect x="14" y="116" width="74" height="22" rx="7" fill="#34A853"/>
+            <line x1="92" y1="37" x2="150" y2="84" stroke="#5F6368" stroke-width="1.4" marker-end="url(#arrn)"/>
+            <line x1="92" y1="67" x2="150" y2="86" stroke="#5F6368" stroke-width="1.4" marker-end="url(#arrn)"/>
+            <line x1="92" y1="97" x2="150" y2="88" stroke="#5F6368" stroke-width="1.4" marker-end="url(#arrn)"/>
+            <line x1="92" y1="127" x2="150" y2="90" stroke="#5F6368" stroke-width="1.4" marker-end="url(#arrn)"/>
+            <rect x="152" y="60" width="92" height="54" rx="14" fill="#202124"/>
+            <text x="198" y="92" text-anchor="middle" font-family="'Google Sans','Roboto',sans-serif" font-weight="500" font-size="16" fill="#fff">model</text>
+            <line x1="244" y1="87" x2="316" y2="87" stroke="#5F6368" stroke-width="2" marker-end="url(#arrn)"/>
+            <rect x="320" y="24" width="118" height="140" rx="12" fill="#fff" stroke="#DADCE0"/>
+            <rect x="332" y="36" width="94" height="16" rx="4" fill="#4285F4"/>
+            <rect x="332" y="60" width="94" height="40" rx="6" fill="#F1F3F4"/>
+            <rect x="340" y="104" width="30" height="14" rx="7" fill="#E7F0FF"/><rect x="376" y="104" width="30" height="14" rx="7" fill="#E6F4EA"/>
+            <rect x="332" y="130" width="94" height="18" rx="6" fill="#34A853"/>
+          </svg>
+        </div>
+        <p>You register the widgets; the model composes the screen for what was actually asked — and rebuilds it as the conversation moves.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 · WHAT IS GENUI -->
+  <section class="slide" data-act="ACT II · WHAT IT IS">
+    <div class="eyebrow"><span class="dot"></span> THE IDEA</div>
+    <h2 class="mt16">Generative UI:<br>the model builds the <span class="accent-blue">interface</span>.</h2>
+    <p class="lead mt24">Instead of replying in text, the model assembles real, interactive widgets — cards, chips, forms — out of <b>your</b> design system, shaped by what the person actually asked for.</p>
+    <p class="lead mt16">They get a screen to use. Not a transcript to read.</p>
+  </section>
+
+  <!-- 6 · THE SDK -->
+  <section class="slide paper" data-act="ACT II · WHAT IT IS">
+    <div class="eyebrow"><span class="dot" style="background:var(--green)"></span> THE TOOL</div>
+    <h2 class="mt16">The Flutter <span class="accent-green">GenUI SDK</span></h2>
+    <p class="lead mt24">An experimental package from the Flutter team. It lets the model build your app's UI <b>at runtime</b> — from widgets you own, in your brand.</p>
+    <p class="lead mt16">You decide how everything looks. The model decides what to show.</p>
+    <p class="codenote mt24">⚠︎ It's early. The API still changes between versions — pin your version and expect to refactor.</p>
+  </section>
+
+  <!-- ============ ACT III — HOW IT WORKS ============ -->
+
+  <!-- 7 · THREE IDEAS -->
+  <section class="slide" data-act="ACT III · HOW IT WORKS">
+    <div class="eyebrow"><span class="dot"></span> THE WHOLE MODEL</div>
+    <h2 class="mt16">Three ideas. That's it.</h2>
+    <div class="grid3">
+      <div class="card"><div class="bar b-blue"></div><div class="idx">01</div><h3>The catalog is the contract</h3><p>The model can only use widgets you register. Not in the catalog? It can't use it. Your design system, enforced at runtime.</p></div>
+      <div class="card"><div class="bar b-red"></div><div class="idx">02</div><h3>It returns JSON, not code</h3><p>The model describes the UI as data. Your app turns that into real, native Flutter widgets.</p></div>
+      <div class="card"><div class="bar b-green"></div><div class="idx">03</div><h3>Interactions loop back</h3><p>A tap or a pick goes back to the model, which updates the screen. That loop is what makes it <em>generative</em>, not just dynamic.</p></div>
+    </div>
+  </section>
+
+  <!-- 8 · WHY JSON -->
+  <section class="slide paper" data-act="ACT III · HOW IT WORKS">
+    <div class="eyebrow"><span class="dot" style="background:var(--yellow)"></span> A FAIR QUESTION</div>
+    <h2 class="mt16">Why JSON — and not <span class="accent-yellow">code</span>?</h2>
+    <div class="grid3">
+      <div class="card"><div class="bar b-blue"></div><h3>Safe</h3><p>The model never runs code on your client. It sends data describing pre-approved components — nothing to inject, nothing to execute.</p></div>
+      <div class="card"><div class="bar b-red"></div><h3>Native</h3><p>That JSON maps to <b>your</b> widgets. Your fonts, spacing, theme. It looks like your app because it <em>is</em> your app.</p></div>
+      <div class="card"><div class="bar b-green"></div><h3>Streamable</h3><p>Flat JSON arrives piece by piece, so the UI builds as the model thinks — no waiting for one perfect blob.</p></div>
+    </div>
+  </section>
+
+  <!-- 9 · COLLABORATIVE -->
+  <section class="slide" data-act="ACT III · HOW IT WORKS">
+    <div class="eyebrow"><span class="dot"></span> NOT A FLUTTER-ONLY IDEA</div>
+    <h2 class="mt16">One model response.<br>Many front-ends.</h2>
+    <p class="lead mt24">Underneath sits an open protocol. The same response can render on <b class="accent-blue">Flutter</b>, <b class="accent-red">React</b>, <b class="accent-yellow">Angular</b>, or native — each drawing with its own components.</p>
+    <p class="lead mt16">Apache-2.0, built by Google with the open-source community. Flutter is one renderer that speaks it.</p>
+  </section>
+
+  <!-- 10 · A2UI -->
+  <section class="slide dark" data-act="ACT III · HOW IT WORKS">
+    <div class="eyebrow"><span class="dot"></span> THE PROTOCOL UNDERNEATH</div>
+    <h2 class="mt16">A2UI — a shared language for UI</h2>
+    <div class="fullform below">(Agent-to-User Interface)</div>
+    <p class="lead mt16">A2UI lets a model send an interface <b>safely across a trust boundary</b>: not text, not code, but a declarative description the client renders with its own widgets — natively across web, mobile, and desktop.</p>
+    <div class="diagram">
+      <svg viewBox="0 0 1000 250" role="img" aria-label="A2UI crosses the trust boundary as data, not code">
+        <defs>
+          <marker id="arrb" viewBox="0 0 10 10" refX="7.5" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+            <path d="M0,0 L10,5 L0,10 z" fill="#9aa0a6"/>
+          </marker>
+        </defs>
+        <rect x="40" y="70" width="300" height="120" rx="18" fill="#26282b" stroke="#3c4043"/>
+        <text x="190" y="122" text-anchor="middle" font-family="'Google Sans','Roboto',sans-serif" font-weight="500" font-size="25" fill="#e8eaed">The model</text>
+        <text x="190" y="152" text-anchor="middle" font-family="Roboto,sans-serif" font-size="15" fill="#9aa0a6">proposes an interface</text>
+        <rect x="660" y="70" width="300" height="120" rx="18" fill="#26282b" stroke="#3c4043"/>
+        <text x="810" y="122" text-anchor="middle" font-family="'Google Sans','Roboto',sans-serif" font-weight="500" font-size="25" fill="#e8eaed">Your app</text>
+        <text x="810" y="152" text-anchor="middle" font-family="Roboto,sans-serif" font-size="15" fill="#9aa0a6">renders it in your widgets</text>
+        <line x1="500" y1="22" x2="500" y2="232" stroke="#5F6368" stroke-width="1.5" stroke-dasharray="6 6"/>
+        <text x="500" y="16" text-anchor="middle" font-family="'Roboto Mono',monospace" font-size="12" letter-spacing="2" fill="#9aa0a6">TRUST BOUNDARY</text>
+        <line x1="340" y1="130" x2="660" y2="130" stroke="#9aa0a6" stroke-width="2" marker-end="url(#arrb)"/>
+        <text x="500" y="112" text-anchor="middle" font-family="'Roboto Mono',monospace" font-size="13" letter-spacing="1" fill="#8ab4f8">A2UI · declarative JSON</text>
+        <text x="500" y="160" text-anchor="middle" font-family="Roboto,sans-serif" font-size="13" fill="#9aa0a6">data — never executable code</text>
+      </svg>
+    </div>
+  </section>
+
+  <!-- 11 · THE LOOP -->
+  <section class="slide" data-act="ACT III · HOW IT WORKS">
+    <div class="eyebrow"><span class="dot"></span> FIG. 02 — THE INTERACTION LOOP</div>
+    <h2 class="mt16">Round and round.</h2>
+    <div class="diagram">
+      <svg viewBox="0 0 1000 340" role="img" aria-label="The generative interaction loop: ask, reply in UI, render, tap, refine, repeat">
+        <defs>
+          <marker id="arr" viewBox="0 0 10 10" refX="7.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="#5F6368"/>
+          </marker>
+        </defs>
+
+        <!-- node 1 -->
+        <rect x="14" y="40" width="212" height="120" rx="18" fill="#fff" stroke="#DADCE0"/>
+        <circle cx="120" cy="66" r="15" fill="#4285F4"/>
+        <text x="120" y="71" text-anchor="middle" font-family="'Roboto Mono',monospace" font-size="14" fill="#fff">1</text>
+        <text x="120" y="108" text-anchor="middle" font-family="'Google Sans','Roboto',sans-serif" font-weight="500" font-size="20" fill="#202124">Person asks</text>
+        <text x="120" y="132" text-anchor="middle" font-family="Roboto,sans-serif" font-size="13" fill="#5F6368">“something quick</text>
+        <text x="120" y="150" text-anchor="middle" font-family="Roboto,sans-serif" font-size="13" fill="#5F6368">with paneer”</text>
+
+        <!-- node 2 -->
+        <rect x="270" y="40" width="212" height="120" rx="18" fill="#fff" stroke="#DADCE0"/>
+        <circle cx="376" cy="66" r="15" fill="#EA4335"/>
+        <text x="376" y="71" text-anchor="middle" font-family="'Roboto Mono',monospace" font-size="14" fill="#fff">2</text>
+        <text x="376" y="108" text-anchor="middle" font-family="'Google Sans','Roboto',sans-serif" font-weight="500" font-size="20" fill="#202124">Model replies</text>
+        <text x="376" y="132" text-anchor="middle" font-family="Roboto,sans-serif" font-size="13" fill="#5F6368">an A2UI description,</text>
+        <text x="376" y="150" text-anchor="middle" font-family="Roboto,sans-serif" font-size="13" fill="#5F6368">not prose</text>
+
+        <!-- node 3 -->
+        <rect x="526" y="40" width="212" height="120" rx="18" fill="#fff" stroke="#DADCE0"/>
+        <circle cx="632" cy="66" r="15" fill="#F09B00"/>
+        <text x="632" y="71" text-anchor="middle" font-family="'Roboto Mono',monospace" font-size="14" fill="#fff">3</text>
+        <text x="632" y="108" text-anchor="middle" font-family="'Google Sans','Roboto',sans-serif" font-weight="500" font-size="20" fill="#202124">App renders</text>
+        <text x="632" y="132" text-anchor="middle" font-family="Roboto,sans-serif" font-size="13" fill="#5F6368">real native widgets,</text>
+        <text x="632" y="150" text-anchor="middle" font-family="Roboto,sans-serif" font-size="13" fill="#5F6368">your brand</text>
+
+        <!-- node 4 -->
+        <rect x="782" y="40" width="212" height="120" rx="18" fill="#fff" stroke="#DADCE0"/>
+        <circle cx="888" cy="66" r="15" fill="#34A853"/>
+        <text x="888" y="71" text-anchor="middle" font-family="'Roboto Mono',monospace" font-size="14" fill="#fff">4</text>
+        <text x="888" y="108" text-anchor="middle" font-family="'Google Sans','Roboto',sans-serif" font-weight="500" font-size="20" fill="#202124">You tap / pick</text>
+        <text x="888" y="132" text-anchor="middle" font-family="Roboto,sans-serif" font-size="13" fill="#5F6368">the choice is</text>
+        <text x="888" y="150" text-anchor="middle" font-family="Roboto,sans-serif" font-size="13" fill="#5F6368">captured</text>
+
+        <!-- forward arrows -->
+        <line x1="226" y1="100" x2="270" y2="100" stroke="#5F6368" stroke-width="2" marker-end="url(#arr)"/>
+        <line x1="482" y1="100" x2="526" y2="100" stroke="#5F6368" stroke-width="2" marker-end="url(#arr)"/>
+        <line x1="738" y1="100" x2="782" y2="100" stroke="#5F6368" stroke-width="2" marker-end="url(#arr)"/>
+
+        <!-- return loop -->
+        <path d="M 888 160 C 888 292, 700 308, 500 308 C 300 308, 120 292, 120 160" fill="none" stroke="#5F6368" stroke-width="2" marker-end="url(#arr)"/>
+        <rect x="356" y="288" width="288" height="40" rx="20" fill="#202124"/>
+        <text x="500" y="313" text-anchor="middle" font-family="'Google Sans','Roboto',sans-serif" font-weight="500" font-size="15" fill="#fff">Model refines → a brand-new screen</text>
+      </svg>
+    </div>
+    <p class="lead" style="margin-top:clamp(8px,1.4vh,16px)">Each turn, the screen gets closer to what they meant.</p>
+  </section>
+
+  <!-- ============ ACT IV — THE BUILD ============ -->
+
+  <!-- 12 · MEET SAGE -->
+  <section class="slide paper" data-act="ACT IV · THE BUILD">
+    <div class="eyebrow"><span class="dot" style="background:var(--green)"></span> SO I BUILT ONE</div>
+    <h2 class="mt16">Meet <span class="accent-green">Sage</span>.</h2>
+    <p class="lead mt24">A cooking assistant. Tell it what you feel like — "something quick with paneer" — and it builds the screen: preference chips, recipe cards, a full recipe you can tweak. Plain words in, a usable screen out.</p>
+    <p class="lead mt16"><b>One thing to hold onto:</b> the app owns the <span class="accent-blue">facts</span>, the model owns the <span class="accent-red">words</span>.</p>
+  </section>
+
+  <!-- 13 · DEMO -->
+  <section class="slide" data-act="ACT IV · THE BUILD">
+    <div class="demogrid">
+      <div class="demo-copy">
+        <div class="eyebrow"><span class="rec"><span class="blink"></span> REC · THE DEMO</span></div>
+        <h2 class="mt16">Let's cook.</h2>
+        <p class="lead mt16">Watch the screen <b>rebuild itself</b> each turn. Nobody designed these exact states — the model assembled them from my widgets.</p>
+        <ul class="ticks demo-ticks">
+          <li><span class="n">01</span><div>Ask for something — <b>"quick dinner with paneer"</b></div></li>
+          <li><span class="n">02</span><div>Chips gather what's on hand → recipe cards appear</div></li>
+          <li><span class="n">03</span><div>Tap a card → the full recipe builds out</div></li>
+          <li><span class="n">04</span><div>Say <b>"no blender"</b> → it rewrites the steps in place</div></li>
+        </ul>
+      </div>
+      <div class="device">
+        <video controls playsinline preload="metadata">
+          <source src="assets/demos/sage_demo.mp4" type="video/mp4" />
+        </video>
+      </div>
+    </div>
+  </section>
+
+  <!-- 14 · DEMO STILLS (fallback for back of room) -->
+  <section class="slide paper" data-act="ACT IV · THE BUILD">
+    <div class="eyebrow"><span class="dot" style="background:var(--green)"></span> THE DEMO, FRAME BY FRAME</div>
+    <h2 class="mt16">Four turns, four screens.</h2>
+    <div class="shotrow">
+      <figure class="shot">
+        <div class="shotph"><img src="assets/demos/shots/shot-1-gather.png" alt="Preference chips gathering ingredients" /></div>
+        <figcaption><b class="accent-blue">1 · Gather</b>Chips collect what's on hand and how long you've got.</figcaption>
+      </figure>
+      <figure class="shot">
+        <div class="shotph"><img src="assets/demos/shots/shot-2-suggest.png" alt="Recipe cards suggested" /></div>
+        <figcaption><b class="accent-red">2 · Suggest</b>Recipe cards built from your data — not invented.</figcaption>
+      </figure>
+      <figure class="shot">
+        <div class="shotph"><img src="assets/demos/shots/shot-3-recipe.png" alt="Full recipe view" /></div>
+        <figcaption><b class="accent-yellow">3 · Cook</b>Tap a card → the full recipe, image and steps.</figcaption>
+      </figure>
+      <figure class="shot">
+        <div class="shotph"><img src="assets/demos/shots/shot-4-adapt.png" alt="Adapted recipe with a note" /></div>
+        <figcaption><b class="accent-green">4 · Adapt</b>"No blender" → it rewrites the steps and tells you why.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- 15 · WHAT JUST HAPPENED -->
+  <section class="slide dark" data-act="ACT IV · THE BUILD">
+    <div class="eyebrow"><span class="dot"></span> WHAT JUST HAPPENED</div>
+    <h2 class="mt16">It never invented a recipe.</h2>
+    <p class="lead mt24">It chose from the recipes I gave it, and adapted only the <b>language</b> — the steps, the tone. The cook times and ingredients came straight from my data.</p>
+    <p class="lead mt16">That split — model for words, app for facts — is the quiet trick behind the whole thing.</p>
+  </section>
+
+  <!-- ============ ACT V — THE CODE ============ -->
+
+  <!-- CORE CONCEPTS — THE MAP -->
+  <section class="slide paper" data-act="ACT V · THE CODE">
+    <div class="eyebrow"><span class="dot"></span> THE BUILDING BLOCKS</div>
+    <h2 class="mt16">How it all fits together.</h2>
+    <p class="lead" style="margin-top:clamp(6px,1vh,12px);max-width:66ch">Follow one turn, top to bottom — each piece hands off to the next, then loops back.</p>
+    <div class="arch">
+      <div class="arow">
+        <div class="abadge" style="background:var(--blue)">1</div>
+        <div>
+          <div class="aname">Conversation</div>
+          <div class="arole">The orchestrator — runs the turn-by-turn loop between the person, the model, and the screen.</div>
+        </div>
+      </div>
+      <div class="arow">
+        <div class="abadge" style="background:var(--red)">2</div>
+        <div>
+          <div class="aname">Transport <small>+ A2UI</small></div>
+          <div class="arole">The line to the model. It streams the reply back as <b>A2UI</b> — a declarative description of UI as data, never code.</div>
+        </div>
+      </div>
+      <div class="arow">
+        <div class="abadge" style="background:#F09B00">3</div>
+        <div>
+          <div class="aname">Catalog</div>
+          <div class="arole">The contract — the only widgets the model is allowed to use.</div>
+          <div class="acatitem"><b>CatalogItem</b><span class="tok">name</span><span class="plus">·</span><span class="tok">dataSchema</span><span class="plus">·</span><span class="tok">widgetBuilder</span></div>
+        </div>
+      </div>
+      <div class="arow">
+        <div class="abadge" style="background:var(--green)">4</div>
+        <div>
+          <div class="aname">Surface</div>
+          <div class="arole">Where a reply renders as real, native widgets from the catalog — a fresh surface each turn, so nothing overwrites the last.</div>
+        </div>
+      </div>
+      <div class="arow">
+        <div class="abadge" style="background:var(--blue)">5</div>
+        <div>
+          <div class="aname">Data model &amp; binding</div>
+          <div class="arole">The schema-checked data the model sent fills each widget; a tap or pick dispatches an event…</div>
+          <div class="aloop"><b>↺</b> …straight back to the Conversation → the next turn.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 15 · CODE 01 -->
+  <section class="slide" data-act="ACT V · THE CODE">
+    <div class="eyebrow"><span class="dot" style="background:var(--blue)"></span> CODE 01 — THE CONTRACT</div>
+    <h2 class="mt16">A widget the model is <span class="accent-blue">allowed</span> to use</h2>
+    <div class="codewrap">
+      <div class="bar"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i><span class="fname">recipe_card.dart</span></div>
+<pre><code><span class="k">final</span> recipeCardItem = <span class="k">CatalogItem</span>(
+  name: <span class="s">'RecipeCard'</span>,
+  <span class="c">// The schema only accepts an id — not a title, not a price.</span>
+  <span class="c">// The model can point at a recipe, never invent one.</span>
+  dataSchema: S.object(properties: {
+    <span class="f">'recipeId'</span>: S.string(),
+    <span class="f">'reason'</span>: S.string(), <span class="c">// the one thing it may write freely</span>
+  }, required: [<span class="s">'recipeId'</span>]),
+  widgetBuilder: (ctx) {
+    <span class="k">final</span> recipe = recipeById(ctx.data[<span class="s">'recipeId'</span>]);
+    <span class="k">return</span> RecipeCard(recipe: recipe); <span class="c">// your widget, your brand</span>
+  },
+);</code></pre>
+    </div>
+    <p class="codenote">name + schema + builder. The schema is the leash — it's how you stop the model hallucinating recipes that don't exist.</p>
+  </section>
+
+  <!-- 16 · CODE 02 -->
+  <section class="slide" data-act="ACT V · THE CODE">
+    <div class="eyebrow"><span class="dot" style="background:var(--red)"></span> CODE 02 — FACTS vs WORDS</div>
+    <h2 class="mt16">App owns facts. Model owns <span class="accent-red">words</span>.</h2>
+    <div class="codewrap">
+      <div class="bar"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i><span class="fname">recipe_view.dart</span></div>
+<pre><code>  <span class="k">final</span> recipe = recipeById(recipeId);     <span class="c">// FACTS: from my data</span>
+  <span class="k">final</span> modelSteps = data[<span class="s">'steps'</span>];        <span class="c">// WORDS: from the model</span>
+
+  <span class="c">// Use the model's adapted steps if it sent any —</span>
+  <span class="c">// e.g. "no blender" — otherwise fall back to mine.</span>
+  <span class="k">final</span> steps = (modelSteps != <span class="k">null</span> &amp;&amp; modelSteps.isNotEmpty)
+      ? modelSteps
+      : recipe.steps;</code></pre>
+    </div>
+    <p class="codenote">The model rewrites the phrasing. The cook time, the ingredients, the image — those are never up for negotiation.</p>
+  </section>
+
+  <!-- 17 · CODE 03 -->
+  <section class="slide" data-act="ACT V · THE CODE">
+    <div class="eyebrow"><span class="dot" style="background:var(--green)"></span> CODE 03 — THE SEAM</div>
+    <h2 class="mt16">Swap the model in <span class="accent-green">one file</span></h2>
+    <div class="codewrap">
+      <div class="bar"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i><span class="fname">recipe_backend.dart</span></div>
+<pre><code>  <span class="c">// No API key in the app — Firebase AI Logic holds it.</span>
+  _model = FirebaseAI.googleAI().generativeModel(
+    model: <span class="s">'gemini-3.1-flash-lite'</span>,
+    systemInstruction: Content.system(buildSystemInstruction()),
+  );
+
+  <span class="c">// genui just needs streamed text. Feed each chunk in.</span>
+  <span class="k">await for</span> (<span class="k">final</span> res <span class="k">in</span> chat.sendMessageStream(content)) {
+    _adapter.addChunk(res.text);     <span class="c">// the backend-agnostic seam</span>
+  }</code></pre>
+    </div>
+    <p class="codenote">genui doesn't care which model you use. Change providers later and this is the only file you touch.</p>
+  </section>
+
+  <!-- ============ ACT VI — HONEST ENGINEERING ============ -->
+
+  <!-- 18 · TRADEOFFS INTRO -->
+  <section class="slide dark" data-act="ACT VI · HONEST ENGINEERING">
+    <div class="eyebrow"><span class="dot"></span> FIG. 03 — THE PART TALKS SKIP</div>
+    <h2 class="mt16">What the happy path<br>doesn't tell you.</h2>
+    <p class="lead mt24">Four things I learned building this — the kind you only find out by shipping.</p>
+  </section>
+
+  <!-- 19 · TRADEOFF 1 -->
+  <section class="slide" data-act="ACT VI · HONEST ENGINEERING">
+    <div class="eyebrow"><span class="dot" style="background:var(--red)"></span> TRADEOFF 01</div>
+    <h2 class="mt16">The fence cuts <span class="accent-red">both ways</span>.</h2>
+    <p class="lead mt24">Locking the model to your data kills hallucination. It also means the moment someone asks for something you don't have, it has nothing honest to say.</p>
+    <p class="lead mt16">Ask for a burger from a paneer menu, and a naive build will <b>force paneer on you</b>. You have to teach it to say "I don't have that — here's what I can do."</p>
+  </section>
+
+  <!-- 20 · TRADEOFF 2 -->
+  <section class="slide paper" data-act="ACT VI · HONEST ENGINEERING">
+    <div class="eyebrow"><span class="dot" style="background:var(--blue)"></span> TRADEOFF 02</div>
+    <h2 class="mt16">Decide who owns the <span class="accent-blue">truth</span>.</h2>
+    <p class="lead mt24">The model is wonderful with language and careless with facts. So don't ask it to remember your prices or your inventory.</p>
+    <p class="lead mt16">Let it own the words. Let your app own the facts. Once you draw that line, a lot of scary failure modes just… disappear.</p>
+  </section>
+
+  <!-- 21 · TRADEOFF 3 -->
+  <section class="slide" data-act="ACT VI · HONEST ENGINEERING">
+    <div class="eyebrow"><span class="dot" style="background:var(--yellow)"></span> TRADEOFF 03</div>
+    <h2 class="mt16">Cleaning up the screen<br>is <span class="accent-yellow">your</span> job.</h2>
+    <p class="lead mt24">Generative UI keeps adding. Nothing gets tidied unless you tidy it. And the model controls each screen's identity — a smaller model that reuses an id will quietly paint over your last one.</p>
+    <p class="lead mt16">Model quality isn't abstract here. It shows up directly in your UX.</p>
+  </section>
+
+  <!-- 22 · TRADEOFF 4 -->
+  <section class="slide paper" data-act="ACT VI · HONEST ENGINEERING">
+    <div class="eyebrow"><span class="dot" style="background:var(--green)"></span> TRADEOFF 04</div>
+    <h2 class="mt16">It's a chattier loop<br>than a chatbot.</h2>
+    <p class="lead mt24">One thing the person does can be <b>several</b> model calls — gather, show, refine. So you hit rate limits sooner than a plain chat app would.</p>
+    <p class="lead mt16">Pick your model tier with that in mind, and design your "thinking…" states for real.</p>
+  </section>
+
+  <!-- ============ ACT VII — IN THE WILD ============ -->
+
+  <!-- IN THE WILD — INTRO -->
+  <section class="slide paper" data-act="ACT VII · IN THE WILD">
+    <div class="eyebrow"><span class="dot"></span> NOT JUST MY DEMO</div>
+    <h2 class="mt16">GenUI in the <span class="accent-blue">wild</span>.</h2>
+    <p class="lead mt24">Sage is my weekend toy. But this isn't a lab trick — over the past year, real teams have shipped real GenUI apps.</p>
+    <p class="lead mt16">Three worth knowing: one from the <b>Flutter team</b>, one from a <b>top agency</b>, and one from a <b>solo GDE</b>.</p>
+    <ul class="ticks" style="margin-top:clamp(16px,2.5vh,30px)">
+      <li><span class="n" style="color:var(--blue)">01</span><div><b>GenLatte</b> — the Flutter team's playful Gemini demo</div></li>
+      <li><span class="n" style="color:var(--green)">02</span><div><b>VGV Finances</b> — Very Good Ventures, at Google Cloud Next ’26</div></li>
+      <li><span class="n" style="color:var(--red)">03</span><div><b>Finnish&nbsp;it</b> — a Flutter GDE's app, shown live at Google I/O ’26</div></li>
+    </ul>
+  </section>
+
+  <!-- IN THE WILD — GENLATTE -->
+  <section class="slide" data-act="ACT VII · IN THE WILD">
+    <div class="eyebrow"><span class="dot" style="background:var(--blue)"></span> GENUI IN THE WILD · 1 OF 3</div>
+    <div class="wildslide">
+      <div class="copy">
+        <h2 class="mt8">GenLatte</h2>
+        <p class="lead mt16">The Flutter team's own GenUI demo. A couple of playful taps, and Gemini composes a personalized latte — Dash dreams it up while the screen assembles itself.</p>
+        <div class="wild-tags">
+          <span class="wild-tag">Flutter team</span><span class="wild-tag">Gemini</span><span class="wild-tag">GenUI demo</span>
+        </div>
+      </div>
+      <div class="hero"><iframe class="yt" src="https://www.youtube.com/embed/-NLK4gpT0m4?start=27&amp;end=186&amp;rel=0&amp;modestbranding=1" title="GenLatte demo — Craig, Flutter GenUI" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe></div>
+    </div>
+  </section>
+
+  <!-- IN THE WILD — VGV FINANCES -->
+  <section class="slide paper" data-act="ACT VII · IN THE WILD">
+    <div class="eyebrow"><span class="dot" style="background:var(--green)"></span> GENUI IN THE WILD · 2 OF 3</div>
+    <div class="wildslide">
+      <div class="copy">
+        <h2>VGV Finances</h2>
+        <p class="lead mt16">Very Good Ventures' AI financial planner, built for Google Cloud Next 2026. Ask about a goal — “retire by 50?” — and it renders sliders, charts and chips on the fly. The model builds the screen, not a paragraph.</p>
+        <div class="wild-tags">
+          <span class="wild-tag">Very Good Ventures</span><span class="wild-tag">Cloud Next ’26</span><span class="wild-tag">Firebase AI</span>
+        </div>
+      </div>
+      <div class="hero"><img src="assets/wild/vgv-finances.png" alt="VGV Finances — Very Good Ventures' GenUI financial planner" /></div>
+    </div>
+  </section>
+
+  <!-- IN THE WILD — FINNISH IT -->
+  <section class="slide" data-act="ACT VII · IN THE WILD">
+    <div class="eyebrow"><span class="dot" style="background:var(--red)"></span> GENUI IN THE WILD · 3 OF 3</div>
+    <div class="wildslide">
+      <div class="copy">
+        <h2>Finnish&nbsp;it</h2>
+        <p class="lead mt16">A language-learning app by Flutter GDE Cagatay Ulusoy. Each lesson's UI is generated on the fly to fit the drill — and it was shown live in the Google I/O “What's new in Flutter” session.</p>
+        <div class="wild-tags">
+          <span class="wild-tag">Flutter GDE</span><span class="wild-tag">Google I/O ’26</span><span class="wild-tag">Community</span>
+        </div>
+      </div>
+      <div class="hero phone"><img src="assets/wild/finnish.png" alt="Finnish it — Cagatay Ulusoy's GenUI language app" /></div>
+    </div>
+  </section>
+
+  <!-- ============ ACT VIII — WRAP ============ -->
+
+  <!-- 23 · WHEN TO USE -->
+  <section class="slide" data-act="ACT VII · WRAP">
+    <div class="eyebrow"><span class="dot"></span> A HONEST RULE OF THUMB</div>
+    <h2 class="mt16">When to reach for it.</h2>
+    <div class="grid2">
+      <div class="card"><div class="bar b-green"></div><h3>Great fit</h3><p>When the screen should change with intent — exploring, deciding, narrowing down, or taking in a photo / voice / messy input.</p></div>
+      <div class="card"><div class="bar b-red"></div><h3>Probably overkill</h3><p>A static form. A settings page. A fixed flow you already know. A good plain screen still wins more often than people admit.</p></div>
+    </div>
+    <p class="lead mt24">A chatbot that builds UI isn't always the answer. Use it where the <em>uncertainty</em> lives.</p>
+  </section>
+
+  <!-- RESOURCES -->
+  <section class="slide paper" data-act="ACT VII · WRAP">
+    <div class="eyebrow"><span class="dot"></span> TAKE THIS HOME</div>
+    <h2 class="mt16">Resources.</h2>
+    <div class="res">
+      <a href="https://docs.flutter.dev/ai/genui" target="_blank" rel="noopener">
+        <div class="qr"><img src="assets/qr/res-genui-docs.png" alt="GenUI docs QR" /></div>
+        <div class="rk">Flutter team</div><h3>GenUI docs &amp; get-started</h3>
+        <div class="url">docs.flutter.dev/ai/genui</div>
+      </a>
+      <a href="https://codelabs.developers.google.com/codelabs/genui-intro" target="_blank" rel="noopener">
+        <div class="qr"><img src="assets/qr/res-codelab.png" alt="Codelab QR" /></div>
+        <div class="rk">Official codelab</div><h3>Build one yourself</h3>
+        <div class="url">codelabs.developers.google.com</div>
+      </a>
+      <a href="https://www.youtube.com/watch?v=tXeyaV1gVJk" target="_blank" rel="noopener">
+        <div class="qr"><img src="assets/qr/res-video.png" alt="Flutter + A2UI = GenUI talk QR" /></div>
+        <div class="rk">Flutter team</div><h3>Flutter + A2UI = GenUI</h3>
+        <div class="url">youtu.be/tXeyaV1gVJk</div>
+      </a>
+      <a href="https://a2ui.org/" target="_blank" rel="noopener">
+        <div class="qr"><img src="assets/qr/res-a2ui.png" alt="A2UI QR" /></div>
+        <div class="rk">The protocol</div><h3>A2UI</h3>
+        <div class="url">a2ui.org</div>
+      </a>
+      <a href="https://github.com/jakansha2001/recipe_genui" target="_blank" rel="noopener">
+        <div class="qr"><img src="assets/qr/res-repo.png" alt="Demo repo QR" /></div>
+        <div class="rk">The Sage demo</div><h3>Clone the code</h3>
+        <div class="url">github.com/jakansha2001/recipe_genui</div>
+      </a>
+      <a href="https://pub.dev/packages/genui" target="_blank" rel="noopener">
+        <div class="qr"><img src="assets/qr/res-package.png" alt="genui package QR" /></div>
+        <div class="rk">pub.dev</div><h3>The genui package</h3>
+        <div class="url">pub.dev/packages/genui</div>
+      </a>
+    </div>
+  </section>
+
+  <!-- 26 · CLOSING QUOTE -->
+  <section class="slide dark centered" data-act="ACT VII · WRAP">
+    <div class="eyebrow"><span class="dot"></span> ONE LAST THOUGHT</div>
+    <div class="pull mt24">GenUI turns a model that <span class="mark">talks</span> into one that <span class="mark">builds</span>. The fun part is the rails you put around it.</div>
+    <div class="spectrum sm mt32" style="max-width:240px"></div>
+  </section>
+
+  <!-- 27 · THANK YOU -->
+  <section class="slide" data-act="ACT VII · WRAP">
+    <div class="tygrid">
+      <div class="ty-photo"><img src="assets/headshot.png" alt="Akansha Jain" /></div>
+      <div class="tycol">
+        <h1 class="tytitle">Thank&nbsp;<span class="accent-blue">you.</span></h1>
+        <div class="spectrum" style="max-width:300px;margin:clamp(16px,2.6vh,28px) 0"></div>
+        <div class="ty-meta">
+          <b>Akansha Jain</b>
+          <span>Senior Software Engineer — Autonation Inc.</span>
+          <span class="tag">Happy to talk Flutter, GenUI, or whatever you're building.</span>
+        </div>
+        <div class="tyconnect">
+          <div class="tyqr"><img src="assets/qr/website.png" alt="akanshajain.dev QR" /><span>akanshajain.dev</span></div>
+          <div class="tyqr"><img src="assets/qr/linkedin.png" alt="LinkedIn QR" /><span>LinkedIn</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- COME BUILD WITH US — COMMUNITY -->
+  <section class="slide" data-act="ACT VII · WRAP">
+    <div class="eyebrow"><span class="dot" style="background:var(--green)"></span> COME BUILD WITH US</div>
+    <h2 class="mt16">Two Delhi communities, always open.</h2>
+    <p class="lead mt24">I help organise <b>Flutter Delhi</b> and <b>FFDG New Delhi</b> — talks, meetups, and a room full of people figuring this out together. Scan in, say hi.</p>
+    <div class="commrow">
+      <a class="commcard" href="https://www.commudle.com/communities/flutter-delhi" target="_blank" rel="noopener">
+        <img src="assets/qr/community-flutter-delhi.png" alt="Flutter Delhi on Commudle — QR" />
+        <b>Flutter Delhi</b><span>Commudle</span>
+      </a>
+      <a class="commcard" href="https://luma.com/ffdgnewdelhi" target="_blank" rel="noopener">
+        <img src="assets/qr/community-ffdg.png" alt="FFDG New Delhi on Luma — QR" />
+        <b>FFDG New Delhi</b><span>Luma</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- 28 · Q&A -->
+  <section class="slide dark centered" data-act="ACT VII · WRAP">
+    <div class="eyebrow"><span class="dot"></span> OVER TO YOU</div>
+    <div class="pull qbig mt24">Questions<span class="mark">?</span></div>
+    <div class="dmline mt24">
+      <span class="rule"></span>
+      <p class="lead" style="margin:0"><span class="accent-green">Or DM me after —</span> I read every message.</p>
+    </div>
+  </section>
+
+</div>
+
+<div id="hint">← → or space to move · F for fullscreen</div>
+
+<script>
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const total = slides.length;
+  let i = 0;
+
+  // build the page-number + act eyebrow element on each slide
+  slides.forEach((s, idx) => {
+    const no = document.createElement('div');
+    no.className = 'pageno';
+    // Drop the "ACT I · " / "ACT VII · " prefix, keep the section name (e.g. "HOW IT WORKS").
+    const act = (s.dataset.act || '').replace(/^ACT\s+[IVXLCDM]+\s*·\s*/i, '');
+    no.textContent = act ? `${act}  ·  ${String(idx+1).padStart(2,'0')} / ${total}` : `${String(idx+1).padStart(2,'0')} / ${total}`;
+    s.appendChild(no);
+  });
+
+  const progress = document.getElementById('progress');
+  function show(n){
+    i = Math.max(0, Math.min(total-1, n));
+    slides.forEach((s,idx)=>s.classList.toggle('active', idx===i));
+    progress.style.width = ((i)/(total-1))*100 + '%';
+    location.hash = i+1;
+  }
+  function next(){ show(i+1); }
+  function prev(){ show(i-1); }
+
+  document.addEventListener('keydown', e=>{
+    if(['ArrowRight','PageDown',' '].includes(e.key)){ e.preventDefault(); next(); }
+    else if(['ArrowLeft','PageUp'].includes(e.key)){ e.preventDefault(); prev(); }
+    else if(e.key==='Home'){ show(0); }
+    else if(e.key==='End'){ show(total-1); }
+    else if(e.key==='f'||e.key==='F'){ if(!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); }
+  });
+
+  // click right/left half to navigate (ignore clicks on links/video)
+  document.getElementById('deck').addEventListener('click', e=>{
+    if(e.target.closest('a,video,button,iframe')) return;
+    (e.clientX > window.innerWidth/2) ? next() : prev();
+  });
+
+  // brief nav hint on load
+  document.body.classList.add('show-hint');
+  setTimeout(()=>document.body.classList.remove('show-hint'), 3200);
+
+  // open to hash if present
+  const start = parseInt((location.hash||'').replace('#',''),10);
+  show(Number.isFinite(start) && start>0 ? start-1 : 0);
+</script>
+</body>
+</html>
