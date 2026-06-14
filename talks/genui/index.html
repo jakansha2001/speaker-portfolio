@@ -294,12 +294,29 @@
   body.show-hint #hint{opacity:.7}
 
   @media (max-width:760px){
+    /* use the dynamic viewport height so the mobile URL bar can't crop slides */
+    .deck{height:100dvh}
+    /* tall slides scroll instead of clipping content off the top & bottom */
+    .slide{
+      justify-content:flex-start;
+      overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;
+      padding:clamp(24px,7vw,46px) clamp(20px,6vw,40px) 60px;
+    }
+    .slide.centered{justify-content:center}        /* short punctuation beats stay centered */
+    .pageno{position:fixed}                         /* pin out of the scrolling content */
     .grid3,.res,.loop,.shotrow{grid-template-columns:1fr 1fr}
-    .grid2,.vs,.titlegrid,.tygrid,.demogrid{grid-template-columns:1fr}
+    .grid2,.vs,.titlegrid,.tygrid,.demogrid,.wildslide{grid-template-columns:1fr}
     .herocol{align-items:flex-start}
     .hero-meta{text-align:left}
     .vsmid{display:none}
     .cue{display:none}
+    .qbig{font-size:clamp(56px,16vw,120px)}         /* keep oversized type on-screen */
+  }
+  @media (max-width:520px){
+    /* on phones, stack the remaining multi-column grids so cells stay legible */
+    .grid3,.res,.loop,.shotrow{grid-template-columns:1fr}
+    .qbig{font-size:clamp(44px,13vw,66px)}
+    .tytitle{font-size:clamp(46px,14vw,76px)}
   }
   @media (prefers-reduced-motion:reduce){
     *{transition:none!important;animation:none!important}
