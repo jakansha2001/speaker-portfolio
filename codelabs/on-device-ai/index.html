@@ -1,1429 +1,567 @@
-<!DOCTYPE html>
-<html lang="en">
+
+<!doctype html>
+
+<html>
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>On-Device AI with Flutter & Gemma — Codelab</title>
-<meta name="description" content="Build a multimodal AI-powered Flutter app that runs Gemma 3n entirely on-device. No server. No bills. No internet." />
-<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,700;0,9..144,900;1,9..144,400;1,9..144,700&family=JetBrains+Mono:wght@400;500;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
-<style>
-  /* =====================================================
-     BRAND TOKENS
-     ===================================================== */
-  :root {
-    --ink: #0a0a0f;
-    --paper: #1a1a22;
-    --elevate: #22222c;
-    --cream: #f5f1e8;
-    --accent: #ff5722;
-    --accent-soft: #ffd7c7;
-    --muted: #888;
-    --line: rgba(255,255,255,0.12);
-    --line-strong: rgba(255,255,255,0.2);
-    --ok: #4caf50;
-    --warn: #ffb74d;
-    --err: #e57373;
-
-    --font-serif: 'Fraunces', Georgia, serif;
-    --font-sans: 'DM Sans', system-ui, -apple-system, sans-serif;
-    --font-mono: 'JetBrains Mono', 'Courier New', monospace;
-
-    --container-max: 1180px;
-  }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  html { scroll-behavior: smooth; scroll-padding-top: 24px; }
-
-  body {
-    background: var(--ink);
-    color: var(--cream);
-    font-family: var(--font-sans);
-    font-size: 17px;
-    line-height: 1.7;
-    -webkit-font-smoothing: antialiased;
-    overflow-x: hidden;
-  }
-
-  /* HERO */
-  .hero {
-    padding: 80px 40px 40px;
-    max-width: var(--container-max);
-    margin: 0 auto;
-    border-bottom: 1px solid var(--line);
-  }
-  .hero-eyebrow {
-    font-family: var(--font-mono);
-    font-size: 13px;
-    color: var(--accent);
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    margin-bottom: 28px;
-    display: flex;
-    align-items: center;
-    gap: 14px;
-  }
-  .hero-eyebrow::before {
-    content: '';
-    width: 40px;
-    height: 1px;
-    background: var(--accent);
-  }
-  .hero h1 {
-    font-family: var(--font-serif);
-    font-weight: 900;
-    font-size: clamp(42px, 6.5vw, 84px);
-    line-height: 0.98;
-    letter-spacing: -0.025em;
-    margin-bottom: 24px;
-  }
-  .hero h1 .italic-accent {
-    font-style: italic;
-    font-weight: 400;
-    color: var(--accent);
-  }
-  .hero-sub {
-    font-size: clamp(17px, 1.5vw, 20px);
-    color: rgba(245, 241, 232, 0.75);
-    max-width: 820px;
-    line-height: 1.55;
-    margin-bottom: 32px;
-  }
-  .hero-meta {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 20px;
-    margin-top: 40px;
-    padding-top: 32px;
-    border-top: 1px solid var(--line);
-  }
-  .meta-cell { display: flex; flex-direction: column; gap: 6px; }
-  .meta-label {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 2px;
-  }
-  .meta-value {
-    font-family: var(--font-serif);
-    font-size: 22px;
-    font-weight: 700;
-  }
-
-  /* LAYOUT */
-  .layout {
-    display: grid;
-    grid-template-columns: 260px 1fr;
-    gap: 60px;
-    max-width: var(--container-max);
-    margin: 0 auto;
-    padding: 60px 40px 120px;
-  }
-
-  /* TOC */
-  .toc {
-    position: sticky;
-    top: 24px;
-    align-self: start;
-    max-height: calc(100vh - 48px);
-    overflow-y: auto;
-  }
-  .toc-title {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    color: var(--accent);
-    letter-spacing: 2.5px;
-    text-transform: uppercase;
-    margin-bottom: 20px;
-  }
-  .toc-group { margin-bottom: 24px; }
-  .toc-group-label {
-    font-family: var(--font-mono);
-    font-size: 10px;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    margin-bottom: 10px;
-  }
-  .toc-item {
-    display: flex;
-    align-items: baseline;
-    gap: 10px;
-    padding: 7px 0;
-    color: rgba(245, 241, 232, 0.6);
-    text-decoration: none;
-    font-size: 14px;
-    line-height: 1.4;
-    border-left: 2px solid transparent;
-    padding-left: 12px;
-    margin-left: -14px;
-    transition: all 0.15s;
-  }
-  .toc-item:hover {
-    color: var(--cream);
-    border-left-color: var(--accent);
-  }
-  .toc-item.done { color: var(--muted); }
-  .toc-item.done::before {
-    content: '✓';
-    color: var(--ok);
-    margin-right: -4px;
-  }
-  .toc-num {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    color: var(--muted);
-    flex-shrink: 0;
-  }
-
-  /* CONTENT */
-  .content { max-width: 760px; min-width: 0; }
-
-  .section-marker {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    margin: 80px 0 32px;
-    padding-top: 32px;
-    border-top: 1px solid var(--line);
-  }
-  .section-marker:first-child { margin-top: 0; border-top: none; padding-top: 0; }
-  .section-marker-num,
-  .section-marker-label {
-    font-family: var(--font-mono);
-    font-size: 13px;
-    color: var(--accent);
-    letter-spacing: 3px;
-    text-transform: uppercase;
-  }
-
-  .step { margin-bottom: 60px; padding-top: 8px; }
-  .step-header {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 24px;
-    align-items: end;
-    margin-bottom: 20px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid var(--line);
-  }
-  .step-title-block h2 {
-    font-family: var(--font-serif);
-    font-size: clamp(28px, 3.5vw, 40px);
-    line-height: 1.1;
-    font-weight: 700;
-    letter-spacing: -0.015em;
-    margin-bottom: 8px;
-  }
-  .step-number {
-    font-family: var(--font-mono);
-    font-size: 12px;
-    color: var(--accent);
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    margin-bottom: 10px;
-  }
-  .step-time {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    color: var(--muted);
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    white-space: nowrap;
-    padding: 6px 12px;
-    border: 1px solid var(--line);
-    border-radius: 4px;
-  }
-
-  .step-goal {
-    background: var(--paper);
-    border-left: 3px solid var(--accent);
-    padding: 18px 24px;
-    margin-bottom: 28px;
-    border-radius: 0 4px 4px 0;
-  }
-  .step-goal-label {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    color: var(--accent);
-    letter-spacing: 2.5px;
-    text-transform: uppercase;
-    margin-bottom: 6px;
-  }
-  .step-goal-body {
-    font-family: var(--font-serif);
-    font-size: 19px;
-    font-style: italic;
-    line-height: 1.5;
-  }
-
-  p { margin-bottom: 18px; color: rgba(245, 241, 232, 0.9); }
-  p + h3, ul + h3, ol + h3, pre + h3, .code-block + h3,
-  .expected + h3, .trouble + h3, .note + h3 { margin-top: 36px; }
-
-  h3 {
-    font-family: var(--font-serif);
-    font-size: 22px;
-    font-weight: 700;
-    margin: 28px 0 14px;
-    letter-spacing: -0.01em;
-  }
-  h4 {
-    font-family: var(--font-sans);
-    font-size: 15px;
-    font-weight: 700;
-    margin: 20px 0 10px;
-    letter-spacing: 0.5px;
-  }
-
-  ul, ol { margin: 0 0 20px 24px; color: rgba(245, 241, 232, 0.9); }
-  li { margin-bottom: 8px; line-height: 1.65; }
-
-  a {
-    color: var(--accent);
-    text-decoration: none;
-    border-bottom: 1px solid rgba(255, 87, 34, 0.4);
-    transition: border-color 0.15s;
-  }
-  a:hover { border-bottom-color: var(--accent); }
-  strong { color: var(--cream); font-weight: 700; }
-  em { font-family: var(--font-serif); font-style: italic; color: var(--accent-soft); }
-
-  code {
-    font-family: var(--font-mono);
-    font-size: 0.88em;
-    background: var(--paper);
-    color: var(--accent-soft);
-    padding: 2px 6px;
-    border-radius: 3px;
-    border: 1px solid var(--line);
-  }
-
-  /* CODE BLOCKS */
-  .code-block {
-    position: relative;
-    margin: 20px 0 28px;
-    border: 1px solid var(--line);
-    border-radius: 6px;
-    background: var(--paper);
-    overflow: hidden;
-  }
-  .code-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 16px;
-    background: var(--elevate);
-    border-bottom: 1px solid var(--line);
-    font-family: var(--font-mono);
-    font-size: 11px;
-    color: var(--muted);
-    letter-spacing: 1px;
-  }
-  .code-header-label { display: flex; align-items: center; gap: 10px; }
-  .code-lang {
-    background: var(--ink);
-    color: var(--accent);
-    padding: 2px 8px;
-    border-radius: 3px;
-    font-size: 10px;
-    letter-spacing: 1.5px;
-  }
-  .copy-btn {
-    background: transparent;
-    border: 1px solid var(--line);
-    color: var(--muted);
-    font-family: var(--font-mono);
-    font-size: 10px;
-    letter-spacing: 1.5px;
-    padding: 4px 10px;
-    border-radius: 3px;
-    cursor: pointer;
-    transition: all 0.15s;
-    text-transform: uppercase;
-  }
-  .copy-btn:hover { color: var(--cream); border-color: var(--cream); }
-  .copy-btn.copied { color: var(--ok); border-color: var(--ok); }
-
-  pre {
-    margin: 0;
-    padding: 18px 20px;
-    overflow-x: auto;
-    font-family: var(--font-mono);
-    font-size: 13.5px;
-    line-height: 1.6;
-    color: var(--cream);
-    background: var(--paper);
-  }
-  pre::-webkit-scrollbar { height: 8px; }
-  pre::-webkit-scrollbar-track { background: var(--paper); }
-  pre::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 4px; }
-
-  /* EXPECTED */
-  .expected {
-    background: rgba(76, 175, 80, 0.07);
-    border: 1px solid rgba(76, 175, 80, 0.3);
-    border-radius: 6px;
-    padding: 18px 22px;
-    margin: 20px 0 28px;
-  }
-  .expected-label {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-family: var(--font-mono);
-    font-size: 11px;
-    color: var(--ok);
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    margin-bottom: 10px;
-  }
-  .expected-label::before { content: '✓'; font-size: 14px; }
-  .expected p:last-child { margin-bottom: 0; }
-
-  /* TROUBLESHOOTING */
-  details.trouble {
-    background: rgba(229, 115, 115, 0.06);
-    border: 1px solid rgba(229, 115, 115, 0.3);
-    border-radius: 6px;
-    padding: 0;
-    margin: 20px 0 28px;
-    overflow: hidden;
-  }
-  details.trouble summary {
-    cursor: pointer;
-    padding: 14px 22px;
-    list-style: none;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-family: var(--font-mono);
-    font-size: 12px;
-    color: var(--err);
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    user-select: none;
-  }
-  details.trouble summary::-webkit-details-marker { display: none; }
-  details.trouble summary::before {
-    content: '→';
-    transition: transform 0.2s;
-    display: inline-block;
-    color: var(--err);
-    font-size: 14px;
-  }
-  details.trouble[open] summary::before { transform: rotate(90deg); }
-  details.trouble .trouble-body {
-    padding: 0 22px 18px;
-    border-top: 1px solid rgba(229, 115, 115, 0.2);
-    padding-top: 16px;
-  }
-  details.trouble .trouble-body p:last-child,
-  details.trouble .trouble-body pre:last-child { margin-bottom: 0; }
-
-  /* NOTE */
-  .note {
-    background: rgba(255, 215, 199, 0.05);
-    border-left: 3px solid var(--accent-soft);
-    padding: 16px 22px;
-    margin: 20px 0 28px;
-    border-radius: 0 4px 4px 0;
-  }
-  .note-label {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    color: var(--accent-soft);
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    margin-bottom: 8px;
-  }
-  .note p:last-child { margin-bottom: 0; }
-
-  /* MARK DONE */
-  .mark-done {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-top: 32px;
-    padding: 14px 18px;
-    background: var(--paper);
-    border: 1px solid var(--line);
-    border-radius: 6px;
-    cursor: pointer;
-    user-select: none;
-    transition: all 0.15s;
-  }
-  .mark-done:hover { border-color: var(--cream); }
-  .mark-done input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
-    accent-color: var(--accent);
-    cursor: pointer;
-  }
-  .mark-done label {
-    font-family: var(--font-mono);
-    font-size: 12px;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    color: var(--muted);
-    cursor: pointer;
-  }
-  .mark-done.done {
-    background: rgba(76, 175, 80, 0.08);
-    border-color: rgba(76, 175, 80, 0.4);
-  }
-  .mark-done.done label { color: var(--ok); }
-
-  /* PROGRESS BAR */
-  .progress-wrap {
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    height: 3px;
-    background: rgba(255,255,255,0.05);
-    z-index: 100;
-  }
-  .progress-fill {
-    height: 100%;
-    background: var(--accent);
-    width: 0%;
-    transition: width 0.2s ease;
-  }
-
-  /* CHECKPOINT */
-  .checkpoint {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 16px 22px;
-    background: var(--paper);
-    border: 1px dashed var(--line-strong);
-    border-radius: 6px;
-    margin: 32px 0;
-  }
-  .checkpoint-icon {
-    font-family: var(--font-mono);
-    font-size: 13px;
-    color: var(--accent);
-    letter-spacing: 2px;
-  }
-  .checkpoint-body {
-    font-family: var(--font-serif);
-    font-style: italic;
-    color: rgba(245, 241, 232, 0.85);
-    font-size: 16px;
-  }
-
-  /* WHAT'S NEXT cards */
-  .next-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 16px;
-    margin: 28px 0;
-  }
-  .next-card {
-    background: var(--paper);
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    padding: 22px;
-  }
-  .next-card h4 {
-    font-family: var(--font-serif);
-    font-size: 18px;
-    font-weight: 700;
-    margin-bottom: 10px;
-    color: var(--cream);
-  }
-  .next-card p {
-    font-size: 14px;
-    color: rgba(245, 241, 232, 0.7);
-    margin-bottom: 0;
-    line-height: 1.55;
-  }
-
-  /* FINAL CARD */
-  .final-card {
-    margin-top: 60px;
-    padding: 50px 40px;
-    background: var(--paper);
-    border: 1px solid var(--line);
-    border-radius: 12px;
-    text-align: center;
-  }
-  .final-card .quote {
-    font-family: var(--font-serif);
-    font-style: italic;
-    font-size: 28px;
-    line-height: 1.3;
-    margin-bottom: 24px;
-    letter-spacing: -0.01em;
-  }
-  .final-card .quote span { color: var(--accent); }
-  .final-card .by {
-    font-family: var(--font-mono);
-    font-size: 12px;
-    color: var(--muted);
-    letter-spacing: 2px;
-    text-transform: uppercase;
-  }
-
-  /* FOOTER */
-  footer {
-    max-width: var(--container-max);
-    margin: 0 auto;
-    padding: 60px 40px;
-    border-top: 1px solid var(--line);
-    text-align: center;
-  }
-  footer p {
-    font-size: 14px;
-    color: var(--muted);
-    margin-bottom: 12px;
-  }
-  .footer-links {
-    display: flex;
-    gap: 24px;
-    justify-content: center;
-    margin-top: 20px;
-  }
-  .footer-links a {
-    font-family: var(--font-mono);
-    font-size: 12px;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    border: none;
-  }
-
-  /* RESPONSIVE */
-  @media (max-width: 900px) {
-    .layout {
-      grid-template-columns: 1fr;
-      padding: 40px 24px 80px;
-      gap: 40px;
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <meta name="theme-color" content="#1A73E8">
+  <meta charset="UTF-8">
+  <title>Building On-Device AI Apps with Flutter and Gemma</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Code+Pro:400|Roboto:400,300,400italic,500,700|Roboto+Mono">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" href="https://storage.googleapis.com/claat-public/codelab-elements.css">
+  <style>
+    .success {
+      color: #1e8e3e;
     }
-    .toc {
-      position: static;
-      max-height: none;
-      padding: 24px;
-      background: var(--paper);
-      border-radius: 8px;
+    .error {
+      color: red;
     }
-    .hero { padding: 60px 24px 32px; }
-    .hero h1 { font-size: clamp(34px, 8vw, 56px); }
-    .step-header { grid-template-columns: 1fr; }
-    pre { font-size: 12.5px; }
-    .final-card { padding: 36px 24px; }
-    .final-card .quote { font-size: 22px; }
-  }
-</style>
+  </style>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wdth,wght,ROND@6..144,25..151,1..1000,0..100&family=Google+Sans+Code:wght@300..800&display=swap">
+  <style>
+    google-codelab, google-codelab *:not(.material-icons):not(i) {
+      font-family: "Google Sans Flex", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+    google-codelab code, google-codelab pre, google-codelab pre * {
+      font-family: "Google Sans Code", "Roboto Mono", "Source Code Pro", monospace !important;
+    }
+    google-codelab-step h2.step-title { font-weight: 500; letter-spacing: -0.01em; }
+    google-codelab-step h3 { font-weight: 500; }
+    google-codelab-step table code { font-size: 0.92em; }
+  </style>
 </head>
 <body>
+  <google-codelab                   id="flutter-gemma-on-device"
+                  title="Building On-Device AI Apps with Flutter and Gemma"
+                  environment="web"
+                  feedback-link="https://github.com/jakansha2001/flutter-gemma-demo/issues">
+    
+      <google-codelab-step label="Overview" duration="4">
+        <p>In this codelab you build a Flutter app that runs <strong>Gemma 4 E2B</strong>, Google&#39;s open model, entirely on the device. Once the model is downloaded, every token is generated on the phone or laptop in your hand. Nothing is sent to a server, there is no API key, and the app keeps working in airplane mode.</p>
+<p>The app uses <a href="https://pub.dev/packages/flutter_gemma" target="_blank">flutter_gemma</a>, a Flutter plugin that loads <code>.litertlm</code> models through Google&#39;s LiteRT-LM runtime.</p>
+<h2 is-upgraded>What you&#39;ll build</h2>
+<p>A small app with four on-device features:</p>
+<ul>
+<li><strong>Chat</strong> with replies that stream in token by token.</li>
+<li><strong>Vision</strong>: attach a photo and ask questions about it.</li>
+<li><strong>Thinking</strong>: watch the model reason through a problem before it answers.</li>
+<li><strong>Tools</strong>: the model calls Dart functions in your app. It adds tasks to a to-do list and recolors the app bar.</li>
+</ul>
+<h2 class="checklist" is-upgraded>What you&#39;ll learn</h2>
+<ul class="checklist">
+<li>How flutter_gemma 1.x is split into a core package and opt-in engine packages</li>
+<li>How to download a 2.6 GB model once, with progress, and load it onto the GPU</li>
+<li>How to stream text, send images, show reasoning tokens, and run a function-calling loop</li>
+<li>The platform setup Android, iOS and macOS each need</li>
+<li>The mistakes that cost the most time when building this, so you can skip them</li>
+</ul>
+<h2 is-upgraded>What you&#39;ll need</h2>
+<ul>
+<li>Flutter <strong>3.44 or newer</strong> (flutter_gemma 1.x requires Dart 3.12+)</li>
+<li>An IDE such as VS Code or Android Studio</li>
+<li>About <strong>3 GB of free space on the test device</strong> for the model, and a fast connection for the first download</li>
+<li>One of: <ul>
+<li>A physical <strong>Android</strong> phone with an arm64 CPU. Recent, high-memory phones work best.</li>
+<li>A physical <strong>iPhone</strong> and a Mac with Xcode</li>
+<li>An <strong>Apple Silicon Mac</strong>, to run the app as a macOS desktop app</li>
+</ul>
+</li>
+</ul>
+<aside class="warning"><p> The model is loaded entirely into memory. On phones with little RAM the operating system can kill the app while the model loads. If that happens, try a device with more memory.</p>
+</aside>
 
-<div class="progress-wrap"><div class="progress-fill" id="progress"></div></div>
 
-<header class="hero">
-  <div class="hero-eyebrow">Codelab</div>
-  <h1>Build on-device AI<br/>in Flutter. <span class="italic-accent">No server. No bills. No internet.</span></h1>
-  <p class="hero-sub">A step-by-step guide to building a multimodal AI-powered Flutter app using Google's Gemma 3n model — running entirely on the phone, offline, with no per-token pricing. You'll go from empty folder to a working app with text chat, image understanding, and airplane-mode inference.</p>
+      </google-codelab-step>
+    
+      <google-codelab-step label="What&#39;s new in flutter_gemma 1.x" duration="5">
+        <p>If you used flutter_gemma 0.x (for example with Gemma 3n), a few things work differently now. This section explains why the code in this codelab looks the way it does.</p>
+<h2 is-upgraded>The package is modular</h2>
+<p><code>flutter_gemma</code> is now a <strong>core</strong> package: model management, chat sessions and the response types. It ships without an inference engine. You add the engine you need and register it at startup:</p>
+<table>
+<tr><td colspan="1" rowspan="1"><p>Package</p>
+</td><td colspan="1" rowspan="1"><p>What it adds</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><code>flutter_gemma_litertlm</code></p>
+</td><td colspan="1" rowspan="1"><p>Runs <code>.litertlm</code> models through LiteRT-LM. Used in this codelab.</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><code>flutter_gemma_mediapipe</code></p>
+</td><td colspan="1" rowspan="1"><p>Runs older <code>.task</code> / <code>.bin</code> models through MediaPipe</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><code>flutter_gemma_speech</code></p>
+</td><td colspan="1" rowspan="1"><p>On-device speech-to-text and text-to-speech</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><code>flutter_gemma_rag_sqlite</code>, <code>flutter_gemma_rag_qdrant</code></p>
+</td><td colspan="1" rowspan="1"><p>Vector stores for on-device RAG</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><code>flutter_gemma_agent</code></p>
+</td><td colspan="1" rowspan="1"><p>Skills the model can run through function calling</p>
+</td></tr>
+</table>
+<p>Your app only bundles the native libraries for the packages you add.</p>
+<h2 is-upgraded>Gemma 4 E2B, no token required</h2>
+<p>This codelab uses <a href="https://huggingface.co/litert-community/gemma-4-E2B-it-litert-lm" target="_blank">Gemma 4 E2B in LiteRT-LM format</a> from the <code>litert-community</code> organization on Hugging Face. The download is public, so there is <strong>no Hugging Face account, access request or token</strong> to manage. The &#34;E&#34; in E2B stands for <em>effective</em> parameters. Gemma 4 is released under the Apache 2.0 license.</p>
+<p>Gemma 4 E2B accepts text and images, can stream its reasoning, and supports function calling natively, and you use all of these below.</p>
+<h2 is-upgraded>One chat call covers everything</h2>
+<p>A single <code>InferenceChat</code> streams a sealed <code>ModelResponse</code> type: <code>TextResponse</code>, <code>ThinkingResponse</code>, <code>FunctionCallResponse</code> and <code>ParallelFunctionCallResponse</code>. Because the type is sealed, a Dart <code>switch</code> over it is checked for exhaustiveness at compile time.</p>
 
-  <div class="hero-meta">
-    <div class="meta-cell"><span class="meta-label">Time</span><span class="meta-value">~2 hours</span></div>
-    <div class="meta-cell"><span class="meta-label">Level</span><span class="meta-value">Intermediate</span></div>
-    <div class="meta-cell"><span class="meta-label">What you'll build</span><span class="meta-value">Multimodal chat app</span></div>
-    <div class="meta-cell"><span class="meta-label">Stack</span><span class="meta-value">Flutter · Gemma 3n</span></div>
-  </div>
-</header>
 
-<div class="layout">
+      </google-codelab-step>
+    
+      <google-codelab-step label="Set up your environment" duration="5">
+        <h2 is-upgraded>Check your Flutter version</h2>
+<pre><code language="language-bash" class="language-bash">flutter --version
+</code></pre>
+<p>You need Flutter <strong>3.44.0 or newer</strong>. That&#39;s the minimum flutter_gemma 1.x declares, together with Dart 3.12. The packages use Dart build hooks (Native Assets) to download and bundle the LiteRT-LM native libraries when you build.</p>
+<p>If you&#39;re on an older version, upgrade:</p>
+<pre><code language="language-bash" class="language-bash">flutter upgrade
+</code></pre>
+<aside class="special"><p><strong>Can&#39;t upgrade your global Flutter?</strong> Use <a href="https://fvm.app" target="_blank">FVM</a> to pin a newer Flutter for this one project and leave your other projects alone: <code>fvm use stable</code> inside the project folder, then prefix commands with <code>fvm</code>, for example <code>fvm flutter run</code>.</p>
+</aside>
+<h2 is-upgraded>Check your device</h2>
+<pre><code language="language-bash" class="language-bash">flutter devices
+</code></pre>
+<p>Make sure your phone or Mac appears in the list.</p>
+<aside class="warning"><p> The <code>.litertlm</code> engine on Android ships <strong>arm64-v8a</strong> libraries only. x86 and x86_64 Android emulators can&#39;t load it. Use a physical arm64 phone. On an Apple Silicon Mac, the Android emulator runs arm64 images natively.</p>
+</aside>
 
-  <aside class="toc" aria-label="Codelab contents">
-    <div class="toc-title">On this page</div>
 
-    <div class="toc-group">
-      <div class="toc-group-label">Prerequisites</div>
-      <a href="#prereq" class="toc-item" data-step="prereq"><span class="toc-num">00</span><span>Before you start</span></a>
-    </div>
-
-    <div class="toc-group">
-      <div class="toc-group-label">Part 1 · Setup</div>
-      <a href="#step-1" class="toc-item" data-step="1"><span class="toc-num">01</span><span>Check Flutter</span></a>
-      <a href="#step-2" class="toc-item" data-step="2"><span class="toc-num">02</span><span>Create the project</span></a>
-      <a href="#step-3" class="toc-item" data-step="3"><span class="toc-num">03</span><span>Add dependencies</span></a>
-      <a href="#step-4" class="toc-item" data-step="4"><span class="toc-num">04</span><span>HuggingFace token</span></a>
-    </div>
-
-    <div class="toc-group">
-      <div class="toc-group-label">Part 2 · Platform</div>
-      <a href="#step-5" class="toc-item" data-step="5"><span class="toc-num">05</span><span>Android config</span></a>
-      <a href="#step-6" class="toc-item" data-step="6"><span class="toc-num">06</span><span>iOS config</span></a>
-      <a href="#step-7" class="toc-item" data-step="7"><span class="toc-num">07</span><span>Verify setup</span></a>
-    </div>
-
-    <div class="toc-group">
-      <div class="toc-group-label">Part 3 · Build</div>
-      <a href="#step-8" class="toc-item" data-step="8"><span class="toc-num">08</span><span>main.dart</span></a>
-      <a href="#step-9" class="toc-item" data-step="9"><span class="toc-num">09</span><span>Home screen</span></a>
-      <a href="#step-10" class="toc-item" data-step="10"><span class="toc-num">10</span><span>Model download</span></a>
-      <a href="#step-11" class="toc-item" data-step="11"><span class="toc-num">11</span><span>Chat + streaming</span></a>
-      <a href="#step-12" class="toc-item" data-step="12"><span class="toc-num">12</span><span>Image input</span></a>
-    </div>
-
-    <div class="toc-group">
-      <div class="toc-group-label">Part 4 · Ship</div>
-      <a href="#step-13" class="toc-item" data-step="13"><span class="toc-num">13</span><span>Release + GitHub</span></a>
-    </div>
-
-    <div class="toc-group">
-      <div class="toc-group-label">Wrap up</div>
-      <a href="#whatsnext" class="toc-item"><span class="toc-num">∞</span><span>What's next</span></a>
-    </div>
-  </aside>
-
-  <main class="content">
-
-    <!-- ========================================
-         PREREQUISITES
-         ======================================== -->
-    <div class="section-marker" id="prereq">
-      <span class="section-marker-num">00</span>
-      <span class="section-marker-label">Before you start</span>
-    </div>
-
-    <div class="step">
-      <div class="step-header">
-        <div class="step-title-block">
-          <div class="step-number">Prerequisites</div>
-          <h2>What you need before starting</h2>
-        </div>
-        <div class="step-time">10 min</div>
-      </div>
-
-      <div class="step-goal">
-        <div class="step-goal-label">Goal</div>
-        <div class="step-goal-body">Make sure your machine and phone can actually run on-device AI before you burn two hours finding out they can't.</div>
-      </div>
-
-      <h3>On your computer</h3>
-      <ul>
-        <li><strong>Flutter SDK 3.24+</strong> — install from <a href="https://docs.flutter.dev/get-started/install" target="_blank" rel="noopener">flutter.dev</a></li>
-        <li><strong>An IDE</strong> — VS Code (with Flutter extension) or Android Studio</li>
-        <li><strong>Git</strong> — for cloning and pushing later</li>
-        <li><strong>~10GB of free disk space</strong> — Flutter + Android SDK + model = not small</li>
-        <li><strong>Stable WiFi</strong> — you'll download a 3 GB AI model</li>
-      </ul>
-
-      <h3>For Android</h3>
-      <ul>
-        <li>An Android phone with <strong>6 GB RAM minimum</strong> (8 GB recommended)</li>
-        <li>Android 8.0+ (API level 26 or higher)</li>
-        <li>USB debugging enabled (Settings → About → tap Build Number 7 times → Developer Options → USB Debugging)</li>
-      </ul>
-
-      <div class="note">
-        <div class="note-label">A real constraint worth knowing</div>
-        <p>Gemma 3n E2B takes about 3 GB of RAM. On a 6 GB phone, you can't use the live camera <em>while</em> the model is loaded — Android's memory manager will kill the app. We work around it with gallery picker. On 8 GB+ phones, live camera works fine.</p>
-      </div>
-
-      <h3>For iOS (optional but recommended)</h3>
-      <ul>
-        <li>A Mac with Xcode 15+</li>
-        <li>An iPhone running iOS 16+</li>
-        <li>An Apple ID (free) — no paid developer account needed</li>
-      </ul>
-
-      <h3>Background knowledge (nice-to-have)</h3>
-      <ul>
-        <li>Basic Dart / Flutter — write a StatefulWidget, understand async/await</li>
-        <li>Comfort with running Terminal commands</li>
-      </ul>
-
-      <div class="mark-done" data-step="prereq">
-        <input type="checkbox" id="check-prereq" />
-        <label for="check-prereq">Mark as done</label>
-      </div>
-    </div>
-
-    <!-- ========================================
-         PART 1 — SETUP
-         ======================================== -->
-    <div class="section-marker">
-      <span class="section-marker-num">Part 01</span>
-      <span class="section-marker-label">Setup · ~20 min</span>
-    </div>
-
-    <div class="step" id="step-1">
-      <div class="step-header">
-        <div class="step-title-block">
-          <div class="step-number">Step 01</div>
-          <h2>Check your Flutter install</h2>
-        </div>
-        <div class="step-time">2 min</div>
-      </div>
-
-      <div class="step-goal">
-        <div class="step-goal-label">Goal</div>
-        <div class="step-goal-body">Confirm Flutter is installed and recent enough for flutter_gemma.</div>
-      </div>
-
-      <p>Open a terminal and run:</p>
-
-      <div class="code-block">
-        <div class="code-header">
-          <div class="code-header-label"><span class="code-lang">bash</span><span>Terminal</span></div>
-          <button class="copy-btn" data-code="check-flutter">Copy</button>
-        </div>
-<pre id="code-check-flutter">flutter --version</pre>
-      </div>
-
-      <div class="expected">
-        <div class="expected-label">Expected output</div>
-        <p>Something like this (your numbers may differ):</p>
-<pre>Flutter 3.38.10 • channel stable
-Framework • revision c6f67dede3
-Engine • hash 3c25ef829c74f0f39fbb8df093d9a6b9f941ea6b
-Tools • Dart 3.10.9 • DevTools 2.51.1</pre>
-      </div>
-
-      <h3>What version do you need?</h3>
-      <p><strong>Flutter 3.24 or newer</strong> works with <code>flutter_gemma 0.13.2</code>. If you're on 3.22 or older, upgrade:</p>
-
-      <div class="code-block">
-        <div class="code-header">
-          <div class="code-header-label"><span class="code-lang">bash</span><span>Upgrade Flutter</span></div>
-          <button class="copy-btn" data-code="upgrade-flutter">Copy</button>
-        </div>
-<pre id="code-upgrade-flutter">flutter upgrade</pre>
-      </div>
-
-      <details class="trouble">
-        <summary>If something goes wrong</summary>
-        <div class="trouble-body">
-          <h4>"flutter: command not found"</h4>
-          <p>Flutter isn't on your PATH. Follow the <a href="https://docs.flutter.dev/get-started/install" target="_blank" rel="noopener">install guide</a>.</p>
-
-          <h4>"channel [user-branch]" or "unknown source"</h4>
-          <p>Not a problem. Means Flutter was installed via Homebrew or direct download instead of git clone.</p>
-
-          <h4>Can't upgrade / company-managed Flutter</h4>
-          <p>Use <strong>FVM</strong> for a per-project Flutter install: <code>brew tap leoafarias/fvm && brew install fvm</code>, then <code>fvm install stable</code> in your project.</p>
-        </div>
-      </details>
-
-      <div class="mark-done" data-step="1"><input type="checkbox" id="check-1"/><label for="check-1">Mark as done</label></div>
-    </div>
-
-    <div class="step" id="step-2">
-      <div class="step-header">
-        <div class="step-title-block">
-          <div class="step-number">Step 02</div>
-          <h2>Create the Flutter project</h2>
-        </div>
-        <div class="step-time">3 min</div>
-      </div>
-
-      <div class="step-goal">
-        <div class="step-goal-label">Goal</div>
-        <div class="step-goal-body">Generate a clean Flutter project. Verify the default counter app runs.</div>
-      </div>
-
-      <p>Pick a folder for your work, then create the project:</p>
-
-      <div class="code-block">
-        <div class="code-header">
-          <div class="code-header-label"><span class="code-lang">bash</span><span>Terminal</span></div>
-          <button class="copy-btn" data-code="create-project">Copy</button>
-        </div>
-<pre id="code-create-project">cd ~/Desktop
-flutter create gemma_vision_demo
-cd gemma_vision_demo
-code .</pre>
-      </div>
-
-      <p>Last line opens VS Code. Use <code>studio .</code> for Android Studio.</p>
-
-      <h3>Verify the default app runs</h3>
-      <p>Connect your Android phone via USB. Accept "trust this computer" prompts. Then:</p>
-
-      <div class="code-block">
-        <div class="code-header">
-          <div class="code-header-label"><span class="code-lang">bash</span><span>Terminal</span></div>
-          <button class="copy-btn" data-code="first-run">Copy</button>
-        </div>
-<pre id="code-first-run">flutter devices
-flutter run</pre>
-      </div>
-
-      <div class="expected">
-        <div class="expected-label">Expected output</div>
-        <p>Default counter app launches. Tap "+" to confirm responsiveness. Press <code>q</code> to stop.</p>
-      </div>
-
-      <details class="trouble">
-        <summary>If something goes wrong</summary>
-        <div class="trouble-body">
-          <h4>"No devices found"</h4>
-          <p>Verify: data cable (not just charging), USB debugging on, "trust this computer" accepted. Run <code>adb devices</code> to check.</p>
-
-          <h4>Android license errors</h4>
-          <p>Run <code>flutter doctor --android-licenses</code> and accept all.</p>
-
-          <h4>Build takes forever first time</h4>
-          <p>Normal. Gradle is downloading dependencies. Subsequent builds are fast.</p>
-        </div>
-      </details>
-
-      <div class="mark-done" data-step="2"><input type="checkbox" id="check-2"/><label for="check-2">Mark as done</label></div>
-    </div>
-
-    <div class="step" id="step-3">
-      <div class="step-header">
-        <div class="step-title-block">
-          <div class="step-number">Step 03</div>
-          <h2>Add flutter_gemma and supporting packages</h2>
-        </div>
-        <div class="step-time">5 min</div>
-      </div>
-
-      <div class="step-goal">
-        <div class="step-goal-label">Goal</div>
-        <div class="step-goal-body">Pull in the Gemma runtime, image picker, env loader, and path utilities.</div>
-      </div>
-
-      <p>Open <code>pubspec.yaml</code>. Replace the <code>dependencies:</code> section:</p>
-
-      <div class="code-block">
-        <div class="code-header">
-          <div class="code-header-label"><span class="code-lang">yaml</span><span>pubspec.yaml</span></div>
-          <button class="copy-btn" data-code="pubspec-deps">Copy</button>
-        </div>
-<pre id="code-pubspec-deps">dependencies:
+      </google-codelab-step>
+    
+      <google-codelab-step label="Create the project and add packages" duration="4">
+        <p>Create a new Flutter project for Android, iOS and macOS:</p>
+<pre><code language="language-bash" class="language-bash">flutter create --platforms=android,ios,macos gemma_codelab
+cd gemma_codelab
+</code></pre>
+<p>Add the three packages this app needs:</p>
+<pre><code language="language-bash" class="language-bash">flutter pub add flutter_gemma flutter_gemma_litertlm image_picker
+</code></pre>
+<p>Your <code>pubspec.yaml</code> dependencies now look like this (patch versions may be newer):</p>
+<pre><code language="language-yaml" class="language-yaml">dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.8
-  flutter_gemma: ^0.13.2
-  image_picker: ^1.1.2
-  path_provider: ^2.1.5
-  flutter_dotenv: ^5.2.1</pre>
-      </div>
+  flutter_gemma: ^1.8.1
+  flutter_gemma_litertlm: ^1.6.3
+  image_picker: ^1.2.3
+</code></pre>
+<table>
+<tr><td colspan="1" rowspan="1"><p>Package</p>
+</td><td colspan="1" rowspan="1"><p>Why</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><code>flutter_gemma</code></p>
+</td><td colspan="1" rowspan="1"><p>Model download, chat sessions, response types</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><code>flutter_gemma_litertlm</code></p>
+</td><td colspan="1" rowspan="1"><p>The engine that runs <code>.litertlm</code> models on the GPU</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><code>image_picker</code></p>
+</td><td colspan="1" rowspan="1"><p>Choosing a photo for the vision step</p>
+</td></tr>
+</table>
+<p>Delete the default widget test. It refers to the counter app you&#39;re about to replace:</p>
+<pre><code language="language-bash" class="language-bash">rm test/widget_test.dart
+</code></pre>
 
-      <p>At the bottom in the <code>flutter:</code> section, register <code>.env</code> as an asset:</p>
 
-      <div class="code-block">
-        <div class="code-header">
-          <div class="code-header-label"><span class="code-lang">yaml</span><span>pubspec.yaml (bottom)</span></div>
-          <button class="copy-btn" data-code="pubspec-assets">Copy</button>
-        </div>
-<pre id="code-pubspec-assets">flutter:
-  uses-material-design: true
-  assets:
-    - .env</pre>
-      </div>
+      </google-codelab-step>
+    
+      <google-codelab-step label="Configure Android" duration="5">
+        <p>Skip this step if you&#39;re not targeting Android.</p>
+<h2 is-upgraded>Restrict the build to arm64</h2>
+<p>The <code>.litertlm</code> engine only ships arm64 libraries. Restricting the ABI stops you from building an APK that installs on an unsupported device and then crashes when the engine starts.</p>
+<p>Open <code>android/app/build.gradle.kts</code> and add <code>ndk</code> to <code>defaultConfig</code>:</p>
+<pre><code language="language-kotlin" class="language-kotlin">defaultConfig {
+    // ...keep the generated values (applicationId, minSdk, and so on)...
+    ndk { abiFilters += listOf(&#34;arm64-v8a&#34;) }
+}
+</code></pre>
+<h2 is-upgraded>Update the manifest</h2>
+<p>Replace <code>android/app/src/main/AndroidManifest.xml</code> with the version below. It&#39;s the default Flutter manifest, without the generated comments, plus four additions:</p>
+<ol type="1">
+<li><strong><code>INTERNET</code></strong> in the main manifest. Flutter only adds it to debug builds by default, and a release build needs it to download the model.</li>
+<li><strong>Foreground download permissions.</strong> The model downloads with <code>foreground: true</code>, which shows a progress notification and keeps a long download running.</li>
+<li><strong>The </strong><strong><code>SystemForegroundService</code></strong><strong> override.</strong> On Android 14+ (API 34), a foreground download crashes without <code>foregroundServiceType="dataSync"</code>. flutter_gemma leaves this to the app on purpose because <code>FOREGROUND_SERVICE_DATA_SYNC</code> is a Play-sensitive permission.</li>
+<li><strong>Native GPU libraries.</strong> These let the GPU backend load the vendor&#39;s OpenCL driver.</li>
+</ol>
+<pre><code language="language-xml" class="language-xml">&lt;manifest xmlns:android=&#34;http://schemas.android.com/apk/res/android&#34;
+    xmlns:tools=&#34;http://schemas.android.com/tools&#34;&gt;
 
-      <p>Install:</p>
+    &lt;uses-permission android:name=&#34;android.permission.INTERNET&#34; /&gt;
+    &lt;uses-permission android:name=&#34;android.permission.POST_NOTIFICATIONS&#34; /&gt;
+    &lt;uses-permission android:name=&#34;android.permission.FOREGROUND_SERVICE_DATA_SYNC&#34; /&gt;
 
-      <div class="code-block">
-        <div class="code-header">
-          <div class="code-header-label"><span class="code-lang">bash</span><span>Terminal</span></div>
-          <button class="copy-btn" data-code="pub-get">Copy</button>
-        </div>
-<pre id="code-pub-get">flutter pub get</pre>
-      </div>
+    &lt;application
+        android:label=&#34;gemma_codelab&#34;
+        android:name=&#34;${applicationName}&#34;
+        android:icon=&#34;@mipmap/ic_launcher&#34;&gt;
+        &lt;activity
+            android:name=&#34;.MainActivity&#34;
+            android:exported=&#34;true&#34;
+            android:launchMode=&#34;singleTop&#34;
+            android:taskAffinity=&#34;&#34;
+            android:theme=&#34;@style/LaunchTheme&#34;
+            android:configChanges=&#34;orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode&#34;
+            android:hardwareAccelerated=&#34;true&#34;
+            android:windowSoftInputMode=&#34;adjustResize&#34;&gt;
+            &lt;meta-data
+              android:name=&#34;io.flutter.embedding.android.NormalTheme&#34;
+              android:resource=&#34;@style/NormalTheme&#34;
+              /&gt;
+            &lt;intent-filter&gt;
+                &lt;action android:name=&#34;android.intent.action.MAIN&#34;/&gt;
+                &lt;category android:name=&#34;android.intent.category.LAUNCHER&#34;/&gt;
+            &lt;/intent-filter&gt;
+        &lt;/activity&gt;
+        &lt;meta-data
+            android:name=&#34;flutterEmbedding&#34;
+            android:value=&#34;2&#34; /&gt;
 
-      <div class="note">
-        <div class="note-label">Why each package?</div>
-        <p><strong>flutter_gemma</strong> — Dart wrapper around MediaPipe's native inference engine.</p>
-        <p><strong>image_picker</strong> — gallery selection for multimodal input (Step 12).</p>
-        <p><strong>path_provider</strong> — access device file paths where the model gets stored.</p>
-        <p><strong>flutter_dotenv</strong> — load HuggingFace token from <code>.env</code> at runtime.</p>
-      </div>
+        &lt;!-- Android 14+: foreground model download --&gt;
+        &lt;service
+            android:name=&#34;androidx.work.impl.foreground.SystemForegroundService&#34;
+            android:foregroundServiceType=&#34;dataSync&#34;
+            tools:node=&#34;merge&#34; /&gt;
 
-      <details class="trouble">
-        <summary>If something goes wrong</summary>
-        <div class="trouble-body">
-          <h4>"Version solving failed"</h4>
-          <p>Run <code>flutter pub outdated</code>. Usually fixed by upgrading Flutter to latest stable.</p>
-        </div>
-      </details>
+        &lt;!-- GPU backend: vendor OpenCL driver --&gt;
+        &lt;uses-native-library android:name=&#34;libvndksupport.so&#34; android:required=&#34;false&#34;/&gt;
+        &lt;uses-native-library android:name=&#34;libOpenCL.so&#34; android:required=&#34;false&#34;/&gt;
+        &lt;uses-native-library android:name=&#34;libOpenCL-car.so&#34; android:required=&#34;false&#34;/&gt;
+        &lt;uses-native-library android:name=&#34;libOpenCL-pixel.so&#34; android:required=&#34;false&#34;/&gt;
+    &lt;/application&gt;
+    &lt;queries&gt;
+        &lt;intent&gt;
+            &lt;action android:name=&#34;android.intent.action.PROCESS_TEXT&#34;/&gt;
+            &lt;data android:mimeType=&#34;text/plain&#34;/&gt;
+        &lt;/intent&gt;
+    &lt;/queries&gt;
+&lt;/manifest&gt;
+</code></pre>
+<aside class="special"><p><code>image_picker</code> needs no extra Android permissions. It opens the system camera or photo picker, which handle access themselves.</p>
+</aside>
 
-      <div class="mark-done" data-step="3"><input type="checkbox" id="check-3"/><label for="check-3">Mark as done</label></div>
-    </div>
 
-    <div class="step" id="step-4">
-      <div class="step-header">
-        <div class="step-title-block">
-          <div class="step-number">Step 04</div>
-          <h2>Get your HuggingFace token</h2>
-        </div>
-        <div class="step-time">5 min</div>
-      </div>
-
-      <div class="step-goal">
-        <div class="step-goal-label">Goal</div>
-        <div class="step-goal-body">Get access to Google's gated Gemma model. Put the token in a Git-safe <code>.env</code>.</div>
-      </div>
-
-      <h3>4a. Create a HuggingFace account</h3>
-      <p><a href="https://huggingface.co/join" target="_blank" rel="noopener">huggingface.co/join</a> — free tier is enough.</p>
-
-      <h3>4b. Request model access</h3>
-      <p>Visit <a href="https://huggingface.co/google/gemma-3n-E2B-it-litert-preview" target="_blank" rel="noopener">google/gemma-3n-E2B-it-litert-preview</a>. Click <strong>Agree and access repository</strong>. Usually approved instantly.</p>
-
-      <h3>4c. Generate an access token</h3>
-      <p>Go to <a href="https://huggingface.co/settings/tokens" target="_blank" rel="noopener">huggingface.co/settings/tokens</a>. Click <strong>Create new token</strong>:</p>
-      <ul>
-        <li>Type: <strong>Read</strong></li>
-        <li>Name: <code>flutter-gemma-demo</code></li>
-      </ul>
-      <p>Copy the token — starts with <code>hf_...</code>. <strong>You won't see it again.</strong></p>
-
-      <h3>4d. Create <code>.env</code> in project root</h3>
-      <p>Same level as <code>pubspec.yaml</code>:</p>
-
-      <div class="code-block">
-        <div class="code-header">
-          <div class="code-header-label"><span class="code-lang">text</span><span>.env</span></div>
-          <button class="copy-btn" data-code="env-file">Copy</button>
-        </div>
-<pre id="code-env-file">HUGGINGFACE_TOKEN=hf_paste_your_actual_token_here</pre>
-      </div>
-
-      <p>No quotes, no spaces around <code>=</code>.</p>
-
-      <h3>4e. Add <code>.env</code> to <code>.gitignore</code></h3>
-
-      <div class="code-block">
-        <div class="code-header">
-          <div class="code-header-label"><span class="code-lang">bash</span><span>Terminal</span></div>
-          <button class="copy-btn" data-code="gitignore">Copy</button>
-        </div>
-<pre id="code-gitignore">echo ".env" >> .gitignore</pre>
-      </div>
-
-      <div class="note">
-        <div class="note-label">Why HuggingFace gates the model</div>
-        <p>Gemma is Apache 2.0 licensed, but Google ships weights through a gated HuggingFace repo to enforce license acceptance. It's a compliance checkbox — once you accept, you're free to use commercially.</p>
-      </div>
-
-      <details class="trouble">
-        <summary>If something goes wrong</summary>
-        <div class="trouble-body">
-          <h4>"Access denied" on the model page</h4>
-          <p>Hit refresh. HuggingFace sometimes takes a minute. Check email for a confirmation link.</p>
-
-          <h4>Lost the token</h4>
-          <p>Generate a new one. Revoke old one while you're there.</p>
-        </div>
-      </details>
-
-      <div class="mark-done" data-step="4"><input type="checkbox" id="check-4"/><label for="check-4">Mark as done</label></div>
-    </div>
-
-    <div class="checkpoint">
-      <span class="checkpoint-icon">◆ CHECKPOINT</span>
-      <span class="checkpoint-body">~20 min in. Project + dependencies + token done. Now we configure platforms.</span>
-    </div>
-
-    <!-- ========================================
-         PART 2 — PLATFORM
-         ======================================== -->
-    <div class="section-marker">
-      <span class="section-marker-num">Part 02</span>
-      <span class="section-marker-label">Platform · ~30 min</span>
-    </div>
-
-    <div class="step" id="step-5">
-      <div class="step-header">
-        <div class="step-title-block">
-          <div class="step-number">Step 05</div>
-          <h2>Configure Android</h2>
-        </div>
-        <div class="step-time">10 min</div>
-      </div>
-
-      <div class="step-goal">
-        <div class="step-goal-label">Goal</div>
-        <div class="step-goal-body">Bump minSdk, add permissions, configure ProGuard for release builds.</div>
-      </div>
-
-      <h3>5a. minSdk + Gradle settings</h3>
-      <p>Open <code>android/app/build.gradle.kts</code>, find <code>defaultConfig</code>:</p>
-
-      <div class="code-block">
-        <div class="code-header">
-          <div class="code-header-label"><span class="code-lang">kotlin</span><span>android/app/build.gradle.kts</span></div>
-          <button class="copy-btn" data-code="android-gradle">Copy</button>
-        </div>
-<pre id="code-android-gradle">defaultConfig {
-    applicationId = "com.example.gemma_vision_demo"
-    minSdk = 26          // Required by flutter_gemma
-    targetSdk = flutter.targetSdkVersion
-    versionCode = flutter.versionCode
-    versionName = flutter.versionName
-}</pre>
-      </div>
-
-      <h3>5b. Gradle memory</h3>
-      <p>Replace <code>android/gradle.properties</code>:</p>
-
-      <div class="code-block">
-        <div class="code-header">
-          <div class="code-header-label"><span class="code-lang">properties</span><span>android/gradle.properties</span></div>
-          <button class="copy-btn" data-code="gradle-props">Copy</button>
-        </div>
-<pre id="code-gradle-props">org.gradle.jvmargs=-Xmx4G -XX:MaxMetaspaceSize=2G -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8
-org.gradle.parallel=true
-org.gradle.caching=true
-android.useAndroidX=true
-android.enableJetifier=true</pre>
-      </div>
-
-      <h3>5c. Permissions</h3>
-      <p>In <code>android/app/src/main/AndroidManifest.xml</code>, inside <code>&lt;manifest&gt;</code>, above <code>&lt;application&gt;</code>:</p>
-
-      <div class="code-block">
-        <div class="code-header">
-          <div class="code-header-label"><span class="code-lang">xml</span><span>AndroidManifest.xml</span></div>
-          <button class="copy-btn" data-code="android-perms">Copy</button>
-        </div>
-<pre id="code-android-perms">&lt;uses-permission android:name="android.permission.INTERNET" /&gt;
-&lt;uses-permission android:name="android.permission.CAMERA" /&gt;
-&lt;uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" /&gt;
-&lt;uses-permission android:name="android.permission.READ_MEDIA_IMAGES" /&gt;
-&lt;uses-permission android:name="android.permission.FOREGROUND_SERVICE" /&gt;
-&lt;uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" /&gt;
-
-&lt;uses-feature android:name="android.hardware.camera" android:required="false" /&gt;
-&lt;uses-feature android:name="android.hardware.opengles.aep" android:required="false" /&gt;</pre>
-      </div>
-
-      <h3>5d. ProGuard rules (for release builds)</h3>
-      <p>Create <code>android/app/proguard-rules.pro</code>:</p>
-
-      <div class="code-block">
-        <div class="code-header">
-          <div class="code-header-label"><span class="code-lang">text</span><span>android/app/proguard-rules.pro</span></div>
-          <button class="copy-btn" data-code="proguard">Copy</button>
-        </div>
-<pre id="code-proguard"># MediaPipe (used by flutter_gemma)
--keep class com.google.mediapipe.** { *; }
--dontwarn com.google.mediapipe.**
-
-# Protocol Buffers
--keep class com.google.protobuf.** { *; }
--dontwarn com.google.protobuf.**
-
-# localagents (Gemma-specific)
--keep class com.google.ai.edge.localagents.** { *; }
--dontwarn com.google.ai.edge.localagents.**</pre>
-      </div>
-
-      <h3>5e. Wire ProGuard into release</h3>
-      <p>Back in <code>android/app/build.gradle.kts</code>, replace the <code>buildTypes</code> block:</p>
-
-      <div class="code-block">
-        <div class="code-header">
-          <div class="code-header-label"><span class="code-lang">kotlin</span><span>android/app/build.gradle.kts</span></div>
-          <button class="copy-btn" data-code="buildtypes">Copy</button>
-        </div>
-<pre id="code-buildtypes">buildTypes {
-    release {
-        signingConfig = signingConfigs.getByName("debug")
-        isMinifyEnabled = true
-        isShrinkResources = true
-        proguardFiles(
-            getDefaultProguardFile("proguard-android-optimize.txt"),
-            "proguard-rules.pro"
-        )
-    }
-}</pre>
-      </div>
-
-      <div class="note">
-        <div class="note-label">Why ProGuard rules?</div>
-        <p>R8 (Android's code shrinker) removes unused code in release builds. MediaPipe uses Java reflection — R8 can't see those references and removes them. Result: ClassNotFoundException at runtime. The rules tell R8 "keep these, no matter what."</p>
-      </div>
-
-      <details class="trouble">
-        <summary>If something goes wrong</summary>
-        <div class="trouble-body">
-          <h4>"Missing classes" during release build</h4>
-          <p>R8 found another class needs keeping. Open the referenced <code>missing_rules.txt</code>, copy new keep rules into <code>proguard-rules.pro</code>, rebuild.</p>
-
-          <h4>Gradle daemon crashes / OOM</h4>
-          <p>Close other apps. Try reducing <code>-Xmx4G</code> to <code>-Xmx3G</code>. Counter-intuitive but sometimes less heap is more stable.</p>
-        </div>
-      </details>
-
-      <div class="mark-done" data-step="5"><input type="checkbox" id="check-5"/><label for="check-5">Mark as done</label></div>
-    </div>
-
-    <div class="step" id="step-6">
-      <div class="step-header">
-        <div class="step-title-block">
-          <div class="step-number">Step 06</div>
-          <h2>Configure iOS</h2>
-        </div>
-        <div class="step-time">15 min</div>
-      </div>
-
-      <div class="step-goal">
-        <div class="step-goal-label">Goal</div>
-        <div class="step-goal-body">iOS 16+, camera/photo permissions, free Apple ID signing.</div>
-      </div>
-
-      <p>Skip if no Mac/iPhone. Android works fine alone.</p>
-
-      <h3>6a. Update Podfile</h3>
-      <p>Top of <code>ios/Podfile</code>:</p>
-
-      <div class="code-block">
-        <div class="code-header">
-          <div class="code-header-label"><span class="code-lang">ruby</span><span>ios/Podfile</span></div>
-          <button class="copy-btn" data-code="podfile">Copy</button>
-        </div>
-<pre id="code-podfile">platform :ios, '16.0'
-
-# (keep everything else as-is)</pre>
-      </div>
-
-      <h3>6b. Permissions in Info.plist</h3>
-      <p>In <code>ios/Runner/Info.plist</code>, inside the top-level <code>&lt;dict&gt;</code>:</p>
-
-      <div class="code-block">
-        <div class="code-header">
-          <div class="code-header-label"><span class="code-lang">xml</span><span>ios/Runner/Info.plist</span></div>
-          <button class="copy-btn" data-code="infoplist">Copy</button>
-        </div>
-<pre id="code-infoplist">&lt;key&gt;NSCameraUsageDescription&lt;/key&gt;
-&lt;string&gt;We use the camera for multimodal AI input.&lt;/string&gt;
+      </google-codelab-step>
+    
+      <google-codelab-step label="Configure iOS" duration="4">
+        <p>Skip this step if you&#39;re not targeting iOS.</p>
+<h2 is-upgraded>Deployment target</h2>
+<p>flutter_gemma needs <strong>iOS 15.0</strong> or later. Projects created with Flutter 3.47 already target 15.0. To check, open <code>ios/Runner.xcworkspace</code> in Xcode, select the <strong>Runner</strong> target, and look at <strong>Minimum Deployments</strong>.</p>
+<aside class="special"><p> New Flutter projects use Swift Package Manager and have no <code>Podfile</code>. flutter_gemma works without one on iOS. Set the deployment target on the Runner target, as above.</p>
+</aside>
+<h2 is-upgraded>Info.plist</h2>
+<p>Open <code>ios/Runner/Info.plist</code> and add these keys inside the top-level <code>dict</code> element. The camera and photo library descriptions are required by <code>image_picker</code>. <code>UIFileSharingEnabled</code> is part of flutter_gemma&#39;s iOS setup.</p>
+<pre><code language="language-xml" class="language-xml">&lt;key&gt;NSCameraUsageDescription&lt;/key&gt;
+&lt;string&gt;Take a photo to ask Gemma about it. The photo stays on this device.&lt;/string&gt;
 &lt;key&gt;NSPhotoLibraryUsageDescription&lt;/key&gt;
-&lt;string&gt;We use your photos for multimodal AI input.&lt;/string&gt;
-&lt;key&gt;NSAppTransportSecurity&lt;/key&gt;
+&lt;string&gt;Choose a photo to ask Gemma about it. The photo stays on this device.&lt;/string&gt;
+&lt;key&gt;UIFileSharingEnabled&lt;/key&gt;
+&lt;true/&gt;
+</code></pre>
+<h2 is-upgraded>Memory entitlements</h2>
+<p>iOS limits how much memory an app can use, and a 2.6 GB model gets close to that limit. In Xcode, select <strong>Runner → Signing &amp; Capabilities → + Capability</strong> and add <strong>Increased Memory Limit</strong> and <strong>Extended Virtual Addressing</strong>. Xcode creates <code>ios/Runner/Runner.entitlements</code> for you:</p>
+<pre><code language="language-xml" class="language-xml">&lt;?xml version=&#34;1.0&#34; encoding=&#34;UTF-8&#34;?&gt;
+&lt;!DOCTYPE plist PUBLIC &#34;-//Apple//DTD PLIST 1.0//EN&#34; &#34;http://www.apple.com/DTDs/PropertyList-1.0.dtd&#34;&gt;
+&lt;plist version=&#34;1.0&#34;&gt;
 &lt;dict&gt;
-    &lt;key&gt;NSAllowsArbitraryLoads&lt;/key&gt;
-    &lt;true/&gt;
-&lt;/dict&gt;</pre>
-      </div>
+	&lt;key&gt;com.apple.developer.kernel.extended-virtual-addressing&lt;/key&gt;
+	&lt;true/&gt;
+	&lt;key&gt;com.apple.developer.kernel.increased-memory-limit&lt;/key&gt;
+	&lt;true/&gt;
+&lt;/dict&gt;
+&lt;/plist&gt;
+</code></pre>
+<aside class="warning"><p> These are iOS entitlements only. Don&#39;t add them to the macOS entitlement files: Xcode would then require a development signing certificate for your macOS build.</p>
+</aside>
 
-      <h3>6c. Install CocoaPods</h3>
 
-      <div class="code-block">
-        <div class="code-header">
-          <div class="code-header-label"><span class="code-lang">bash</span><span>Terminal</span></div>
-          <button class="copy-btn" data-code="pod-install">Copy</button>
-        </div>
-<pre id="code-pod-install">cd ios
-pod install --repo-update
-cd ..</pre>
-      </div>
+      </google-codelab-step>
+    
+      <google-codelab-step label="Configure macOS" duration="6">
+        <p>Skip this step if you&#39;re not targeting macOS.</p>
+<h2 is-upgraded>Entitlements</h2>
+<p>macOS apps run in a sandbox. Add these keys to <strong>both </strong><code>macos/Runner/DebugProfile.entitlements</code> and <code>macos/Runner/Release.entitlements</code>, inside the <code>dict</code> element:</p>
+<pre><code language="language-xml" class="language-xml">&lt;key&gt;com.apple.security.network.client&lt;/key&gt;
+&lt;true/&gt;
+&lt;key&gt;com.apple.security.cs.disable-library-validation&lt;/key&gt;
+&lt;true/&gt;
+&lt;key&gt;com.apple.security.files.user-selected.read-only&lt;/key&gt;
+&lt;true/&gt;
+</code></pre>
+<table>
+<tr><td colspan="1" rowspan="1"><p>Key</p>
+</td><td colspan="1" rowspan="1"><p>Why</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><code>network.client</code></p>
+</td><td colspan="1" rowspan="1"><p>Outbound connections, for the one-time model download</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><code>cs.disable-library-validation</code></p>
+</td><td colspan="1" rowspan="1"><p>Lets the app load the LiteRT-LM GPU libraries that flutter_gemma copies into the bundle</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><code>files.user-selected.read-only</code></p>
+</td><td colspan="1" rowspan="1"><p>Lets <code>image_picker</code> open a photo you choose</p>
+</td></tr>
+</table>
+<h2 is-upgraded>Copy the GPU libraries into the app</h2>
+<p>On macOS, LiteRT-LM depends on companion libraries (<code>libGemmaModelConstraintProvider.dylib</code> and <code>libLiteRtMetalAccelerator.dylib</code>) that Native Assets can&#39;t bundle. <code>flutter_gemma_litertlm</code> installs a script that copies them into your <code>.app</code> and fixes the engine&#39;s reference to them. Your Xcode project needs to run that script after each build.</p>
+<aside class="warning"><p> Without this step the app builds, but LiteRT-LM references <code>@rpath/libGemmaModelConstraintProvider.dylib</code> and that file isn&#39;t in the bundle, so the engine fails to load.</p>
+</aside>
+<p><strong>If your project has a Podfile</strong> (<code>macos/Podfile</code>), follow the <code>post_install</code> block in the <a href="https://pub.dev/packages/flutter_gemma" target="_blank">flutter_gemma README</a>.</p>
+<p><strong>If it doesn&#39;t</strong> (the default for new projects, which use Swift Package Manager), add a Run Script phase in Xcode:</p>
+<ol type="1">
+<li>Open <code>macos/Runner.xcworkspace</code> in Xcode.</li>
+<li>Select the <strong>Runner</strong> project, then the <strong>Runner</strong> target, then <strong>Build Phases</strong>.</li>
+<li>Click <strong>+</strong> and choose <strong>New Run Script Phase</strong>. Make sure it&#39;s the <strong>last</strong> phase, after <em>Bundle Framework</em>.</li>
+<li>Rename it to <code>Stage flutter_gemma libraries</code>.</li>
+<li>Paste this script:</li>
+</ol>
+<pre><code language="language-bash" class="language-bash">set -e
+STAGER=&#34;${HOME}/Library/Caches/flutter_gemma/native/macos_arm64/stage_macos_companions.sh&#34;
+sh &#34;${STAGER}&#34; &#34;${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/Contents/Frameworks&#34;
+touch &#34;${SCRIPT_OUTPUT_FILE_0}&#34;
+</code></pre>
+<ol type="1" start="6">
+<li>Under <strong>Input Files</strong>, add:</li>
+</ol>
+<pre><code language="language-text" class="language-text">$(BUILT_PRODUCTS_DIR)/$(PRODUCT_NAME).app/Contents/Frameworks/LiteRtLm.framework/Versions/A/LiteRtLm
+</code></pre>
+<ol type="1" start="7">
+<li>Under <strong>Output Files</strong>, add:</li>
+</ol>
+<pre><code language="language-text" class="language-text">$(DERIVED_FILE_DIR)/flutter_gemma_litertlm_macos.stamp
+</code></pre>
+<p>The input file makes Xcode rerun the script whenever Flutter copies a fresh, unpatched engine library into the app. The output file lets Xcode schedule the phase correctly.</p>
+<p>Build once to confirm it works:</p>
+<pre><code language="language-bash" class="language-bash">flutter build macos --debug
+ls build/macos/Build/Products/Debug/gemma_codelab.app/Contents/Frameworks
+</code></pre>
+<p>You should see <code>GemmaModelConstraintProvider.framework</code> and <code>LiteRtMetalAccelerator.framework</code> next to <code>LiteRtLm.framework</code>.</p>
+<aside class="special"><p> The script lives in <code>~/Library/Caches/flutter_gemma</code> and is written there by the package&#39;s build hook when you build. If Xcode reports that it&#39;s missing, run <code>flutter clean && flutter pub get</code> and build again.</p>
+</aside>
 
-      <p>2-5 minutes first run. Downloads MediaPipe native libraries.</p>
 
-      <h3>6d. Xcode signing</h3>
+      </google-codelab-step>
+    
+      <google-codelab-step label="Initialize flutter_gemma" duration="3">
+        <p>flutter_gemma&#39;s core doesn&#39;t know how to run a model until you register an engine. You do that once, before <code>runApp</code>.</p>
+<p>Replace <code>lib/main.dart</code>:</p>
+<pre><code language="language-dart" class="language-dart">import &#39;package:flutter/material.dart&#39;;
+import &#39;package:flutter_gemma/flutter_gemma.dart&#39;;
+import &#39;package:flutter_gemma_litertlm/flutter_gemma_litertlm.dart&#39;;
 
-      <div class="code-block">
-        <div class="code-header">
-          <div class="code-header-label"><span class="code-lang">bash</span><span>Terminal</span></div>
-          <button class="copy-btn" data-code="open-xcode">Copy</button>
-        </div>
-<pre id="code-open-xcode">open ios/Runner.xcworkspace</pre>
-      </div>
-
-      <p>In Xcode:</p>
-      <ol>
-        <li>Click <strong>Runner</strong> project (top of left sidebar)</li>
-        <li>Select <strong>Runner</strong> target</li>
-        <li>Go to <strong>Signing &amp; Capabilities</strong></li>
-        <li>Check "Automatically manage signing"</li>
-        <li>Pick your Personal Team from <strong>Team</strong> dropdown</li>
-        <li>Change <strong>Bundle Identifier</strong> from <code>com.example.gemmaVisionDemo</code> to something unique like <code>com.yourname.gemmaVisionDemo</code></li>
-      </ol>
-
-      <h3>6e. Register your device</h3>
-      <p>If you see "Your team has no devices":</p>
-      <ol>
-        <li>Plug iPhone into Mac via USB</li>
-        <li>Tap <strong>Trust</strong> on iPhone</li>
-        <li>Enable Developer Mode: Settings → Privacy &amp; Security → Developer Mode → On (restart)</li>
-        <li>Click <strong>Try Again</strong> in Xcode</li>
-      </ol>
-
-      <div class="expected">
-        <div class="expected-label">Expected state</div>
-        <p>No warnings in Signing &amp; Capabilities.</p>
-      </div>
-
-      <details class="trouble">
-        <summary>If something goes wrong</summary>
-        <div class="trouble-body">
-          <h4>"Unable to log in with account [email]"</h4>
-          <p>Stale account from a previous user. Xcode → Settings (⌘,) → Accounts → select wrong account → click "–" → re-add yours with "+".</p>
-
-          <h4>"No profiles for 'com.example.*' were found"</h4>
-          <p>Apple won't issue free profiles for <code>com.example</code>. Use any other prefix.</p>
-
-          <h4>"Personal teams do not support Push Notifications"</h4>
-          <p>Ignore.</p>
-        </div>
-      </details>
-
-      <div class="mark-done" data-step="6"><input type="checkbox" id="check-6"/><label for="check-6">Mark as done</label></div>
-    </div>
-
-    <div class="step" id="step-7">
-      <div class="step-header">
-        <div class="step-title-block">
-          <div class="step-number">Step 07</div>
-          <h2>Verify the setup</h2>
-        </div>
-        <div class="step-time">5 min</div>
-      </div>
-
-      <div class="step-goal">
-        <div class="step-goal-label">Goal</div>
-        <div class="step-goal-body">Confirm the default counter app still runs after all our config changes.</div>
-      </div>
-
-      <p>Connect Android, then:</p>
-
-      <div class="code-block">
-        <div class="code-header">
-          <div class="code-header-label"><span class="code-lang">bash</span><span>Terminal</span></div>
-          <button class="copy-btn" data-code="verify-android">Copy</button>
-        </div>
-<pre id="code-verify-android">flutter devices
-flutter run</pre>
-      </div>
-
-      <p>If prompted for device, pick Android. Default counter app should launch. Press <code>q</code> to stop.</p>
-
-      <p>Disconnect Android, connect iPhone, repeat <code>flutter run</code>. Pick iPhone.</p>
-
-      <ul>
-        <li>If iOS shows "Untrusted Developer" alert, go to Settings → General → VPN &amp; Device Management → [your Apple ID] → Trust. Then launch the app.</li>
-      </ul>
-
-      <div class="expected">
-        <div class="expected-label">Expected state</div>
-        <p>Default counter app runs on both devices. Environment is ready for the actual build.</p>
-      </div>
-
-      <div class="mark-done" data-step="7"><input type="checkbox" id="check-7"/><label for="check-7">Mark as done</label></div>
-    </div>
-
-    <div class="checkpoint">
-      <span class="checkpoint-icon">◆ CHECKPOINT</span>
-      <span class="checkpoint-body">~50 min. Setup is done. Grab a chai. Now the fun begins.</span>
-    </div>
-
-    <!-- ========================================
-         PART 3 — BUILD THE APP
-         ======================================== -->
-    <div class="section-marker">
-      <span class="section-marker-num">Part 03</span>
-      <span class="section-marker-label">Build the app · ~45 min</span>
-    </div>
-
-    <div class="step" id="step-8">
-      <div class="step-header">
-        <div class="step-title-block">
-          <div class="step-number">Step 08</div>
-          <h2>Wire up <code>main.dart</code></h2>
-        </div>
-        <div class="step-time">5 min</div>
-      </div>
-
-      <div class="step-goal">
-        <div class="step-goal-label">Goal</div>
-        <div class="step-goal-body">Load the env file, initialize flutter_gemma with your token, set up the app theme.</div>
-      </div>
-
-      <p>Replace the entire contents of <code>lib/main.dart</code>:</p>
-
-      <div class="code-block">
-        <div class="code-header">
-          <div class="code-header-label"><span class="code-lang">dart</span><span>lib/main.dart</span></div>
-          <button class="copy-btn" data-code="main-dart">Copy</button>
-        </div>
-<pre id="code-main-dart">import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:flutter_gemma/core/api/flutter_gemma.dart';
-import 'package:gemma_vision_demo/screens/home_screen.dart';
+import &#39;download_screen.dart&#39;;
 
 Future&lt;void&gt; main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Load env vars from .env
-  await dotenv.load(fileName: ".env");
+  // flutter_gemma&#39;s core ships without an inference engine. Register the
+  // engine package you added: LiteRtLmEngine runs .litertlm models.
+  await FlutterGemma.initialize(inferenceEngines: const [LiteRtLmEngine()]);
 
-  // Initialize flutter_gemma with HF token
-  FlutterGemma.initialize(
-    huggingFaceToken: dotenv.env['HUGGINGFACE_TOKEN'],
-    maxDownloadRetries: 20,
-  );
-
-  runApp(const GemmaDemoApp());
+  runApp(const GemmaApp());
 }
 
-class GemmaDemoApp extends StatelessWidget {
-  const GemmaDemoApp({super.key});
+class GemmaApp extends StatelessWidget {
+  const GemmaApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Gemma Vision Demo',
+      title: &#39;On-Device Gemma&#39;,
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFFFF5722),
-          brightness: Brightness.dark,
-        ),
-        useMaterial3: true,
+        colorSchemeSeed: const Color(0xFF1A73E8),
+        brightness: Brightness.dark,
       ),
-      home: const HomeScreen(),
+      home: const DownloadScreen(),
     );
   }
-}</pre>
-      </div>
+}
+</code></pre>
+<p><code>FlutterGemma.initialize</code> sets up model storage and the download service, and <code>inferenceEngines</code> registers the engines you added. <code>LiteRtLmEngine</code> handles every <code>.litertlm</code> model.</p>
+<aside class="warning"><p> If you forget <code>inferenceEngines</code>, installing works but loading the model fails, because no registered engine can open the file.</p>
+</aside>
+<p>The app doesn&#39;t compile yet because <code>DownloadScreen</code> doesn&#39;t exist. You create it in the next step.</p>
 
-      <p>The import path on line 4 uses your project's package name. If you named your project differently, update it (it's whatever's in <code>pubspec.yaml</code>'s <code>name:</code> field).</p>
 
-      <div class="note">
-        <div class="note-label">What's happening here</div>
-        <p><strong>WidgetsFlutterBinding.ensureInitialized()</strong> — required because we're doing async work before runApp.</p>
-        <p><strong>dotenv.load()</strong> — reads <code>.env</code> at startup so <code>dotenv.env['KEY']</code> works anywhere.</p>
-        <p><strong>FlutterGemma.initialize()</strong> — sets up the global Gemma instance with your HF token. <code>maxDownloadRetries: 20</code> is generous because the model is 3GB and WiFi can wobble.</p>
-        <p><strong>debugShowCheckedModeBanner: false</strong> — hides the red "DEBUG" banner. Cleaner for screenshots and recordings.</p>
-      </div>
+      </google-codelab-step>
+    
+      <google-codelab-step label="Download Gemma 4 E2B" duration="8">
+        <p>The model file is about 2.6 GB. Downloading it inside a build would make the app huge, so the app downloads it on first launch and keeps it on the device.</p>
+<h2 is-upgraded>Create a model service</h2>
+<p>Create <code>lib/gemma_service.dart</code>. It keeps the model URL, the install call and the loaded model in one place:</p>
+<pre><code language="language-dart" class="language-dart">import &#39;package:flutter_gemma/flutter_gemma.dart&#39;;
 
-      <div class="mark-done" data-step="8"><input type="checkbox" id="check-8"/><label for="check-8">Mark as done</label></div>
-    </div>
+/// One place for everything model-related, so screens don&#39;t repeat it.
+class GemmaService {
+  GemmaService._();
 
-    <div class="step" id="step-9">
-      <div class="step-header">
-        <div class="step-title-block">
-          <div class="step-number">Step 09</div>
-          <h2>Build the home screen</h2>
-        </div>
-        <div class="step-time">5 min</div>
-      </div>
+  static const modelUrl =
+      &#39;https://huggingface.co/litert-community/gemma-4-E2B-it-litert-lm/resolve/main/gemma-4-E2B-it.litertlm&#39;;
+  static const modelFile = &#39;gemma-4-E2B-it.litertlm&#39;;
 
-      <div class="step-goal">
-        <div class="step-goal-label">Goal</div>
-        <div class="step-goal-body">A branded landing screen with "No Server. No Bills. No Internet. No Problem." that links to the model download.</div>
-      </div>
+  /// Keeps replies short, in one language, and free of LaTeX.
+  static const chatInstruction =
+      &#39;You are a concise assistant running on a phone. Always write in &#39;
+      &#39;English, including any reasoning. Write math in plain text, not LaTeX.&#39;;
 
-      <p>Create folder <code>lib/screens/</code>. Inside it, create <code>home_screen.dart</code>:</p>
+  static InferenceModel? _model;
 
-      <div class="code-block">
-        <div class="code-header">
-          <div class="code-header-label"><span class="code-lang">dart</span><span>lib/screens/home_screen.dart</span></div>
-          <button class="copy-btn" data-code="home-screen">Copy</button>
-        </div>
-<pre id="code-home-screen">import 'package:flutter/material.dart';
-import 'package:gemma_vision_demo/screens/model_download_screen.dart';
+  /// Whether the model file is already on this device.
+  static Future&lt;bool&gt; isInstalled() =&gt; FlutterGemma.isModelInstalled(modelFile);
+
+  /// Downloads the model once and marks it as the active model.
+  static Future&lt;void&gt; install({
+    required void Function(int percent) onProgress,
+  }) {
+    return FlutterGemma.installModel(
+          modelType: ModelType.gemma4,
+          fileType: ModelFileType.litertlm,
+        )
+        // foreground: keeps an Android download alive past the 9-minute
+        // background limit. Ignored on other platforms.
+        .fromNetwork(modelUrl, foreground: true)
+        .withProgress(onProgress)
+        .install();
+  }
+
+  /// Loads the weights onto the GPU. This is slow, so it only happens once.
+  static Future&lt;InferenceModel&gt; loadModel() async {
+    return _model ??= await FlutterGemma.getActiveModel(
+      maxTokens: 4096,
+      preferredBackend: PreferredBackend.gpu,
+      supportImage: true,
+      maxNumImages: 1,
+    );
+  }
+}
+</code></pre>
+<p>Three details in this file matter:</p>
+<ul>
+<li><strong><code>fileType: ModelFileType.litertlm</code></strong><strong>.</strong> flutter_gemma doesn&#39;t infer the format from the file extension. Without it the install is recorded as a MediaPipe <code>.task</code> model, and the LiteRT-LM engine never picks it up.</li>
+<li><strong><code>modelType: ModelType.gemma4</code></strong> selects Gemma 4&#39;s prompt format, including its native tool-call tokens.</li>
+<li><strong><code>maxTokens: 4096</code></strong> is the <em>context window</em>: the prompt, the history and the reply together. Larger windows use more memory. <code>getActiveModel</code> is slow the first time, so <code>loadModel</code> keeps the instance in <code>_model</code> and reuses it.</li>
+</ul>
+<h2 is-upgraded>Create the download screen</h2>
+<p>Create <code>lib/download_screen.dart</code>. It checks whether the model is already installed. If it isn&#39;t, it shows a download button and a progress bar.</p>
+<pre><code language="language-dart" class="language-dart">import &#39;package:flutter/material.dart&#39;;
+
+import &#39;gemma_service.dart&#39;;
+import &#39;home_screen.dart&#39;;
+
+class DownloadScreen extends StatefulWidget {
+  const DownloadScreen({super.key});
+
+  @override
+  State&lt;DownloadScreen&gt; createState() =&gt; _DownloadScreenState();
+}
+
+class _DownloadScreenState extends State&lt;DownloadScreen&gt; {
+  bool _checking = true;
+  bool _downloading = false;
+  int _progress = 0;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkInstalled();
+  }
+
+  Future&lt;void&gt; _checkInstalled() async {
+    if (await GemmaService.isInstalled()) {
+      _openHome();
+    } else if (mounted) {
+      setState(() =&gt; _checking = false);
+    }
+  }
+
+  Future&lt;void&gt; _download() async {
+    setState(() {
+      _downloading = true;
+      _error = null;
+    });
+    try {
+      await GemmaService.install(
+        onProgress: (percent) {
+          if (mounted) setState(() =&gt; _progress = percent);
+        },
+      );
+      _openHome();
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _downloading = false;
+          _error = &#39;$e&#39;;
+        });
+      }
+    }
+  }
+
+  void _openHome() {
+    if (!mounted) return;
+    Navigator.of(context)
+        .pushReplacement(MaterialPageRoute(builder: (_) =&gt; const HomeScreen()));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final text = Theme.of(context).textTheme;
+    return Scaffold(
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: _checking
+              ? const Center(child: CircularProgressIndicator())
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Spacer(),
+                    Text(&#39;Gemma 4 E2B&#39;, style: text.displaySmall),
+                    const SizedBox(height: 8),
+                    Text(
+                      &#39;About 2.6 GB. Downloaded once, then it runs offline.&#39;,
+                      style: text.bodyLarge,
+                    ),
+                    const Spacer(),
+                    if (_downloading) ...[
+                      LinearProgressIndicator(value: _progress / 100),
+                      const SizedBox(height: 12),
+                      Text(&#39;$_progress%&#39;),
+                    ] else
+                      FilledButton.icon(
+                        onPressed: _download,
+                        icon: const Icon(Icons.download),
+                        label: const Text(&#39;Download model&#39;),
+                      ),
+                    if (_error != null) ...[
+                      const SizedBox(height: 16),
+                      Text(
+                        _error!,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.error,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+        ),
+      ),
+    );
+  }
+}
+</code></pre>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Stream a chat response" duration="10">
+        <p>Now build the home screen and the first feature: a chat whose reply appears token by token.</p>
+<h2 is-upgraded>Create the home screen</h2>
+<p>Create <code>lib/home_screen.dart</code>:</p>
+<pre><code language="language-dart" class="language-dart">import &#39;package:flutter/material.dart&#39;;
+
+import &#39;chat_screen.dart&#39;;
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -1431,423 +569,58 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0A0A0F),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(32),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Spacer(),
-              const Text('No Server.',
-                style: TextStyle(
-                  fontSize: 48, fontWeight: FontWeight.w900,
-                  color: Colors.white, height: 1.1,
-                )),
-              const Text('No Bills.',
-                style: TextStyle(
-                  fontSize: 48, fontWeight: FontWeight.w900,
-                  color: Colors.white, height: 1.1,
-                )),
-              const Text('No Internet.',
-                style: TextStyle(
-                  fontSize: 48, fontWeight: FontWeight.w900,
-                  color: Colors.white, height: 1.1,
-                )),
-              const Text('No Problem.',
-                style: TextStyle(
-                  fontSize: 48, fontWeight: FontWeight.w900,
-                  color: Color(0xFFFF5722),
-                  fontStyle: FontStyle.italic, height: 1.1,
-                )),
-              const SizedBox(height: 32),
-              const Text('On-device AI with Flutter &amp; Gemma',
-                style: TextStyle(
-                  fontSize: 18, color: Colors.white70, height: 1.4,
-                )),
-              const Spacer(),
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) =&gt; const ModelDownloadScreen(),
-                      ),
-                    );
-                  },
-                  style: FilledButton.styleFrom(
-                    backgroundColor: const Color(0xFFFF5722),
-                    padding: const EdgeInsets.symmetric(vertical: 20),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  ),
-                  child: const Text('Get Started →',
-                    style: TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.w600,
-                    )),
-                ),
-              ),
-            ],
+      appBar: AppBar(title: const Text(&#39;On-Device Gemma&#39;)),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: const [
+          DemoTile(
+            icon: Icons.chat_bubble_outline,
+            title: &#39;Chat&#39;,
+            subtitle: &#39;Streaming replies, generated on this device&#39;,
+            screen: ChatScreen(),
           ),
-        ),
+        ],
       ),
     );
   }
-}</pre>
-      </div>
-
-      <p>This won't compile yet — it imports <code>model_download_screen.dart</code> which we haven't created. That's next.</p>
-
-      <div class="mark-done" data-step="9"><input type="checkbox" id="check-9"/><label for="check-9">Mark as done</label></div>
-    </div>
-
-    <div class="step" id="step-10">
-      <div class="step-header">
-        <div class="step-title-block">
-          <div class="step-number">Step 10</div>
-          <h2>Model download screen</h2>
-        </div>
-        <div class="step-time">10 min</div>
-      </div>
-
-      <div class="step-goal">
-        <div class="step-goal-label">Goal</div>
-        <div class="step-goal-body">Download the 3GB Gemma model with a progress bar and foreground service. Persist across app restarts.</div>
-      </div>
-
-      <p>Create <code>lib/screens/model_download_screen.dart</code>:</p>
-
-      <div class="code-block">
-        <div class="code-header">
-          <div class="code-header-label"><span class="code-lang">dart</span><span>lib/screens/model_download_screen.dart</span></div>
-          <button class="copy-btn" data-code="download-screen">Copy</button>
-        </div>
-<pre id="code-download-screen">import 'package:flutter/material.dart';
-import 'package:flutter_gemma/core/api/flutter_gemma.dart';
-import 'package:flutter_gemma/core/model.dart';
-import 'package:gemma_vision_demo/screens/chat_screen.dart';
-
-class ModelDownloadScreen extends StatefulWidget {
-  const ModelDownloadScreen({super.key});
-
-  @override
-  State&lt;ModelDownloadScreen&gt; createState() =&gt; _ModelDownloadScreenState();
 }
 
-class _ModelDownloadScreenState extends State&lt;ModelDownloadScreen&gt; {
-  // Gemma 3n E2B — multimodal, ~3.1 GB, gated repo
-  static const String _modelUrl =
-      'https://huggingface.co/google/gemma-3n-E2B-it-litert-preview/resolve/main/gemma-3n-E2B-it-int4.task';
-  static const String _modelName = 'gemma-3n-E2B-it-int4.task';
+class DemoTile extends StatelessWidget {
+  const DemoTile({
+    super.key,
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.screen,
+  });
 
-  bool _isChecking = true;
-  bool _isInstalled = false;
-  bool _isDownloading = false;
-  int _downloadProgress = 0;
-  String? _errorMessage;
-
-  @override
-  void initState() {
-    super.initState();
-    _checkIfModelExists();
-  }
-
-  Future&lt;void&gt; _checkIfModelExists() async {
-    try {
-      final installed = await FlutterGemma.isModelInstalled(_modelName);
-      setState(() {
-        _isInstalled = installed;
-        _isChecking = false;
-      });
-    } catch (e) {
-      setState(() {
-        _isChecking = false;
-        _errorMessage = 'Error checking model: $e';
-      });
-    }
-  }
-
-  Future&lt;void&gt; _downloadModel() async {
-    setState(() {
-      _isDownloading = true;
-      _downloadProgress = 0;
-      _errorMessage = null;
-    });
-
-    try {
-      await FlutterGemma.installModel(modelType: ModelType.gemmaIt)
-          .fromNetwork(_modelUrl, foreground: true)
-          .withProgress((progress) {
-        if (mounted) setState(() =&gt; _downloadProgress = progress);
-      }).install();
-
-      setState(() {
-        _isDownloading = false;
-        _isInstalled = true;
-      });
-    } catch (e) {
-      setState(() {
-        _isDownloading = false;
-        _errorMessage = 'Download failed: $e\n\nTip: Move closer to your Wi-Fi router.';
-      });
-    }
-  }
-
-  void _goToChat() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) =&gt; const ChatScreen()),
-    );
-  }
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final Widget screen;
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFF0A0A0F),
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
-      ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(32),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text('Gemma 3 Nano E2B',
-                style: TextStyle(
-                  fontSize: 32, fontWeight: FontWeight.w900,
-                  color: Colors.white, height: 1.1,
-                )),
-              const SizedBox(height: 8),
-              const Text('Multimodal · 2B params · 3.1 GB',
-                style: TextStyle(
-                  color: Color(0xFFFF5722), fontSize: 14,
-                  letterSpacing: 2,
-                )),
-              const SizedBox(height: 40),
-              if (_isChecking)
-                const Center(child: CircularProgressIndicator(color: Color(0xFFFF5722)))
-              else if (_errorMessage != null)
-                _buildErrorView()
-              else if (_isInstalled)
-                _buildReadyView()
-              else if (_isDownloading)
-                _buildDownloadingView()
-              else
-                _buildPromptView(),
-              const Spacer(),
-              _buildInfoCard(),
-            ],
-          ),
-        ),
+    return Card(
+      child: ListTile(
+        leading: Icon(icon),
+        title: Text(title),
+        subtitle: Text(subtitle),
+        trailing: const Icon(Icons.chevron_right),
+        onTap: () =&gt;
+            Navigator.of(context)
+                .push(MaterialPageRoute(builder: (_) =&gt; screen)),
       ),
     );
   }
+}
+</code></pre>
+<h2 is-upgraded>Create the chat screen</h2>
+<p>Create <code>lib/chat_screen.dart</code>:</p>
+<pre><code language="language-dart" class="language-dart">import &#39;package:flutter/material.dart&#39;;
+import &#39;package:flutter_gemma/flutter_gemma.dart&#39;;
 
-  Widget _buildPromptView() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text('Download the model once. Run it forever.',
-          style: TextStyle(color: Colors.white, fontSize: 16, height: 1.5)),
-        const SizedBox(height: 24),
-        SizedBox(
-          width: double.infinity,
-          child: FilledButton(
-            onPressed: _downloadModel,
-            style: FilledButton.styleFrom(
-              backgroundColor: const Color(0xFFFF5722),
-              padding: const EdgeInsets.symmetric(vertical: 20),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(4),
-              ),
-            ),
-            child: const Text('Download Model',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildDownloadingView() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text('Downloading model...',
-          style: TextStyle(color: Colors.white, fontSize: 16)),
-        const SizedBox(height: 24),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(4),
-          child: LinearProgressIndicator(
-            value: _downloadProgress / 100,
-            backgroundColor: Colors.white.withOpacity(0.1),
-            valueColor: const AlwaysStoppedAnimation&lt;Color&gt;(Color(0xFFFF5722)),
-            minHeight: 8,
-          ),
-        ),
-        const SizedBox(height: 12),
-        Text('$_downloadProgress%',
-          style: const TextStyle(
-            color: Color(0xFFFF5722),
-            fontSize: 24, fontWeight: FontWeight.w900,
-          )),
-        const SizedBox(height: 8),
-        const Text('One-time download. After this, inference is free.',
-          style: TextStyle(color: Colors.white54, fontSize: 12)),
-      ],
-    );
-  }
-
-  Widget _buildReadyView() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: const [
-            Icon(Icons.check_circle, color: Color(0xFFFF5722), size: 32),
-            SizedBox(width: 12),
-            Text('Model ready on-device',
-              style: TextStyle(
-                color: Colors.white, fontSize: 18,
-                fontWeight: FontWeight.w600,
-              )),
-          ],
-        ),
-        const SizedBox(height: 24),
-        SizedBox(
-          width: double.infinity,
-          child: FilledButton(
-            onPressed: _goToChat,
-            style: FilledButton.styleFrom(
-              backgroundColor: const Color(0xFFFF5722),
-              padding: const EdgeInsets.symmetric(vertical: 20),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(4),
-              ),
-            ),
-            child: const Text('Start Chat →',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildErrorView() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.red.withOpacity(0.5)),
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text('Error',
-            style: TextStyle(
-              color: Colors.red, fontWeight: FontWeight.bold, fontSize: 14,
-            )),
-          const SizedBox(height: 8),
-          Text(_errorMessage ?? 'Unknown error',
-            style: const TextStyle(color: Colors.white70, fontSize: 12)),
-          const SizedBox(height: 16),
-          TextButton(
-            onPressed: () {
-              setState(() =&gt; _errorMessage = null);
-              _downloadModel();
-            },
-            child: const Text('Retry',
-              style: TextStyle(color: Color(0xFFFF5722))),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildInfoCard() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.04),
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: const Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('ABOUT THIS MODEL',
-            style: TextStyle(
-              color: Colors.white38, fontSize: 10,
-              letterSpacing: 2, fontWeight: FontWeight.w600,
-            )),
-          SizedBox(height: 8),
-          Text(
-            "Gemma 3 Nano E2B — Google's on-device multimodal AI. "
-            'Understands text and images. Runs entirely on your phone. '
-            'No data leaves this device.',
-            style: TextStyle(color: Colors.white70, fontSize: 12, height: 1.5),
-          ),
-        ],
-      ),
-    );
-  }
-}</pre>
-      </div>
-
-      <div class="note">
-        <div class="note-label">Why <code>foreground: true</code>?</div>
-        <p>It's the magic flag that makes a 3GB download actually complete on a phone. Without it, Android can suspend or kill your app mid-download to free memory. With it, your app runs as a foreground service with a persistent notification — Android won't kill it. You'll see "Downloading…" in your notification tray during the download.</p>
-      </div>
-
-      <details class="trouble">
-        <summary>If something goes wrong</summary>
-        <div class="trouble-body">
-          <h4>Download fails immediately with 401 / 403</h4>
-          <p>Your HF token is wrong, expired, or you didn't accept the Gemma license. Re-check Step 4.</p>
-
-          <h4>Download stuck at 0%</h4>
-          <p>Network/firewall issue. Try a different WiFi or mobile hotspot.</p>
-
-          <h4>"TaskConnectionException: Task timed out"</h4>
-          <p>WiFi flaked out. The library auto-retries. If you want to babysit, ensure phone is on the same network as the router and not behind walls. Move closer.</p>
-
-          <h4>Download fails partway through (e.g. 60%)</h4>
-          <p>HuggingFace doesn't support resumable downloads, so it restarts from 0% on retry. Frustrating but expected. Try once more on stable WiFi.</p>
-        </div>
-      </details>
-
-      <div class="mark-done" data-step="10"><input type="checkbox" id="check-10"/><label for="check-10">Mark as done</label></div>
-    </div>
-
-    <div class="step" id="step-11">
-      <div class="step-header">
-        <div class="step-title-block">
-          <div class="step-number">Step 11</div>
-          <h2>Chat screen with streaming</h2>
-        </div>
-        <div class="step-time">15 min</div>
-      </div>
-
-      <div class="step-goal">
-        <div class="step-goal-label">Goal</div>
-        <div class="step-goal-body">Real on-device chat with token-by-token streaming responses. The "wow" moment of the demo.</div>
-      </div>
-
-      <p>Create <code>lib/screens/chat_screen.dart</code> with this initial text-only version (we add image support in Step 12):</p>
-
-      <div class="code-block">
-        <div class="code-header">
-          <div class="code-header-label"><span class="code-lang">dart</span><span>lib/screens/chat_screen.dart</span></div>
-          <button class="copy-btn" data-code="chat-screen">Copy</button>
-        </div>
-<pre id="code-chat-screen">import 'package:flutter/material.dart';
-import 'package:flutter_gemma/flutter_gemma.dart';
-import 'package:flutter_gemma/core/api/flutter_gemma.dart';
+import &#39;gemma_service.dart&#39;;
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -1857,372 +630,202 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State&lt;ChatScreen&gt; {
-  final TextEditingController _controller = TextEditingController();
-  final ScrollController _scrollController = ScrollController();
+  final _input = TextEditingController();
+  final _messages = &lt;ChatMessage&gt;[];
 
-  InferenceModel? _model;
   InferenceChat? _chat;
-
-  final List&lt;_ChatMessage&gt; _messages = [];
-  bool _isInitializing = true;
-  bool _isGenerating = false;
-  String? _currentResponse;
-  String? _errorMessage;
+  bool _busy = false;
+  String? _error;
 
   @override
   void initState() {
     super.initState();
-    _initializeModel();
+    _openChat();
   }
 
-  Future&lt;void&gt; _initializeModel() async {
+  Future&lt;void&gt; _openChat() async {
     try {
-      // Re-call install() — if the model file already exists,
-      // this just registers it as active. Cheap and safe.
-      await FlutterGemma.installModel(modelType: ModelType.gemmaIt)
-          .fromNetwork(
-            'https://huggingface.co/google/gemma-3n-E2B-it-litert-preview/resolve/main/gemma-3n-E2B-it-int4.task',
-          )
-          .install();
-
-      final model = await FlutterGemma.getActiveModel(
-        maxTokens: 2048,
-        preferredBackend: PreferredBackend.gpu,
-        supportImage: true,
-        maxNumImages: 1,
-      );
-
+      final model = await GemmaService.loadModel();
       final chat = await model.createChat(
-        temperature: 0.8,
-        topK: 40,
+        // Without this the chat assumes an older Gemma prompt format.
+        modelType: ModelType.gemma4,
         supportImage: true,
+        temperature: 0.7,
+        topK: 40,
+        topP: 0.9,
+        systemInstruction: GemmaService.chatInstruction,
       );
-
-      setState(() {
-        _model = model;
-        _chat = chat;
-        _isInitializing = false;
-      });
+      if (mounted) setState(() =&gt; _chat = chat);
     } catch (e) {
-      setState(() {
-        _isInitializing = false;
-        _errorMessage = 'Failed to load model: $e';
-      });
+      if (mounted) setState(() =&gt; _error = &#39;$e&#39;);
     }
   }
 
-  Future&lt;void&gt; _sendMessage() async {
-    final text = _controller.text.trim();
-    if (text.isEmpty || _isGenerating || _chat == null) return;
+  Future&lt;void&gt; _send() async {
+    final chat = _chat;
+    final text = _input.text.trim();
+    if (chat == null || _busy || text.isEmpty) return;
 
-    _controller.clear();
+    _input.clear();
+    final reply = ChatMessage(fromUser: false);
     setState(() {
-      _messages.add(_ChatMessage(text: text, isUser: true));
-      _isGenerating = true;
-      _currentResponse = '';
+      _busy = true;
+      _messages
+        ..add(ChatMessage(fromUser: true, text: text))
+        ..add(reply);
     });
-    _scrollToBottom();
 
     try {
-      await _chat!.addQueryChunk(Message.text(text: text, isUser: true));
-
-      final buffer = StringBuffer();
-      await for (final response in _chat!.generateChatResponseAsync()) {
+      await chat.addQueryChunk(Message.text(text: text, isUser: true));
+      await for (final response in chat.generateChatResponseAsync()) {
+        if (!mounted) return;
         if (response is TextResponse) {
-          buffer.write(response.token);
-          if (mounted) {
-            setState(() =&gt; _currentResponse = buffer.toString());
-            _scrollToBottom();
-          }
+          setState(() =&gt; reply.text += response.token);
         }
       }
-
-      if (mounted) {
-        setState(() {
-          _messages.add(_ChatMessage(text: buffer.toString(), isUser: false));
-          _currentResponse = null;
-          _isGenerating = false;
-        });
-        _scrollToBottom();
-      }
     } catch (e) {
-      if (mounted) {
-        setState(() {
-          _messages.add(_ChatMessage(text: 'Error: $e', isUser: false));
-          _currentResponse = null;
-          _isGenerating = false;
-        });
-      }
+      if (mounted) setState(() =&gt; reply.text = &#39;Error: $e&#39;);
+    } finally {
+      if (mounted) setState(() =&gt; _busy = false);
     }
-  }
-
-  void _scrollToBottom() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_scrollController.hasClients) {
-        _scrollController.animateTo(
-          _scrollController.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.easeOut,
-        );
-      }
-    });
   }
 
   @override
   void dispose() {
     _chat?.close();
-    _model?.close();
-    _controller.dispose();
-    _scrollController.dispose();
+    _input.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0A0A0F),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF0A0A0F),
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
-        title: const Text('On-Device Chat',
-          style: TextStyle(
-            color: Colors.white, fontSize: 18,
-            fontWeight: FontWeight.w700,
-          )),
-      ),
-      body: _isInitializing
-          ? _buildLoading()
-          : _errorMessage != null
-              ? _buildError()
-              : _buildChat(),
-    );
-  }
-
-  Widget _buildLoading() {
-    return const Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+      appBar: AppBar(title: const Text(&#39;Chat&#39;)),
+      body: Column(
         children: [
-          CircularProgressIndicator(color: Color(0xFFFF5722)),
-          SizedBox(height: 20),
-          Text('Warming up the model...',
-            style: TextStyle(color: Colors.white54, fontSize: 14)),
+          Expanded(child: _buildMessages()),
+          _buildComposer(),
         ],
       ),
     );
   }
 
-  Widget _buildError() {
-    return Center(
+  Widget _buildMessages() {
+    if (_error != null) {
+      return Center(
+        child: Padding(padding: const EdgeInsets.all(24), child: Text(_error!)),
+      );
+    }
+    if (_chat == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: _messages.length,
+      itemBuilder: (_, i) =&gt; MessageBubble(message: _messages[i]),
+    );
+  }
+
+  Widget _buildComposer() {
+    return SafeArea(
       child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Text(_errorMessage!,
-          style: const TextStyle(color: Colors.white70),
-          textAlign: TextAlign.center),
-      ),
-    );
-  }
-
-  Widget _buildChat() {
-    return Column(
-      children: [
-        Expanded(
-          child: ListView.builder(
-            controller: _scrollController,
-            padding: const EdgeInsets.all(16),
-            itemCount: _messages.length + (_currentResponse != null ? 1 : 0),
-            itemBuilder: (context, index) {
-              if (index &lt; _messages.length) {
-                return _buildBubble(_messages[index]);
-              }
-              return _buildBubble(
-                _ChatMessage(text: _currentResponse ?? '', isUser: false),
-              );
-            },
-          ),
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          children: [
+            Expanded(
+              child: TextField(
+                controller: _input,
+                onSubmitted: (_) =&gt; _send(),
+                decoration: const InputDecoration(
+                  hintText: &#39;Ask anything...&#39;,
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            IconButton.filled(
+              onPressed: _busy ? null : _send,
+              icon: const Icon(Icons.arrow_upward),
+            ),
+          ],
         ),
-        _buildInputBar(),
-      ],
-    );
-  }
-
-  Widget _buildBubble(_ChatMessage m) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      child: Column(
-        crossAxisAlignment:
-            m.isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-        children: [
-          Text(m.isUser ? 'You' : 'Gemma',
-            style: TextStyle(
-              color: m.isUser ? Colors.white54 : const Color(0xFFFF5722),
-              fontSize: 10, letterSpacing: 2,
-              fontWeight: FontWeight.w600,
-            )),
-          const SizedBox(height: 6),
-          Container(
-            constraints: BoxConstraints(
-              maxWidth: MediaQuery.of(context).size.width * 0.8,
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-            decoration: BoxDecoration(
-              color: m.isUser
-                  ? const Color(0xFFFF5722)
-                  : Colors.white.withOpacity(0.06),
-              borderRadius: BorderRadius.circular(4),
-            ),
-            child: Text(m.text,
-              style: const TextStyle(
-                color: Colors.white, fontSize: 15, height: 1.4,
-              )),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildInputBar() {
-    return Container(
-      decoration: const BoxDecoration(
-        border: Border(top: BorderSide(color: Colors.white10)),
-      ),
-      padding: EdgeInsets.only(
-        left: 16, right: 16, top: 12,
-        bottom: MediaQuery.of(context).padding.bottom + 12,
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: TextField(
-              controller: _controller,
-              enabled: !_isGenerating,
-              style: const TextStyle(color: Colors.white),
-              decoration: InputDecoration(
-                hintText: _isGenerating ? 'Thinking...' : 'Ask anything...',
-                hintStyle: const TextStyle(color: Colors.white38),
-                filled: true,
-                fillColor: Colors.white.withOpacity(0.04),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(4),
-                  borderSide: BorderSide.none,
-                ),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16, vertical: 14,
-                ),
-              ),
-              onSubmitted: (_) =&gt; _sendMessage(),
-            ),
-          ),
-          const SizedBox(width: 8),
-          Material(
-            color: _isGenerating
-                ? Colors.white.withOpacity(0.1)
-                : const Color(0xFFFF5722),
-            borderRadius: BorderRadius.circular(4),
-            child: InkWell(
-              borderRadius: BorderRadius.circular(4),
-              onTap: _isGenerating ? null : _sendMessage,
-              child: const Padding(
-                padding: EdgeInsets.all(14),
-                child: Icon(Icons.arrow_upward,
-                  color: Colors.white, size: 20),
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }
 }
 
-class _ChatMessage {
-  final String text;
-  final bool isUser;
-  _ChatMessage({required this.text, required this.isUser});
-}</pre>
-      </div>
+class ChatMessage {
+  ChatMessage({required this.fromUser, this.text = &#39;&#39;});
 
-      <h3>Run it!</h3>
-      <p>Save everything. From terminal:</p>
+  final bool fromUser;
+  String text;
+}
 
-      <div class="code-block">
-        <div class="code-header">
-          <div class="code-header-label"><span class="code-lang">bash</span><span>Terminal</span></div>
-          <button class="copy-btn" data-code="run-app">Copy</button>
-        </div>
-<pre id="code-run-app">flutter run</pre>
-      </div>
+class MessageBubble extends StatelessWidget {
+  const MessageBubble({super.key, required this.message});
 
-      <p>Pick Android. Tap <strong>Get Started → Download Model</strong>. Wait 5–15 minutes for the 3GB to download (be patient, monitor the foreground notification). Once done, tap <strong>Start Chat</strong>.</p>
+  final ChatMessage message;
 
-      <p>Try these prompts:</p>
-      <ul>
-        <li>"Hi! What are you?" — baseline</li>
-        <li>"Explain quantum computing in 3 sentences." — reasoning</li>
-        <li>"Write a haiku about offline AI." — creative</li>
-      </ul>
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Align(
+      alignment: message.fromUser
+          ? Alignment.centerRight
+          : Alignment.centerLeft,
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 6),
+        constraints: const BoxConstraints(maxWidth: 560),
+        child: Material(
+          color: message.fromUser
+              ? colors.primaryContainer
+              : colors.surfaceContainerHighest,
+          borderRadius: BorderRadius.circular(18),
+          child: Padding(
+            padding: const EdgeInsets.all(14),
+            child: Text(message.text.isEmpty ? &#39;...&#39; : message.text),
+          ),
+        ),
+      ),
+    );
+  }
+}
+</code></pre>
+<p>How a message flows:</p>
+<ol type="1">
+<li><code>createChat</code> opens a conversation on the loaded model. <code>systemInstruction</code> sets its behavior for the whole chat.</li>
+<li><code>addQueryChunk</code> adds the user&#39;s message to the conversation.</li>
+<li><code>generateChatResponseAsync</code> returns a stream. Each <code>TextResponse</code> carries the next piece of the reply, and appending it inside <code>setState</code> makes the text appear as it&#39;s generated.</li>
+</ol>
+<p><strong>Why these sampling values?</strong> With wide sampling, small models sometimes switch language mid-sentence and drop in a word from another script. <code>temperature: 0.7, topK: 40, topP: 0.9</code>, together with an instruction that names the language, keeps replies readable without making them repetitive.</p>
+<aside class="special"><p><strong><code>createChat</code></strong><strong> or </strong><strong><code>openChat</code></strong><strong>? </strong><code>createChat</code> opens the <em>primary</em> conversation. The engine keeps one live conversation at a time, so creating a new one closes the previous one. <code>openChat</code> opens additional concurrent sessions, but on <code>.litertlm</code> models those sessions reject images. This app shows one screen at a time and needs images, so it uses <code>createChat</code> everywhere.</p>
+</aside>
+<h2 is-upgraded>Run it</h2>
+<pre><code language="language-bash" class="language-bash">flutter run
+</code></pre>
+<p>Tap <strong>Download model</strong> and wait for it to reach 100%. Then open <strong>Chat</strong> and ask something like <em>&#34;In one sentence, why run a model on-device?&#34;</em></p>
+<p>Opening the first chat after launch takes a few seconds while the model loads onto the GPU, and a spinner shows until it&#39;s ready. Other screens reuse the loaded model.</p>
 
-      <div class="expected">
-        <div class="expected-label">Expected behavior</div>
-        <p>"Warming up the model..." for 10–30 seconds (model loads into RAM). Then the chat UI appears. Your prompt streams a response token-by-token. First response is slower than later ones.</p>
-      </div>
 
-      <h3>The airplane mode test ✈️</h3>
-      <p>Now turn on airplane mode. Type another prompt. Watch it still work. <strong>This is the magic.</strong> No internet. No server. No data leaving the phone.</p>
+      </google-codelab-step>
+    
+      <google-codelab-step label="Add vision" duration="8">
+        <p>Gemma 4 E2B understands images. Sending one is a different <code>Message</code> constructor. The model was already loaded with <code>supportImage: true</code> in <code>GemmaService</code>, and the chat was opened with <code>supportImage: true</code>.</p>
+<p>Replace <code>lib/chat_screen.dart</code> with the version below. What changed:</p>
+<ul>
+<li>A photo button that calls <code>_pickImage</code>. Phones open the camera. Desktop has no camera source, so it opens a file picker.</li>
+<li>The picked image is scaled to at most 1024 px wide with <code>maxWidth</code>, so the app never holds a full-resolution photo in memory.</li>
+<li><code>_send</code> uses <code>Message.withImage</code> when a photo is attached and falls back to a default question if the text field is empty.</li>
+<li><code>ChatMessage</code> and <code>MessageBubble</code> show the photo in the conversation.</li>
+</ul>
+<pre><code language="language-dart" class="language-dart">import &#39;dart:io&#39;;
 
-      <div class="note">
-        <div class="note-label">What's happening in <code>generateChatResponseAsync()</code></div>
-        <p>It returns a Dart Stream. Each <code>TextResponse</code> token is emitted as Gemma generates it. We accumulate into a buffer and update the UI on every token — that's what creates the typewriter effect.</p>
-        <p>Compare to typical cloud APIs where you await the full response. Streaming makes a huge UX difference: users see something happening immediately, even if total time is the same.</p>
-      </div>
+import &#39;package:flutter/foundation.dart&#39;;
+import &#39;package:flutter/material.dart&#39;;
+import &#39;package:flutter_gemma/flutter_gemma.dart&#39;;
+import &#39;package:image_picker/image_picker.dart&#39;;
 
-      <details class="trouble">
-        <summary>If something goes wrong</summary>
-        <div class="trouble-body">
-          <h4>"No active inference model set"</h4>
-          <p>The download didn't fully finalize. The <code>installModel().install()</code> call at the top of <code>_initializeModel()</code> handles this — it detects existing files and just sets them as active. If the error persists, uninstall the app from your phone and start fresh.</p>
-
-          <h4>"Out of memory" / app crashes during loading</h4>
-          <p>Your phone has &lt;6GB RAM. Try changing <code>preferredBackend: PreferredBackend.gpu</code> to <code>PreferredBackend.cpu</code> — slower but uses less memory.</p>
-
-          <h4>Streaming is super slow</h4>
-          <p>Normal on first inference (model warmup). Subsequent prompts are 2-3x faster.</p>
-
-          <h4>Response just appears all at once instead of streaming</h4>
-          <p>Cosmetic only — your phone's GPU is generating tokens faster than the UI can repaint. Still works correctly.</p>
-        </div>
-      </details>
-
-      <div class="mark-done" data-step="11"><input type="checkbox" id="check-11"/><label for="check-11">Mark as done</label></div>
-    </div>
-
-    <div class="step" id="step-12">
-      <div class="step-header">
-        <div class="step-title-block">
-          <div class="step-number">Step 12</div>
-          <h2>Add multimodal image input</h2>
-        </div>
-        <div class="step-time">10 min</div>
-      </div>
-
-      <div class="step-goal">
-        <div class="step-goal-label">Goal</div>
-        <div class="step-goal-body">Let users attach an image and have Gemma describe it. The hero feature.</div>
-      </div>
-
-      <p>Replace your <code>chat_screen.dart</code> with this fuller version that adds image picking, attachment preview, and image-aware messages:</p>
-
-      <div class="code-block">
-        <div class="code-header">
-          <div class="code-header-label"><span class="code-lang">dart</span><span>lib/screens/chat_screen.dart</span></div>
-          <button class="copy-btn" data-code="chat-multimodal">Copy</button>
-        </div>
-<pre id="code-chat-multimodal">import 'dart:typed_data';
-import 'package:flutter/material.dart';
-import 'package:flutter_gemma/flutter_gemma.dart';
-import 'package:flutter_gemma/core/api/flutter_gemma.dart';
-import 'package:image_picker/image_picker.dart';
+import &#39;gemma_service.dart&#39;;
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -2232,346 +835,754 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State&lt;ChatScreen&gt; {
-  final TextEditingController _controller = TextEditingController();
-  final ScrollController _scrollController = ScrollController();
-  final ImagePicker _imagePicker = ImagePicker();
+  final _input = TextEditingController();
+  final _messages = &lt;ChatMessage&gt;[];
+  final _picker = ImagePicker();
 
-  InferenceModel? _model;
+  Uint8List? _image;
+
   InferenceChat? _chat;
-
-  final List&lt;_ChatMessage&gt; _messages = [];
-  bool _isInitializing = true;
-  bool _isGenerating = false;
-  String? _currentResponse;
-  String? _errorMessage;
-
-  // Image attached but not yet sent
-  Uint8List? _pendingImage;
+  bool _busy = false;
+  String? _error;
 
   @override
   void initState() {
     super.initState();
-    _initializeModel();
+    _openChat();
   }
 
-  Future&lt;void&gt; _initializeModel() async {
+  Future&lt;void&gt; _openChat() async {
     try {
-      await FlutterGemma.installModel(modelType: ModelType.gemmaIt)
-          .fromNetwork(
-            'https://huggingface.co/google/gemma-3n-E2B-it-litert-preview/resolve/main/gemma-3n-E2B-it-int4.task',
-          )
-          .install();
-
-      final model = await FlutterGemma.getActiveModel(
-        maxTokens: 2048,
-        preferredBackend: PreferredBackend.gpu,
-        supportImage: true,
-        maxNumImages: 1,
-      );
-
+      final model = await GemmaService.loadModel();
       final chat = await model.createChat(
-        temperature: 0.8,
-        topK: 40,
+        // Without this the chat assumes an older Gemma prompt format.
+        modelType: ModelType.gemma4,
         supportImage: true,
+        temperature: 0.7,
+        topK: 40,
+        topP: 0.9,
+        systemInstruction: GemmaService.chatInstruction,
       );
-
-      setState(() {
-        _model = model;
-        _chat = chat;
-        _isInitializing = false;
-      });
+      if (mounted) setState(() =&gt; _chat = chat);
     } catch (e) {
-      setState(() {
-        _isInitializing = false;
-        _errorMessage = 'Failed to load model: $e';
-      });
+      if (mounted) setState(() =&gt; _error = &#39;$e&#39;);
     }
   }
 
   Future&lt;void&gt; _pickImage() async {
-    try {
-      final picked = await _imagePicker.pickImage(
-        source: ImageSource.gallery,
-        maxWidth: 1024,
-        maxHeight: 1024,
-        imageQuality: 85,
-      );
-      if (picked == null) return;
-      final bytes = await picked.readAsBytes();
-      setState(() =&gt; _pendingImage = bytes);
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to pick image: $e')),
-        );
-      }
-    }
+    // Desktop has no camera source, so fall back to the file picker.
+    final isDesktop =
+        !kIsWeb &amp;&amp; (Platform.isMacOS || Platform.isWindows || Platform.isLinux);
+    final file = await _picker.pickImage(
+      source: isDesktop ? ImageSource.gallery : ImageSource.camera,
+      maxWidth: 1024,
+    );
+    if (file == null) return;
+    final bytes = await file.readAsBytes();
+    setState(() =&gt; _image = bytes);
   }
 
-  Future&lt;void&gt; _sendMessage() async {
-    final text = _controller.text.trim();
-    final hasImage = _pendingImage != null;
-    if ((text.isEmpty &amp;&amp; !hasImage) || _isGenerating || _chat == null) return;
+  Future&lt;void&gt; _send() async {
+    final chat = _chat;
+    final image = _image;
+    var text = _input.text.trim();
+    if (chat == null || _busy || (text.isEmpty &amp;&amp; image == null)) return;
+    if (text.isEmpty) text = &#39;What do you see in this image?&#39;;
 
-    _controller.clear();
-    final imageToSend = _pendingImage;
-
+    _input.clear();
+    final reply = ChatMessage(fromUser: false);
     setState(() {
-      _messages.add(_ChatMessage(
-        text: text, isUser: true, image: imageToSend,
-      ));
-      _pendingImage = null;
-      _isGenerating = true;
-      _currentResponse = '';
+      _busy = true;
+      _image = null;
+      _messages
+        ..add(ChatMessage(fromUser: true, text: text, image: image))
+        ..add(reply);
     });
-    _scrollToBottom();
 
     try {
-      // Build text-only OR image+text message
-      final Message message = hasImage
-          ? Message.withImage(
-              text: text.isEmpty ? 'Describe this image in detail.' : text,
-              imageBytes: imageToSend!,
-              isUser: true,
-            )
-          : Message.text(text: text, isUser: true);
-
-      await _chat!.addQueryChunk(message);
-
-      final buffer = StringBuffer();
-      await for (final response in _chat!.generateChatResponseAsync()) {
+      await chat.addQueryChunk(
+        image == null
+            ? Message.text(text: text, isUser: true)
+            : Message.withImage(text: text, imageBytes: image, isUser: true),
+      );
+      await for (final response in chat.generateChatResponseAsync()) {
+        if (!mounted) return;
         if (response is TextResponse) {
-          buffer.write(response.token);
-          if (mounted) {
-            setState(() =&gt; _currentResponse = buffer.toString());
-            _scrollToBottom();
-          }
+          setState(() =&gt; reply.text += response.token);
         }
       }
-
-      if (mounted) {
-        setState(() {
-          _messages.add(_ChatMessage(text: buffer.toString(), isUser: false));
-          _currentResponse = null;
-          _isGenerating = false;
-        });
-        _scrollToBottom();
-      }
     } catch (e) {
-      if (mounted) {
-        setState(() {
-          _messages.add(_ChatMessage(text: 'Error: $e', isUser: false));
-          _currentResponse = null;
-          _isGenerating = false;
-        });
-      }
+      if (mounted) setState(() =&gt; reply.text = &#39;Error: $e&#39;);
+    } finally {
+      if (mounted) setState(() =&gt; _busy = false);
     }
-  }
-
-  void _scrollToBottom() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_scrollController.hasClients) {
-        _scrollController.animateTo(
-          _scrollController.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.easeOut,
-        );
-      }
-    });
   }
 
   @override
   void dispose() {
     _chat?.close();
-    _model?.close();
-    _controller.dispose();
-    _scrollController.dispose();
+    _input.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0A0A0F),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF0A0A0F),
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
-        title: const Text('On-Device Chat',
-          style: TextStyle(
-            color: Colors.white, fontSize: 18,
-            fontWeight: FontWeight.w700,
-          )),
-      ),
-      body: _isInitializing
-          ? const Center(child: CircularProgressIndicator(color: Color(0xFFFF5722)))
-          : _errorMessage != null
-              ? Center(child: Text(_errorMessage!,
-                  style: const TextStyle(color: Colors.white70)))
-              : _buildChat(),
-    );
-  }
-
-  Widget _buildChat() {
-    return Column(
-      children: [
-        Expanded(
-          child: ListView.builder(
-            controller: _scrollController,
-            padding: const EdgeInsets.all(16),
-            itemCount: _messages.length + (_currentResponse != null ? 1 : 0),
-            itemBuilder: (context, index) {
-              if (index &lt; _messages.length) {
-                return _buildBubble(_messages[index]);
-              }
-              return _buildBubble(
-                _ChatMessage(text: _currentResponse ?? '', isUser: false),
-              );
-            },
-          ),
-        ),
-        if (_pendingImage != null) _buildPendingImage(),
-        _buildInputBar(),
-      ],
-    );
-  }
-
-  Widget _buildBubble(_ChatMessage m) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      child: Column(
-        crossAxisAlignment:
-            m.isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+      appBar: AppBar(title: const Text(&#39;Chat&#39;)),
+      body: Column(
         children: [
-          Text(m.isUser ? 'You' : 'Gemma',
-            style: TextStyle(
-              color: m.isUser ? Colors.white54 : const Color(0xFFFF5722),
-              fontSize: 10, letterSpacing: 2,
-              fontWeight: FontWeight.w600,
-            )),
-          const SizedBox(height: 6),
-          if (m.image != null)
-            Container(
-              constraints: BoxConstraints(
-                maxWidth: MediaQuery.of(context).size.width * 0.65,
-              ),
-              margin: const EdgeInsets.only(bottom: 6),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(4),
-                child: Image.memory(m.image!, fit: BoxFit.cover),
-              ),
-            ),
-          if (m.text.isNotEmpty)
-            Container(
-              constraints: BoxConstraints(
-                maxWidth: MediaQuery.of(context).size.width * 0.8,
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-              decoration: BoxDecoration(
-                color: m.isUser
-                    ? const Color(0xFFFF5722)
-                    : Colors.white.withOpacity(0.06),
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: Text(m.text,
-                style: const TextStyle(
-                  color: Colors.white, fontSize: 15, height: 1.4,
-                )),
-            ),
+          Expanded(child: _buildMessages()),
+          _buildComposer(),
         ],
       ),
     );
   }
 
-  Widget _buildPendingImage() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.04),
-        border: const Border(
-          top: BorderSide(color: Colors.white10),
-          bottom: BorderSide(color: Colors.white10),
+  Widget _buildMessages() {
+    if (_error != null) {
+      return Center(
+        child: Padding(padding: const EdgeInsets.all(24), child: Text(_error!)),
+      );
+    }
+    if (_chat == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: _messages.length,
+      itemBuilder: (_, i) =&gt; MessageBubble(message: _messages[i]),
+    );
+  }
+
+  Widget _buildComposer() {
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          children: [
+            if (_image != null)
+              Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.memory(
+                    _image!,
+                    width: 48,
+                    height: 48,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+            IconButton(
+              onPressed: _busy ? null : _pickImage,
+              icon: const Icon(Icons.add_photo_alternate_outlined),
+            ),
+            Expanded(
+              child: TextField(
+                controller: _input,
+                onSubmitted: (_) =&gt; _send(),
+                decoration: const InputDecoration(
+                  hintText: &#39;Ask anything...&#39;,
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            IconButton.filled(
+              onPressed: _busy ? null : _send,
+              icon: const Icon(Icons.arrow_upward),
+            ),
+          ],
         ),
       ),
-      child: Row(
+    );
+  }
+}
+
+class ChatMessage {
+  ChatMessage({required this.fromUser, this.text = &#39;&#39;, this.image});
+
+  final bool fromUser;
+  final Uint8List? image;
+  String text;
+}
+
+class MessageBubble extends StatelessWidget {
+  const MessageBubble({super.key, required this.message});
+
+  final ChatMessage message;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Align(
+      alignment: message.fromUser
+          ? Alignment.centerRight
+          : Alignment.centerLeft,
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 6),
+        constraints: const BoxConstraints(maxWidth: 560),
+        child: Material(
+          color: message.fromUser
+              ? colors.primaryContainer
+              : colors.surfaceContainerHighest,
+          borderRadius: BorderRadius.circular(18),
+          child: Padding(
+            padding: const EdgeInsets.all(14),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (message.image != null) ...[
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.memory(message.image!, height: 180),
+                  ),
+                  const SizedBox(height: 8),
+                ],
+                Text(message.text.isEmpty ? &#39;...&#39; : message.text),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+</code></pre>
+<p>Rename the home tile to reflect the new feature. In <code>lib/home_screen.dart</code>, update the tile:</p>
+<pre><code language="language-dart" class="language-dart">DemoTile(
+  icon: Icons.chat_bubble_outline,
+  title: &#39;Chat &amp; vision&#39;,
+  subtitle: &#39;Ask about text or a photo&#39;,
+  screen: ChatScreen(),
+),
+</code></pre>
+<p>Run the app again, open <strong>Chat &amp; vision</strong>, attach a photo and ask <em>&#34;What do you see?&#34;</em></p>
+<aside class="warning"><p> Images only work on sessions opened with <code>createChat</code>. A session from <code>openChat</code> on a <code>.litertlm</code> model rejects image input with an error.</p>
+</aside>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Show the model&#39;s reasoning" duration="6">
+        <p>Gemma 4 can think before it answers. With <code>isThinking: true</code>, the stream also emits <code>ThinkingResponse</code> events that carry the reasoning, followed by the normal <code>TextResponse</code> answer.</p>
+<p>Replace <code>lib/chat_screen.dart</code> again. What changed:</p>
+<ul>
+<li><code>ChatScreen</code> takes a <code>thinking</code> flag and passes it to <code>createChat</code> as <code>isThinking</code>.</li>
+<li>The <code>if</code> on <code>TextResponse</code> becomes an exhaustive <code>switch</code> over the sealed <code>ModelResponse</code>. Reasoning goes into <code>ChatMessage.thinking</code>, and the answer into <code>text</code>.</li>
+<li>The bubble shows reasoning in an expandable <strong>Reasoning</strong> section. It starts open while the model is still thinking.</li>
+</ul>
+<pre><code language="language-dart" class="language-dart">import &#39;dart:io&#39;;
+
+import &#39;package:flutter/foundation.dart&#39;;
+import &#39;package:flutter/material.dart&#39;;
+import &#39;package:flutter_gemma/flutter_gemma.dart&#39;;
+import &#39;package:image_picker/image_picker.dart&#39;;
+
+import &#39;gemma_service.dart&#39;;
+
+class ChatScreen extends StatefulWidget {
+  const ChatScreen({super.key, this.thinking = false});
+
+  /// Streams the model&#39;s reasoning before its answer.
+  final bool thinking;
+
+  @override
+  State&lt;ChatScreen&gt; createState() =&gt; _ChatScreenState();
+}
+
+class _ChatScreenState extends State&lt;ChatScreen&gt; {
+  final _input = TextEditingController();
+  final _messages = &lt;ChatMessage&gt;[];
+  final _picker = ImagePicker();
+
+  Uint8List? _image;
+
+  InferenceChat? _chat;
+  bool _busy = false;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _openChat();
+  }
+
+  Future&lt;void&gt; _openChat() async {
+    try {
+      final model = await GemmaService.loadModel();
+      final chat = await model.createChat(
+        // Without this the chat assumes an older Gemma prompt format.
+        modelType: ModelType.gemma4,
+        supportImage: true,
+        temperature: 0.7,
+        topK: 40,
+        topP: 0.9,
+        systemInstruction: GemmaService.chatInstruction,
+        isThinking: widget.thinking,
+      );
+      if (mounted) setState(() =&gt; _chat = chat);
+    } catch (e) {
+      if (mounted) setState(() =&gt; _error = &#39;$e&#39;);
+    }
+  }
+
+  Future&lt;void&gt; _pickImage() async {
+    // Desktop has no camera source, so fall back to the file picker.
+    final isDesktop =
+        !kIsWeb &amp;&amp; (Platform.isMacOS || Platform.isWindows || Platform.isLinux);
+    final file = await _picker.pickImage(
+      source: isDesktop ? ImageSource.gallery : ImageSource.camera,
+      maxWidth: 1024,
+    );
+    if (file == null) return;
+    final bytes = await file.readAsBytes();
+    setState(() =&gt; _image = bytes);
+  }
+
+  Future&lt;void&gt; _send() async {
+    final chat = _chat;
+    final image = _image;
+    var text = _input.text.trim();
+    if (chat == null || _busy || (text.isEmpty &amp;&amp; image == null)) return;
+    if (text.isEmpty) text = &#39;What do you see in this image?&#39;;
+
+    _input.clear();
+    final reply = ChatMessage(fromUser: false);
+    setState(() {
+      _busy = true;
+      _image = null;
+      _messages
+        ..add(ChatMessage(fromUser: true, text: text, image: image))
+        ..add(reply);
+    });
+
+    try {
+      await chat.addQueryChunk(
+        image == null
+            ? Message.text(text: text, isUser: true)
+            : Message.withImage(text: text, imageBytes: image, isUser: true),
+      );
+      await for (final response in chat.generateChatResponseAsync()) {
+        if (!mounted) return;
+        switch (response) {
+          case TextResponse(:final token):
+            setState(() =&gt; reply.text += token);
+          case ThinkingResponse(:final content):
+            setState(() =&gt; reply.thinking += content);
+          case FunctionCallResponse():
+          case ParallelFunctionCallResponse():
+            break; // This chat has no tools.
+        }
+      }
+    } catch (e) {
+      if (mounted) setState(() =&gt; reply.text = &#39;Error: $e&#39;);
+    } finally {
+      if (mounted) setState(() =&gt; _busy = false);
+    }
+  }
+
+  @override
+  void dispose() {
+    _chat?.close();
+    _input.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text(widget.thinking ? &#39;Thinking&#39; : &#39;Chat&#39;)),
+      body: Column(
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(4),
-            child: Image.memory(_pendingImage!,
-              width: 50, height: 50, fit: BoxFit.cover),
-          ),
-          const SizedBox(width: 12),
-          const Expanded(
-            child: Text('Image attached',
-              style: TextStyle(color: Colors.white70, fontSize: 13)),
-          ),
-          IconButton(
-            icon: const Icon(Icons.close, color: Colors.white54),
-            onPressed: () =&gt; setState(() =&gt; _pendingImage = null),
-          ),
+          Expanded(child: _buildMessages()),
+          _buildComposer(),
         ],
       ),
     );
   }
 
-  Widget _buildInputBar() {
-    return Container(
-      decoration: const BoxDecoration(
-        border: Border(top: BorderSide(color: Colors.white10)),
-      ),
-      padding: EdgeInsets.only(
-        left: 8, right: 16, top: 8,
-        bottom: MediaQuery.of(context).padding.bottom + 8,
-      ),
-      child: Row(
-        children: [
-          IconButton(
-            icon: Icon(Icons.add_photo_alternate_outlined,
-              color: _isGenerating
-                  ? Colors.white24
-                  : const Color(0xFFFF5722),
-              size: 28,
+  Widget _buildMessages() {
+    if (_error != null) {
+      return Center(
+        child: Padding(padding: const EdgeInsets.all(24), child: Text(_error!)),
+      );
+    }
+    if (_chat == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: _messages.length,
+      itemBuilder: (_, i) =&gt; MessageBubble(message: _messages[i]),
+    );
+  }
+
+  Widget _buildComposer() {
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          children: [
+            if (_image != null)
+              Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.memory(
+                    _image!,
+                    width: 48,
+                    height: 48,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+            IconButton(
+              onPressed: _busy ? null : _pickImage,
+              icon: const Icon(Icons.add_photo_alternate_outlined),
             ),
-            onPressed: _isGenerating ? null : _pickImage,
+            Expanded(
+              child: TextField(
+                controller: _input,
+                onSubmitted: (_) =&gt; _send(),
+                decoration: const InputDecoration(
+                  hintText: &#39;Ask anything...&#39;,
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            IconButton.filled(
+              onPressed: _busy ? null : _send,
+              icon: const Icon(Icons.arrow_upward),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class ChatMessage {
+  ChatMessage({required this.fromUser, this.text = &#39;&#39;, this.image});
+
+  final bool fromUser;
+  final Uint8List? image;
+  String text;
+  String thinking = &#39;&#39;;
+}
+
+class MessageBubble extends StatelessWidget {
+  const MessageBubble({super.key, required this.message});
+
+  final ChatMessage message;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Align(
+      alignment: message.fromUser
+          ? Alignment.centerRight
+          : Alignment.centerLeft,
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 6),
+        constraints: const BoxConstraints(maxWidth: 560),
+        child: Material(
+          color: message.fromUser
+              ? colors.primaryContainer
+              : colors.surfaceContainerHighest,
+          borderRadius: BorderRadius.circular(18),
+          child: Padding(
+            padding: const EdgeInsets.all(14),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (message.image != null) ...[
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.memory(message.image!, height: 180),
+                  ),
+                  const SizedBox(height: 8),
+                ],
+                if (message.thinking.isNotEmpty)
+                  ExpansionTile(
+                    title: const Text(&#39;Reasoning&#39;),
+                    tilePadding: EdgeInsets.zero,
+                    initiallyExpanded: message.text.isEmpty,
+                    children: [
+                      Text(
+                        message.thinking,
+                        style: TextStyle(
+                          color: colors.onSurfaceVariant,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ],
+                  ),
+                Text(message.text.isEmpty ? &#39;...&#39; : message.text),
+              ],
+            ),
           ),
+        ),
+      ),
+    );
+  }
+}
+</code></pre>
+<p>Add a second tile to <code>lib/home_screen.dart</code>. The whole list now reads:</p>
+<pre><code language="language-dart" class="language-dart">children: const [
+  DemoTile(
+    icon: Icons.chat_bubble_outline,
+    title: &#39;Chat &amp; vision&#39;,
+    subtitle: &#39;Ask about text or a photo&#39;,
+    screen: ChatScreen(),
+  ),
+  DemoTile(
+    icon: Icons.psychology_outlined,
+    title: &#39;Thinking&#39;,
+    subtitle: &#39;Watch the reasoning stream before the answer&#39;,
+    screen: ChatScreen(thinking: true),
+  ),
+],
+</code></pre>
+<p>Open <strong>Thinking</strong> and try a question that punishes a quick answer:</p>
+<p><em>&#34;A bat and a ball cost 1.10 in total. The bat costs 1.00 more than the ball. How much is the ball?&#34;</em></p>
+<p>The reasoning streams first. Then the answer (0.05) appears below it.</p>
+<aside class="special"><p> Thinking is set per chat, not per model. The Chat and Thinking screens share the same loaded weights, and only the conversation differs.</p>
+</aside>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Let the model call your code" duration="12">
+        <p>Function calling lets the model trigger actions in your app. You describe each tool with a name, a description and a JSON Schema for its arguments. When the model decides to use one, flutter_gemma parses the call, you run it, and the result goes back to the model so it can continue.</p>
+<p><code>generateChatResponseWithTools</code> runs that loop for you. You supply one callback, <code>onToolCall</code>.</p>
+<p>Create <code>lib/tools_screen.dart</code>:</p>
+<pre><code language="language-dart" class="language-dart">import &#39;package:flutter/material.dart&#39;;
+import &#39;package:flutter_gemma/flutter_gemma.dart&#39;;
+
+import &#39;gemma_service.dart&#39;;
+
+/// What the model can ask the app to do. Each tool is a name, a description
+/// the model reads, and a JSON Schema for its arguments.
+const _tools = [
+  Tool(
+    name: &#39;add_task&#39;,
+    description: &#39;Add a task to the to-do list.&#39;,
+    parameters: {
+      &#39;type&#39;: &#39;object&#39;,
+      &#39;properties&#39;: {
+        &#39;title&#39;: {&#39;type&#39;: &#39;string&#39;, &#39;description&#39;: &#39;What needs doing.&#39;},
+      },
+      &#39;required&#39;: [&#39;title&#39;],
+    },
+  ),
+  Tool(
+    name: &#39;list_tasks&#39;,
+    description: &#39;Return every task on the to-do list.&#39;,
+    // No arguments, but still a schema. Leaving parameters out makes
+    // generation fail with &#34;Failed to start streaming (code: 13)&#34;.
+    parameters: {&#39;type&#39;: &#39;object&#39;, &#39;properties&#39;: &lt;String, dynamic&gt;{}},
+  ),
+  Tool(
+    name: &#39;set_color&#39;,
+    description: &#39;Change the color of the app bar.&#39;,
+    parameters: {
+      &#39;type&#39;: &#39;object&#39;,
+      &#39;properties&#39;: {
+        &#39;color&#39;: {
+          &#39;type&#39;: &#39;string&#39;,
+          &#39;enum&#39;: [&#39;blue&#39;, &#39;red&#39;, &#39;yellow&#39;, &#39;green&#39;],
+        },
+      },
+      &#39;required&#39;: [&#39;color&#39;],
+    },
+  ),
+];
+
+const _colors = {
+  &#39;blue&#39;: Color(0xFF1A73E8),
+  &#39;red&#39;: Color(0xFFD93025),
+  &#39;yellow&#39;: Color(0xFFF9AB00),
+  &#39;green&#39;: Color(0xFF1E8E3E),
+};
+
+class ToolsScreen extends StatefulWidget {
+  const ToolsScreen({super.key});
+
+  @override
+  State&lt;ToolsScreen&gt; createState() =&gt; _ToolsScreenState();
+}
+
+class _ToolsScreenState extends State&lt;ToolsScreen&gt; {
+  final _input = TextEditingController();
+  final _log = &lt;String&gt;[];
+  final _tasks = &lt;String&gt;[];
+
+  InferenceChat? _chat;
+  Color? _barColor;
+  bool _busy = false;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _openChat();
+  }
+
+  Future&lt;void&gt; _openChat() async {
+    try {
+      final model = await GemmaService.loadModel();
+      final chat = await model.createChat(
+        modelType: ModelType.gemma4,
+        tools: _tools,
+        supportsFunctionCalls: true,
+        temperature: 0.7,
+        topK: 40,
+        topP: 0.9,
+        systemInstruction:
+            &#39;You control a to-do app through tools. Always call a tool &#39;
+            &#39;instead of describing what you would do. After a tool returns, &#39;
+            &#39;confirm the result in one short English sentence.&#39;,
+      );
+      if (mounted) setState(() =&gt; _chat = chat);
+    } catch (e) {
+      if (mounted) setState(() =&gt; _error = &#39;$e&#39;);
+    }
+  }
+
+  /// Runs one tool call. Returns an error map instead of throwing, so the
+  /// model sees what went wrong and can recover.
+  Map&lt;String, dynamic&gt; _runTool(FunctionCallResponse call) {
+    switch (call.name) {
+      case &#39;add_task&#39;:
+        final title = (call.args[&#39;title&#39;] as String? ?? &#39;&#39;).trim();
+        if (title.isEmpty) return {&#39;error&#39;: &#39;title is empty&#39;};
+        setState(() =&gt; _tasks.add(title));
+        return {&#39;added&#39;: title, &#39;count&#39;: _tasks.length};
+      case &#39;list_tasks&#39;:
+        return {&#39;tasks&#39;: _tasks};
+      case &#39;set_color&#39;:
+        final color = _colors[call.args[&#39;color&#39;]];
+        if (color == null) {
+          return {&#39;error&#39;: &#39;unknown color ${call.args[&#39;color&#39;]}&#39;};
+        }
+        setState(() =&gt; _barColor = color);
+        return {&#39;color&#39;: call.args[&#39;color&#39;]};
+      default:
+        return {&#39;error&#39;: &#39;no tool named ${call.name}&#39;};
+    }
+  }
+
+  Future&lt;void&gt; _send() async {
+    final chat = _chat;
+    final text = _input.text.trim();
+    if (chat == null || _busy || text.isEmpty) return;
+
+    _input.clear();
+    setState(() {
+      _busy = true;
+      _log
+        ..add(&#39;You: $text&#39;)
+        ..add(&#39;&#39;);
+    });
+
+    try {
+      await chat.addQueryChunk(Message.text(text: text, isUser: true));
+      await for (final response in chat.generateChatResponseWithTools(
+        onToolCall: (call) {
+          setState(
+            () =&gt; _log.insert(_log.length - 1, &#39;→ ${call.name}(${call.args})&#39;),
+          );
+          return _runTool(call);
+        },
+        maxToolTurns: 5,
+        isCancelled: () =&gt; !mounted,
+      )) {
+        if (!mounted) return;
+        if (response is TextResponse) {
+          setState(() =&gt; _log.last += response.token);
+        }
+      }
+    } catch (e) {
+      if (mounted) setState(() =&gt; _log.last = &#39;Error: $e&#39;);
+    } finally {
+      if (mounted) setState(() =&gt; _busy = false);
+    }
+  }
+
+  @override
+  void dispose() {
+    _chat?.close();
+    _input.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text(&#39;Tools&#39;), backgroundColor: _barColor),
+      body: Column(
+        children: [
+          if (_tasks.isNotEmpty)
+            Card(
+              margin: const EdgeInsets.all(12),
+              child: Column(
+                children: [
+                  for (final task in _tasks)
+                    ListTile(
+                      dense: true,
+                      leading: const Icon(Icons.check_box_outline_blank),
+                      title: Text(task),
+                    ),
+                ],
+              ),
+            ),
           Expanded(
-            child: TextField(
-              controller: _controller,
-              enabled: !_isGenerating,
-              style: const TextStyle(color: Colors.white),
-              decoration: InputDecoration(
-                hintText: _isGenerating
-                    ? 'Thinking...'
-                    : (_pendingImage != null
-                        ? 'Ask about the image...'
-                        : 'Ask anything...'),
-                hintStyle: const TextStyle(color: Colors.white38),
-                filled: true,
-                fillColor: Colors.white.withOpacity(0.04),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(4),
-                  borderSide: BorderSide.none,
-                ),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16, vertical: 14,
-                ),
-              ),
-              onSubmitted: (_) =&gt; _sendMessage(),
-            ),
+            child: _error != null
+                ? Center(child: Text(_error!))
+                : _chat == null
+                ? const Center(child: CircularProgressIndicator())
+                : ListView(
+                    padding: const EdgeInsets.all(16),
+                    children: [
+                      for (final line in _log)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4),
+                          child: Text(
+                            line.isEmpty ? &#39;...&#39; : line,
+                            style: line.startsWith(&#39;→&#39;)
+                                ? const TextStyle(
+                                    fontFamily: &#39;monospace&#39;,
+                                    fontSize: 13,
+                                  )
+                                : null,
+                          ),
+                        ),
+                    ],
+                  ),
           ),
-          const SizedBox(width: 8),
-          Material(
-            color: _isGenerating
-                ? Colors.white.withOpacity(0.1)
-                : const Color(0xFFFF5722),
-            borderRadius: BorderRadius.circular(4),
-            child: InkWell(
-              borderRadius: BorderRadius.circular(4),
-              onTap: _isGenerating ? null : _sendMessage,
-              child: const Padding(
-                padding: EdgeInsets.all(14),
-                child: Icon(Icons.arrow_upward,
-                  color: Colors.white, size: 20),
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _input,
+                      onSubmitted: (_) =&gt; _send(),
+                      decoration: const InputDecoration(
+                        hintText: &#39;Add &#34;buy milk&#34; and make it green&#39;,
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  IconButton.filled(
+                    onPressed: _busy ? null : _send,
+                    icon: const Icon(Icons.arrow_upward),
+                  ),
+                ],
               ),
             ),
           ),
@@ -2580,419 +1591,170 @@ class _ChatScreenState extends State&lt;ChatScreen&gt; {
     );
   }
 }
+</code></pre>
+<p>Things to notice:</p>
+<ul>
+<li><strong><code>tools</code></strong><strong> + </strong><strong><code>supportsFunctionCalls: true</code></strong> on <code>createChat</code> declare the tools. With <code>ModelType.gemma4</code>, flutter_gemma passes them to the model&#39;s native chat template instead of pasting them into the prompt text.</li>
+<li><strong><code>onToolCall</code></strong> gets a <code>FunctionCallResponse</code> with <code>name</code> and <code>args</code>, and returns a <code>Map</code>. flutter_gemma sends that map back to the model and asks it to continue, until the model replies without calling a tool.</li>
+<li><strong><code>_runTool</code></strong><strong> never throws.</strong> If <code>onToolCall</code> throws, flutter_gemma records the error in the conversation and then rethrows it, which ends the stream. Returning <code>{'error': ...}</code> instead lets the model read what went wrong and respond to it.</li>
+<li><strong><code>maxToolTurns: 5</code></strong> stops a model that keeps calling tools without ever answering.</li>
+</ul>
+<aside class="warning"><p><strong>Give every tool a </strong><strong><code>parameters</code></strong><strong> schema, even with no arguments. </strong><code>list_tasks</code> takes no arguments but still declares <code>{'type': 'object', 'properties': {}}</code>. With flutter_gemma 1.8.1, a tool that leaves <code>parameters</code> out makes generation fail with <code>Failed to start streaming (code: 13)</code>.</p>
+</aside>
+<p>Finally, add the third tile. Replace <code>lib/home_screen.dart</code>:</p>
+<pre><code language="language-dart" class="language-dart">import &#39;package:flutter/material.dart&#39;;
 
-class _ChatMessage {
-  final String text;
-  final bool isUser;
-  final Uint8List? image;
-  _ChatMessage({required this.text, required this.isUser, this.image});
-}</pre>
-      </div>
+import &#39;chat_screen.dart&#39;;
+import &#39;tools_screen.dart&#39;;
 
-      <h3>Test it</h3>
-      <p>Hot restart (press <code>R</code> in the running flutter terminal). On the chat screen, tap the image icon, pick a photo. Type "What is this?" and send.</p>
+class HomeScreen extends StatelessWidget {
+  const HomeScreen({super.key});
 
-      <div class="expected">
-        <div class="expected-label">Expected behavior</div>
-        <p>Image preview shows above the input bar. After sending, the image appears in your chat bubble. Gemma's response describes the image. First image inference takes 10-20 seconds (it processes image tokens). Subsequent ones are faster.</p>
-      </div>
-
-      <div class="note">
-        <div class="note-label">Why gallery only, not camera?</div>
-        <p>On 6GB RAM phones, opening the system camera while Gemma is loaded triggers OOM and Android kills your app. We learned this the hard way during development. Gallery picker is memory-safe.</p>
-        <p>If you have an 8GB+ phone and want camera too, change <code>ImageSource.gallery</code> to <code>ImageSource.camera</code>. On most modern flagships it works fine.</p>
-      </div>
-
-      <details class="trouble">
-        <summary>If something goes wrong</summary>
-        <div class="trouble-body">
-          <h4>App crashes when picking image</h4>
-          <p>Permission missing. Re-check Step 5c (Android) and 6b (iOS).</p>
-
-          <h4>Image attaches but response is empty/weird</h4>
-          <p>Try with a text prompt: "Describe this in detail." Empty prompts sometimes confuse the model.</p>
-
-          <h4>Camera path crashes the app</h4>
-          <p>Memory limit on your device. Stick with <code>ImageSource.gallery</code>.</p>
-        </div>
-      </details>
-
-      <div class="mark-done" data-step="12"><input type="checkbox" id="check-12"/><label for="check-12">Mark as done</label></div>
-    </div>
-
-    <div class="checkpoint">
-      <span class="checkpoint-icon">◆ CHECKPOINT</span>
-      <span class="checkpoint-body">~95 min. You have a working multimodal AI app, fully on-device. Last step: ship it.</span>
-    </div>
-
-    <!-- ========================================
-         PART 4 — SHIP
-         ======================================== -->
-    <div class="section-marker">
-      <span class="section-marker-num">Part 04</span>
-      <span class="section-marker-label">Ship · ~15 min</span>
-    </div>
-
-    <div class="step" id="step-13">
-      <div class="step-header">
-        <div class="step-title-block">
-          <div class="step-number">Step 13</div>
-          <h2>Release build + GitHub</h2>
-        </div>
-        <div class="step-time">15 min</div>
-      </div>
-
-      <div class="step-goal">
-        <div class="step-goal-label">Goal</div>
-        <div class="step-goal-body">Build a release APK that's faster and cleaner than debug. Push your code to GitHub for the world to see.</div>
-      </div>
-
-      <h3>13a. Release build (Android)</h3>
-      <p>Connect your Android phone:</p>
-
-      <div class="code-block">
-        <div class="code-header">
-          <div class="code-header-label"><span class="code-lang">bash</span><span>Terminal</span></div>
-          <button class="copy-btn" data-code="release-build">Copy</button>
-        </div>
-<pre id="code-release-build">flutter run --release</pre>
-      </div>
-
-      <p>First release build takes 3-5 minutes (R8 + ProGuard processing). Result: a much smaller, faster APK with no debug overlays. Inference is 2-3× faster than debug.</p>
-
-      <p>Once it's running, you can press <code>q</code> to stop. The release APK is now installed on your phone permanently — you can launch it from the home screen any time.</p>
-
-      <h3>13b. Verify <code>.gitignore</code> is safe</h3>
-      <p>Run this — your <code>.env</code> should be listed, your token should NOT appear anywhere in tracked files:</p>
-
-      <div class="code-block">
-        <div class="code-header">
-          <div class="code-header-label"><span class="code-lang">bash</span><span>Terminal</span></div>
-          <button class="copy-btn" data-code="git-check">Copy</button>
-        </div>
-<pre id="code-git-check">git ls-files | grep -E "\.env|hf_"
-# Should output NOTHING. If it lists files, stop and fix gitignore.</pre>
-      </div>
-
-      <p>Add a few extra ignore patterns just in case:</p>
-
-      <div class="code-block">
-        <div class="code-header">
-          <div class="code-header-label"><span class="code-lang">bash</span><span>Terminal</span></div>
-          <button class="copy-btn" data-code="gitignore-extra">Copy</button>
-        </div>
-<pre id="code-gitignore-extra">cat &gt;&gt; .gitignore &lt;&lt;'EOF'
-# Secrets &amp; tokens
-.env
-config.json
-
-# Model files (too large for git)
-*.task
-*.tflite
-*.bin
-*.litertlm
-models/
-
-# OS
-.DS_Store
-Thumbs.db
-EOF</pre>
-      </div>
-
-      <h3>13c. Create a great README</h3>
-      <p>Replace your <code>README.md</code>:</p>
-
-      <div class="code-block">
-        <div class="code-header">
-          <div class="code-header-label"><span class="code-lang">markdown</span><span>README.md</span></div>
-          <button class="copy-btn" data-code="readme">Copy</button>
-        </div>
-<pre id="code-readme"># Gemma Vision Demo
-
-On-device AI Flutter app using Google's Gemma 3n E2B multimodal model.
-
-## What it does
-
-- Text chat with streaming responses
-- Image understanding (multimodal vision)
-- Works completely offline (airplane mode)
-- Data never leaves the device
-
-Powered by [Gemma 3n E2B](https://huggingface.co/google/gemma-3n-E2B-it-litert-preview)
-running locally via [flutter_gemma](https://pub.dev/packages/flutter_gemma).
-
-## Setup
-
-1. Get a HuggingFace token at [huggingface.co/settings/tokens](https://huggingface.co/settings/tokens)
-2. Request access to the [Gemma model](https://huggingface.co/google/gemma-3n-E2B-it-litert-preview)
-3. Create `.env` in project root:
-   ```
-   HUGGINGFACE_TOKEN=hf_your_token_here
-   ```
-4. Install: `flutter pub get` then `cd ios &amp;&amp; pod install &amp;&amp; cd ..`
-5. Run: `flutter run`
-
-First launch downloads the ~3GB model (one-time, over WiFi).
-
-## Requirements
-
-- Flutter 3.24+
-- Android: minSdk 26, 6GB+ RAM (8GB+ for live camera)
-- iOS: 16.0+
-
-## Memory tradeoff
-
-On 6GB RAM phones, opening the camera while Gemma is loaded triggers OOM —
-Android kills the app. This demo uses gallery picker as workaround.
-On 8GB+ phones, camera works fine.
-
-## Credits
-
-- [flutter_gemma](https://github.com/DenisovAV/flutter_gemma) by Sasha Denisov
-- [Gemma](https://ai.google.dev/gemma) by Google DeepMind
-- [MediaPipe](https://developers.google.com/mediapipe) for on-device inference
-
-## License
-
-MIT
-</pre>
-      </div>
-
-      <h3>13d. Initialize and push</h3>
-
-      <div class="code-block">
-        <div class="code-header">
-          <div class="code-header-label"><span class="code-lang">bash</span><span>Terminal</span></div>
-          <button class="copy-btn" data-code="git-push">Copy</button>
-        </div>
-<pre id="code-git-push">git init
-git branch -M main
-git add .
-git status
-# Verify .env and config.json are NOT in the list
-
-git commit -m "Initial commit: on-device AI demo with Flutter and Gemma"</pre>
-      </div>
-
-      <p>Now create a public repo at <a href="https://github.com/new" target="_blank" rel="noopener">github.com/new</a>. Name it <code>gemma-vision-demo</code>. Don't initialize with a README (we have one). Then:</p>
-
-      <div class="code-block">
-        <div class="code-header">
-          <div class="code-header-label"><span class="code-lang">bash</span><span>Terminal</span></div>
-          <button class="copy-btn" data-code="git-push2">Copy</button>
-        </div>
-<pre id="code-git-push2">git remote add origin https://github.com/YOUR_USERNAME/gemma-vision-demo.git
-git push -u origin main</pre>
-      </div>
-
-      <p>Replace <code>YOUR_USERNAME</code> with your actual GitHub handle.</p>
-
-      <div class="expected">
-        <div class="expected-label">You should now have</div>
-        <p>A public GitHub repo with your full demo code, a clean README, no secrets exposed, ready to be cloned and run by anyone.</p>
-      </div>
-
-      <details class="trouble">
-        <summary>If something goes wrong</summary>
-        <div class="trouble-body">
-          <h4>Release build fails with "Missing classes"</h4>
-          <p>Re-verify Step 5d-5e. R8 needs explicit keep rules.</p>
-
-          <h4>"warning: LF will be replaced by CRLF"</h4>
-          <p>Harmless on Windows. Ignore.</p>
-
-          <h4>Pushed too fast and now the token is on GitHub</h4>
-          <p>Stop. Revoke the token immediately at <a href="https://huggingface.co/settings/tokens" target="_blank" rel="noopener">HF tokens page</a>. Generate a new one. Use <code>git filter-repo</code> or BFG Repo-Cleaner to scrub the old token from history.</p>
-        </div>
-      </details>
-
-      <div class="mark-done" data-step="13"><input type="checkbox" id="check-13"/><label for="check-13">Mark as done</label></div>
-    </div>
-
-    <!-- ========================================
-         WHAT'S NEXT
-         ======================================== -->
-    <div class="section-marker" id="whatsnext">
-      <span class="section-marker-num">∞</span>
-      <span class="section-marker-label">What's next</span>
-    </div>
-
-    <div class="step">
-      <div class="step-header">
-        <div class="step-title-block">
-          <div class="step-number">Where to go from here</div>
-          <h2>You shipped it. Now what?</h2>
-        </div>
-        <div class="step-time">Up to you</div>
-      </div>
-
-      <p>You now have a working on-device AI app. A few directions to take it:</p>
-
-      <div class="next-grid">
-        <div class="next-card">
-          <h4>Try a different model</h4>
-          <p>Swap the URL to Gemma 3 1B (smaller, text-only, ~500MB) or experiment with other models on the <a href="https://huggingface.co/litert-community" target="_blank" rel="noopener">LiteRT community</a>.</p>
-        </div>
-        <div class="next-card">
-          <h4>Add system prompts</h4>
-          <p>Pass a system prompt to <code>createChat()</code> to give your model a persona. Build a "code review buddy" or a "Hindi tutor."</p>
-        </div>
-        <div class="next-card">
-          <h4>Persist conversations</h4>
-          <p>Save chat history to local storage with <code>shared_preferences</code> or <code>sqflite</code>. The model state lives only in memory — chat logs are yours to manage.</p>
-        </div>
-        <div class="next-card">
-          <h4>Build something specific</h4>
-          <p>A receipt scanner. A travel translator. A photo organizer. Pick a real problem you have, not a generic chatbot. The best demos are specific.</p>
-        </div>
-        <div class="next-card">
-          <h4>Fine-tune for your use case</h4>
-          <p>Use LoRA to fine-tune Gemma on your own data, then quantize and ship. Tutorial: <a href="https://huggingface.co/blog/gemma-peft" target="_blank" rel="noopener">Gemma + PEFT</a>.</p>
-        </div>
-        <div class="next-card">
-          <h4>Combine with cloud</h4>
-          <p>Use Gemma on-device for fast/private tasks, fall back to Gemini API for complex reasoning. Best of both worlds.</p>
-        </div>
-      </div>
-
-      <h3>Resources</h3>
-      <ul>
-        <li><a href="https://pub.dev/packages/flutter_gemma" target="_blank" rel="noopener">flutter_gemma on pub.dev</a> — official package</li>
-        <li><a href="https://ai.google.dev/gemma" target="_blank" rel="noopener">Gemma docs</a> — model family + use cases</li>
-        <li><a href="https://huggingface.co/google" target="_blank" rel="noopener">Gemma models on HuggingFace</a> — every variant</li>
-        <li><a href="https://developers.google.com/mediapipe/solutions/genai/llm_inference" target="_blank" rel="noopener">MediaPipe GenAI docs</a> — what's under the hood</li>
-      </ul>
-
-      <div class="final-card">
-        <div class="quote">
-          You built something <span>real</span>.<br/>
-          Now go tell people about it.
-        </div>
-        <div class="by">— Akansha Jain</div>
-      </div>
-    </div>
-
-  </main>
-</div>
-
-<footer>
-  <p>Codelab by <strong style="color: var(--cream);">Akansha Jain</strong> · Senior Software Engineer · WTM Ambassador</p>
-  <p>Flutter Delhi · FFDG New Delhi · Flutter Conf India</p>
-  <div class="footer-links">
-    <a href="https://akanshajain.dev" target="_blank" rel="noopener">Website</a>
-    <a href="https://www.linkedin.com/in/akansha-jain-2001/" target="_blank" rel="noopener">LinkedIn</a>
-    <a href="https://github.com/jakansha2001" target="_blank" rel="noopener">GitHub</a>
-    <a href="https://twitter.com/Akansha2001" target="_blank" rel="noopener">Twitter</a>
-    <a href="https://medium.com/@akansha.jain1611" target="_blank" rel="noopener">Medium</a>
-  </div>
-</footer>
-
-<script>
-  // COPY BUTTONS — with execCommand fallback for sandboxed iframes
-  function fallbackCopy(text) {
-    const ta = document.createElement('textarea');
-    ta.value = text;
-    ta.style.position = 'fixed';
-    ta.style.left = '-9999px';
-    ta.style.top = '0';
-    document.body.appendChild(ta);
-    ta.focus();
-    ta.select();
-    let ok = false;
-    try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
-    document.body.removeChild(ta);
-    return ok;
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text(&#39;On-Device Gemma&#39;)),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: const [
+          DemoTile(
+            icon: Icons.chat_bubble_outline,
+            title: &#39;Chat &amp; vision&#39;,
+            subtitle: &#39;Ask about text or a photo&#39;,
+            screen: ChatScreen(),
+          ),
+          DemoTile(
+            icon: Icons.psychology_outlined,
+            title: &#39;Thinking&#39;,
+            subtitle: &#39;Watch the reasoning stream before the answer&#39;,
+            screen: ChatScreen(thinking: true),
+          ),
+          DemoTile(
+            icon: Icons.build_outlined,
+            title: &#39;Tools&#39;,
+            subtitle: &#39;The model calls your Dart functions&#39;,
+            screen: ToolsScreen(),
+          ),
+        ],
+      ),
+    );
   }
+}
 
-  document.querySelectorAll('.copy-btn').forEach(btn => {
-    btn.addEventListener('click', async () => {
-      const id = btn.getAttribute('data-code');
-      const codeEl = document.getElementById('code-' + id);
-      if (!codeEl) return;
-      const text = codeEl.textContent;
-      let copied = false;
-      // Try modern clipboard API first
-      if (navigator.clipboard && window.isSecureContext) {
-        try {
-          await navigator.clipboard.writeText(text);
-          copied = true;
-        } catch (e) {
-          copied = false;
-        }
-      }
-      // Fall back to execCommand if clipboard API blocked
-      if (!copied) {
-        copied = fallbackCopy(text);
-      }
-      btn.textContent = copied ? 'Copied' : 'Select all & copy';
-      btn.classList.toggle('copied', copied);
-      setTimeout(() => {
-        btn.textContent = 'Copy';
-        btn.classList.remove('copied');
-      }, 1800);
-    });
+class DemoTile extends StatelessWidget {
+  const DemoTile({
+    super.key,
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.screen,
   });
 
-  // PROGRESS — bar + checkboxes + TOC ticks
-  const STORAGE_KEY = 'gemma-codelab-progress';
-  function loadProgress() {
-    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); }
-    catch (e) { return {}; }
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final Widget screen;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: ListTile(
+        leading: Icon(icon),
+        title: Text(title),
+        subtitle: Text(subtitle),
+        trailing: const Icon(Icons.chevron_right),
+        onTap: () =&gt;
+            Navigator.of(context)
+                .push(MaterialPageRoute(builder: (_) =&gt; screen)),
+      ),
+    );
   }
-  function saveProgress(state) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  }
+}
+</code></pre>
+<p>Run the app, open <strong>Tools</strong> and try:</p>
+<ul>
+<li><em>&#34;Add a task to buy milk and make the app bar green.&#34;</em> The model calls <code>add_task</code> and then <code>set_color</code>.</li>
+<li><em>&#34;What is on my list?&#34;</em> The model calls <code>list_tasks</code> and reads the result back.</li>
+</ul>
+<p>Each tool call appears in the log as <code>→ name(args)</code>, so you can see exactly what the model asked for.</p>
 
-  const progress = loadProgress();
 
-  document.querySelectorAll('.mark-done').forEach(row => {
-    const step = row.getAttribute('data-step');
-    const cb = row.querySelector('input[type="checkbox"]');
-    if (progress[step]) {
-      cb.checked = true;
-      row.classList.add('done');
-      const tocItem = document.querySelector('.toc-item[data-step="' + step + '"]');
-      if (tocItem) tocItem.classList.add('done');
-    }
-    cb.addEventListener('change', () => {
-      if (cb.checked) {
-        progress[step] = true;
-        row.classList.add('done');
-        const tocItem = document.querySelector('.toc-item[data-step="' + step + '"]');
-        if (tocItem) tocItem.classList.add('done');
-      } else {
-        delete progress[step];
-        row.classList.remove('done');
-        const tocItem = document.querySelector('.toc-item[data-step="' + step + '"]');
-        if (tocItem) tocItem.classList.remove('done');
-      }
-      saveProgress(progress);
-      updateProgressBar();
-    });
-  });
+      </google-codelab-step>
+    
+      <google-codelab-step label="Test it offline" duration="3">
+        <p>This is the step that shows the difference from a cloud API.</p>
+<ol type="1">
+<li>Make sure the model has finished downloading and you&#39;ve sent at least one message.</li>
+<li>Turn on <strong>airplane mode</strong>, or turn off Wi-Fi on your Mac.</li>
+<li>Fully close the app and launch it again.</li>
+<li>Use each screen: Chat, Vision, Thinking and Tools.</li>
+</ol>
+<p>Everything still works. The download screen sees that the model is installed and goes straight to the home screen, and every response is generated on the device.</p>
+<aside class="special"><p> Also try a release build with <code>flutter run --release</code>. That&#39;s the build your users get.</p>
+</aside>
 
-  const progressFill = document.getElementById('progress');
-  function updateProgressBar() {
-    const total = document.querySelectorAll('.mark-done').length;
-    const done = Object.keys(progress).length;
-    const pct = (done / total) * 100;
-    if (progressFill) progressFill.style.width = pct + '%';
-  }
-  updateProgressBar();
 
-  // TOC SMOOTH SCROLL — no pushState (sandbox iframes block it)
-  document.querySelectorAll('.toc-item').forEach(link => {
-    link.addEventListener('click', (e) => {
-      const href = link.getAttribute('href');
-      if (!href || !href.startsWith('#')) return;
-      e.preventDefault();
-      const target = document.querySelector(href);
-      if (target) {
-        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    });
-  });
-</script>
+      </google-codelab-step>
+    
+      <google-codelab-step label="Troubleshooting" duration="5">
+        <p>Problems you&#39;re likely to hit, and what fixes them.</p>
+<h2 is-upgraded>The model downloads but won&#39;t load</h2>
+<ul>
+<li>Check <code>fileType: ModelFileType.litertlm</code> on <code>installModel</code>. The extension isn&#39;t inferred.</li>
+<li>Check that <code>FlutterGemma.initialize</code> registers <code>LiteRtLmEngine()</code>.</li>
+<li>If you first installed with the wrong <code>fileType</code>, the app still treats the model as installed and skips the download screen. Uninstall the app, or clear its data, and install again.</li>
+</ul>
+<h2 is-upgraded>Tool calls show up as raw text</h2>
+<p>Make sure <code>createChat</code> gets <code>modelType: ModelType.gemma4</code>. Without it the chat uses an older Gemma prompt format. The tools become part of the prompt text, and the model&#39;s calls can come back as plain text instead of <code>FunctionCallResponse</code> events.</p>
+<h2 is-upgraded><code>Failed to start streaming (code: 13)</code> on a tools chat</h2>
+<p>A tool is missing its <code>parameters</code> schema. Give it at least an empty object schema:</p>
+<pre><code language="language-dart" class="language-dart">parameters: {&#39;type&#39;: &#39;object&#39;, &#39;properties&#39;: &lt;String, dynamic&gt;{}},
+</code></pre>
+<h2 is-upgraded>Answers contain <code>$x$</code> or other LaTeX</h2>
+<p>Gemma often formats math as LaTeX, even when asked not to. The system instruction reduces this but doesn&#39;t prevent it. To display it properly, render replies with a Markdown package that supports LaTeX, such as <a href="https://pub.dev/packages/gpt_markdown" target="_blank">gpt_markdown</a>.</p>
+<h2 is-upgraded>Words from another language appear in the reply</h2>
+<p>Narrow the sampling (<code>temperature</code>, <code>topK</code>, <code>topP</code>) and say in the system instruction which language to use, including for reasoning.</p>
+<h2 is-upgraded>Android: the download crashes on Android 14+</h2>
+<p>Add the <code>SystemForegroundService</code> override and <code>FOREGROUND_SERVICE_DATA_SYNC</code> from the Android setup step.</p>
+<h2 is-upgraded>Android: the app crashes when the engine starts</h2>
+<p>Check that you&#39;re on an arm64 device, not an x86_64 emulator, and that <code>abiFilters</code> is set.</p>
+<h2 is-upgraded>macOS: the engine fails to load</h2>
+<p>Open the built app&#39;s <code>Contents/Frameworks</code> folder. If <code>GemmaModelConstraintProvider.framework</code> is missing, the Run Script phase didn&#39;t run. Check that it&#39;s the last build phase and that its input file is set.</p>
+<h2 is-upgraded>The app is killed while loading the model</h2>
+<p>The device ran out of memory. Close other apps, try a device with more RAM, or lower <code>maxTokens</code>.</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Congratulations" duration="2">
+        <p>You built a Flutter app that runs Gemma 4 on the device, with streaming chat, image understanding, visible reasoning and function calling. After the first download it needs no network, no API key and no server.</p>
+<h2 is-upgraded>Where to go next</h2>
+<ul>
+<li><strong>Add voice. </strong><a href="https://pub.dev/packages/flutter_gemma_speech" target="_blank">flutter_gemma_speech</a> adds on-device speech-to-text (for example Whisper) and text-to-speech (for example Matcha), so the whole speech-to-speech loop can run without a network.</li>
+<li><strong>Answer questions about your own documents. </strong><code>flutter_gemma_rag_sqlite</code> and <code>flutter_gemma_rag_qdrant</code> add on-device vector search for retrieval-augmented generation.</li>
+<li><strong>Give the model skills. </strong><code>flutter_gemma_agent</code> builds on function calling with reusable skills.</li>
+<li><strong>Explore the demo app. </strong><a href="https://github.com/jakansha2001/flutter-gemma-demo" target="_blank">flutter-gemma-demo</a> is a more complete version of this app, with a hands-free voice loop, a larger set of tools and Markdown/LaTeX rendering.</li>
+</ul>
+<h2 is-upgraded>Resources</h2>
+<ul>
+<li><a href="https://pub.dev/packages/flutter_gemma" target="_blank">flutter_gemma on pub.dev</a></li>
+<li><a href="https://huggingface.co/litert-community/gemma-4-E2B-it-litert-lm" target="_blank">Gemma 4 E2B LiteRT-LM model card</a></li>
+<li><a href="https://ai.google.dev/gemma" target="_blank">Gemma documentation</a></li>
+<li><a href="https://github.com/google-ai-edge/LiteRT-LM" target="_blank">LiteRT-LM on GitHub</a></li>
+</ul>
+<h2 is-upgraded>About the author</h2>
+<p>This codelab was written by <strong>Akansha Jain</strong>: <a href="https://akanshajain.dev" target="_blank">Website</a> · <a href="https://www.linkedin.com/in/akansha-jain-2001/" target="_blank">LinkedIn</a> · <a href="https://github.com/jakansha2001" target="_blank">GitHub</a> · <a href="https://medium.com/@akansha.jain1611" target="_blank">Medium</a></p>
+
+
+      </google-codelab-step>
+    
+  </google-codelab>
+
+  <script src="https://storage.googleapis.com/claat-public/native-shim.js"></script>
+  <script src="https://storage.googleapis.com/claat-public/custom-elements.min.js"></script>
+  <script src="https://storage.googleapis.com/claat-public/prettify.js"></script>
+  <script src="https://storage.googleapis.com/claat-public/codelab-elements.js"></script>
+  <script src="//support.google.com/inapp/api.js"></script>
 
 </body>
 </html>
