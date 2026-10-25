@@ -759,6 +759,53 @@ dataContext.update(
     </ul>
   </section>
 
+  <!-- IN THE WILD — GENLATTE -->
+  <section class="slide" data-act="ACT VII · IN THE WILD">
+    <div class="eyebrow"><span class="dot" style="background:var(--blue)"></span> GENUI IN THE WILD · 1 OF 3</div>
+    <div class="wildslide">
+      <div class="copy">
+        <h2 class="mt8">GenLatte</h2>
+        <p class="lead mt16">Describe your happy place, and Gemini and Nano Banana turn it into an image that gets printed on your latte. Want to tweak it? Gemini writes follow-up questions and picks a widget for each one, a text field here and radio buttons there, from a small catalog of branded widgets.</p>
+        <p class="lead mt16">About 3,000 lattes: 1,200 at Cloud Next, and 1,800 more at Google I/O, where it was called Antigravity Coffee Co.</p>
+        <div class="wild-tags">
+          <span class="wild-tag">Flutter team</span><span class="wild-tag">Gemini</span><span class="wild-tag">Cloud Next &amp; Google I/O</span>
+        </div>
+      </div>
+      <div class="hero"><iframe class="yt" src="https://www.youtube.com/embed/-NLK4gpT0m4?start=27&amp;end=186&amp;rel=0&amp;modestbranding=1" title="Flutter built a coffee shop at Cloud Next" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe></div>
+    </div>
+  </section>
+
+  <!-- IN THE WILD — VGV FINANCES -->
+  <section class="slide paper" data-act="ACT VII · IN THE WILD">
+    <div class="eyebrow"><span class="dot" style="background:var(--green)"></span> GENUI IN THE WILD · 2 OF 3</div>
+    <div class="wildslide">
+      <div class="copy">
+        <h2>Life Goal Simulator</h2>
+        <p class="lead mt16">Very Good Ventures' personal-finance demo for Google Cloud Next 2026. It asks about your goals, like the age you want to retire at, and builds each input as it goes, like this slider. Built with GenUI and Firebase AI, and the code is open source.</p>
+        <div class="wild-tags">
+          <span class="wild-tag">Very Good Ventures</span><span class="wild-tag">Cloud Next ’26</span><span class="wild-tag">Gemini</span>
+        </div>
+      </div>
+      <div class="hero"><img src="assets/wild/vgv-finances.png" alt="Very Good Ventures' Life Goal Simulator asking for a target retirement age with a slider" /></div>
+    </div>
+  </section>
+
+  <!-- IN THE WILD — FINNISH IT -->
+  <section class="slide" data-act="ACT VII · IN THE WILD">
+    <div class="eyebrow"><span class="dot" style="background:var(--red)"></span> GENUI IN THE WILD · 3 OF 3</div>
+    <div class="wildslide">
+      <div class="copy">
+        <h2>Finnish&nbsp;It</h2>
+        <p class="lead mt16">A Finnish-learning app by Cagatay Ulusoy, a Google Developer Expert for Flutter, and one of the first GenUI apps in production. You build a practice picture step by step (season, time of day, setting), and the model generates the questions for each step. Then you describe the picture in Finnish and get feedback.</p>
+        <p class="lead mt16">It was featured in the Cloud Next developer keynote and the Flutter keynote at Google I/O.</p>
+        <div class="wild-tags">
+          <span class="wild-tag">Flutter GDE</span><span class="wild-tag">In production</span><span class="wild-tag">Next &amp; I/O ’26</span>
+        </div>
+      </div>
+      <div class="hero phone"><img src="assets/wild/finnish.png" alt="Finnish It, Cagatay Ulusoy's GenUI language-learning app" /></div>
+    </div>
+  </section>
+
   <section class="slide" data-act="ACT VIII · WHAT'S NEXT">
     <div class="eyebrow"><span class="dot"></span> WHERE THIS IS HEADED · OCT 2026</div>
     <h2 class="mt16">genui is being split up.</h2>
@@ -903,6 +950,7 @@ dataContext.update(
     });
   }
   window.addEventListener('resize', fit);
+  window.addEventListener('load', fit);
   fit();
 
   const slides = Array.from(document.querySelectorAll('.slide'));
