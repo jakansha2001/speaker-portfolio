@@ -18,6 +18,9 @@
     --display:'Google Sans','Product Sans','Roboto',sans-serif;
     --body:'Roboto',sans-serif;
     --mono:'Roboto Mono',monospace;
+    /* every size below is in these units, not raw vw/vh. On desktop the
+       script points them at a fixed design canvas; on phones they stay 1vw/1vh. */
+    --vw:1vw; --vh:1vh;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{height:100%}
@@ -37,11 +40,13 @@
     transition:width .35s cubic-bezier(.4,0,.2,1)}
 
   /* ---------- deck / slides ---------- */
-  .deck{height:100vh;width:100vw;position:relative}
+  .deck{height:calc(100*var(--vh));width:calc(100*var(--vw));position:relative}
+  .deck.fit{position:absolute;transform-origin:0 0}
   .slide{
     position:absolute;inset:0;opacity:0;visibility:hidden;
     display:flex;flex-direction:column;justify-content:center;
-    padding:clamp(28px,6vw,110px);
+    /* vertical padding follows the height, so wide screens don't lose rows to margins */
+    padding:clamp(24px,calc(7*var(--vh)),80px) clamp(28px,calc(6*var(--vw)),110px);
     transition:opacity .4s ease;
     overflow:hidden;
   }
@@ -54,169 +59,170 @@
   .slide.centered .dmline{justify-content:center}
 
   /* ---------- shared editorial bits ---------- */
-  .eyebrow{font-family:var(--mono);font-size:clamp(12px,1.15vw,15px);
+  .eyebrow{font-family:var(--mono);font-size:clamp(12px,calc(1.15*var(--vw)),15px);
     letter-spacing:.18em;text-transform:uppercase;color:var(--muted);
     display:flex;gap:14px;align-items:center;flex-wrap:wrap}
   .eyebrow .dot{width:6px;height:6px;border-radius:99px;background:var(--blue)}
   .slide.dark .eyebrow{color:#9aa0a6}
-  .kicker{font-family:var(--mono);font-size:clamp(12px,1.05vw,14px);letter-spacing:.16em;
+  .kicker{font-family:var(--mono);font-size:clamp(12px,calc(1.05*var(--vw)),14px);letter-spacing:.16em;
     text-transform:uppercase;color:var(--muted)}
   .fullform{font-family:var(--mono);font-weight:400;font-size:.42em;letter-spacing:.02em;
     color:var(--muted);white-space:nowrap}
-  .fullform.below{display:block;font-size:clamp(13px,1.4vw,18px);letter-spacing:.08em;margin-top:8px;margin-bottom:clamp(16px,3vh,32px);white-space:normal}
+  .fullform.below{display:block;font-size:clamp(13px,calc(1.4*var(--vw)),18px);letter-spacing:.08em;margin-top:8px;margin-bottom:clamp(16px,calc(3*var(--vh)),32px);white-space:normal}
   .slide.dark .fullform{color:#9aa0a6}
   h1{font-family:var(--display);font-weight:700;line-height:1.02;letter-spacing:-.02em;
-    font-size:clamp(36px,6vw,84px)}
+    font-size:clamp(36px,calc(6*var(--vw)),84px)}
   h2{font-family:var(--display);font-weight:700;line-height:1.05;letter-spacing:-.02em;
-    font-size:clamp(32px,5vw,70px)}
-  h3{font-family:var(--display);font-weight:500;font-size:clamp(21px,2.5vw,33px);letter-spacing:-.01em}
-  p.lead{font-size:clamp(18px,2vw,29px);line-height:1.5;color:#3c4043;max-width:60ch}
+    font-size:clamp(32px,calc(5*var(--vw)),70px)}
+  h3{font-family:var(--display);font-weight:500;font-size:clamp(21px,calc(2.5*var(--vw)),33px);letter-spacing:-.01em}
+  p.lead{font-size:clamp(18px,calc(2*var(--vw)),29px);line-height:1.5;color:#3c4043;max-width:60ch}
   .slide.dark p.lead{color:#e8eaed}
   .max{max-width:62ch}
   .mt8{margin-top:8px}.mt16{margin-top:16px}.mt24{margin-top:24px}.mt32{margin-top:32px}
-  .mt48{margin-top:clamp(24px,4vh,48px)}
+  .mt48{margin-top:clamp(24px,calc(4*var(--vh)),48px)}
   .accent-blue{color:var(--blue)}.accent-red{color:var(--red)}
   .accent-yellow{color:#F09B00}.accent-green{color:var(--green)}
 
   /* ---------- speaker cue ---------- */
-  .cue{position:absolute;left:clamp(28px,6vw,110px);bottom:26px;
+  .cue{position:absolute;left:clamp(28px,calc(6*var(--vw)),110px);bottom:26px;
     font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
     color:var(--muted);display:flex;gap:10px;align-items:center}
   .cue .pill{border:1px solid var(--line);border-radius:99px;padding:3px 9px}
-  .pageno{position:absolute;right:clamp(28px,6vw,110px);bottom:26px;
+  .pageno{position:absolute;right:clamp(28px,calc(6*var(--vw)),110px);bottom:26px;
     font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--muted)}
   .slide.dark .pageno,.slide.dark .cue{color:#9aa0a6}
   .slide.dark .cue .pill{border-color:#3c4043}
 
   /* ---------- title slide ---------- */
   .title-wrap{max-width:18ch}
-  .who{margin-top:clamp(28px,5vh,56px);display:flex;gap:18px;align-items:center}
+  .who{margin-top:clamp(28px,calc(5*var(--vh)),56px);display:flex;gap:18px;align-items:center}
   .who .ava{width:60px;height:60px;border-radius:99px;object-fit:cover;border:2px solid var(--line)}
   .who .meta{font-size:14px;line-height:1.5}
   .who .meta b{font-family:var(--display);font-weight:700;font-size:17px}
   .who .meta span{color:var(--muted);display:block;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase}
 
   /* ---------- bullet lists ---------- */
-  ul.ticks{list-style:none;margin-top:clamp(20px,3vh,34px);display:grid;gap:16px;max-width:70ch}
-  ul.ticks li{display:flex;gap:16px;align-items:flex-start;font-size:clamp(17px,1.85vw,25px);line-height:1.4}
+  ul.ticks{list-style:none;margin-top:clamp(20px,calc(3*var(--vh)),34px);display:grid;gap:16px;max-width:70ch}
+  ul.ticks li{display:flex;gap:16px;align-items:flex-start;font-size:clamp(17px,calc(1.85*var(--vw)),25px);line-height:1.4}
   ul.ticks li .n{font-family:var(--mono);font-size:14px;color:var(--muted);min-width:26px;padding-top:4px}
   ul.ticks li b{font-family:var(--display);font-weight:500}
 
   /* ---------- three-up / cards ---------- */
-  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(14px,2vw,26px);margin-top:clamp(22px,3.5vh,40px)}
-  .grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:clamp(16px,2.4vw,32px);margin-top:clamp(22px,3.5vh,40px)}
-  .card{background:var(--bg);border:1px solid var(--line);border-radius:18px;padding:clamp(18px,2vw,26px);
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(14px,calc(2*var(--vw)),26px);margin-top:clamp(22px,calc(3.5*var(--vh)),40px)}
+  .grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:clamp(16px,calc(2.4*var(--vw)),32px);margin-top:clamp(22px,calc(3.5*var(--vh)),40px)}
+  .card{background:var(--bg);border:1px solid var(--line);border-radius:18px;padding:clamp(18px,calc(2*var(--vw)),26px);
     display:flex;flex-direction:column;gap:10px}
   .slide.paper .card{background:#fff}
-  .card .idx{font-family:var(--mono);font-size:clamp(12px,1.1vw,14px);letter-spacing:.14em;color:var(--muted)}
-  .card h3{font-size:clamp(19px,2.1vw,26px)}
-  .card p{font-size:clamp(15px,1.5vw,19px);line-height:1.5;color:#3c4043}
+  .card .idx{font-family:var(--mono);font-size:clamp(12px,calc(1.1*var(--vw)),14px);letter-spacing:.14em;color:var(--muted)}
+  .card h3{font-size:clamp(19px,calc(2.1*var(--vw)),26px)}
+  .card p{font-size:clamp(15px,calc(1.5*var(--vw)),19px);line-height:1.5;color:#3c4043}
   .card .bar{height:4px;width:46px;border-radius:99px;margin-bottom:2px}
   .b-blue{background:var(--blue)}.b-red{background:var(--red)}.b-yellow{background:var(--yellow)}.b-green{background:var(--green)}
 
   /* ---------- big pull quote ---------- */
   .pull{font-family:var(--display);font-weight:700;letter-spacing:-.02em;line-height:1.08;
-    font-size:clamp(34px,5.6vw,74px);max-width:20ch}
+    font-size:clamp(34px,calc(5.6*var(--vw)),74px);max-width:20ch}
   .pull .mark{color:var(--blue)}
 
   /* ---------- code ---------- */
-  .codewrap{margin-top:clamp(18px,3vh,30px);background:#1f2023;border-radius:16px;
+  .codewrap{margin-top:clamp(18px,calc(3*var(--vh)),30px);background:#1f2023;border-radius:16px;
     border:1px solid #303134;overflow:hidden;max-width:92ch}
   .codewrap .bar{display:flex;gap:7px;padding:13px 16px;border-bottom:1px solid #303134;align-items:center}
   .codewrap .bar i{width:11px;height:11px;border-radius:99px;display:inline-block}
-  .codewrap .bar .fname{margin-left:10px;font-family:var(--mono);font-size:clamp(12px,1.1vw,14px);color:#9aa0a6}
-  pre{margin:0;padding:clamp(16px,2vw,24px);overflow:auto}
-  code{font-family:var(--mono);font-size:clamp(13px,1.3vw,16px);line-height:1.65;color:#e8eaed;white-space:pre}
+  .codewrap .bar .fname{margin-left:10px;font-family:var(--mono);font-size:clamp(12px,calc(1.1*var(--vw)),14px);color:#9aa0a6}
+  pre{margin:0;padding:clamp(16px,calc(2*var(--vw)),24px);overflow:auto}
+  code{font-family:var(--mono);font-size:clamp(13px,calc(1.3*var(--vw)),16px);line-height:1.65;color:#e8eaed;white-space:pre}
   code .c{color:#80868b}            /* comment */
   code .k{color:#8ab4f8}            /* keyword/type — google blue-ish */
   code .s{color:#81c995}            /* string — green */
   code .f{color:#fdd663}            /* field/name — yellow */
   code .r{color:#f28b82}            /* highlight/red */
-  .codenote{margin-top:14px;font-size:clamp(15px,1.5vw,19px);color:var(--muted);max-width:60ch}
+  .codenote{margin-top:14px;font-size:clamp(15px,calc(1.5*var(--vw)),19px);color:var(--muted);max-width:60ch}
 
   /* ---------- demo (two-column: copy left, phone right) ---------- */
-  .demogrid{display:grid;grid-template-columns:1fr auto;gap:clamp(28px,4vw,72px);align-items:center;width:100%;margin-top:clamp(14px,2vh,26px)}
+  .demogrid{display:grid;grid-template-columns:minmax(0,52ch) auto;justify-content:center;gap:clamp(36px,calc(7*var(--vw)),128px);align-items:center;width:100%;margin-top:clamp(14px,calc(2*var(--vh)),26px)}
   .demo-copy{max-width:48ch}
-  ul.ticks.demo-ticks{margin-top:clamp(14px,2vh,22px);gap:12px}
-  ul.ticks.demo-ticks li{font-size:clamp(15px,1.6vw,21px)}
+  ul.ticks.demo-ticks{margin-top:clamp(14px,calc(2*var(--vh)),22px);gap:12px}
+  ul.ticks.demo-ticks li{font-size:clamp(15px,calc(1.6*var(--vw)),21px)}
   ul.ticks.demo-ticks li .n{color:var(--blue)}
-  /* the recording already has a phone frame baked in — just round off the
-     video's square corners and float it with a soft shadow. */
-  .device{width:clamp(236px,26vw,320px);aspect-ratio:380/790;border-radius:46px;overflow:hidden;
-    background:#000;box-shadow:0 26px 60px rgba(32,33,36,.28);justify-self:center}
-  .device video{width:100%;height:100%;object-fit:cover;display:block}
+  /* the recordings are bare simulator screens (1178×2556): size the phone by
+     height so the app's text is as big as the slide allows, and draw the bezel
+     as a shadow ring so it doesn't eat into the screen. */
+  .device{height:min(calc(84*var(--vh)),1000px);aspect-ratio:1178/2556;border-radius:clamp(28px,calc(4.4*var(--vh)),46px);overflow:hidden;
+    background:#000;box-shadow:0 0 0 clamp(6px,calc(.9*var(--vh)),10px) #1d1d1f,0 26px 60px rgba(32,33,36,.32);justify-self:center}
+  .device video,.device img{width:100%;height:100%;object-fit:cover;display:block}
   .rec{display:inline-flex;gap:8px;align-items:center;font-family:var(--mono);font-size:12px;letter-spacing:.14em;color:var(--red)}
   .rec .blink{width:9px;height:9px;border-radius:99px;background:var(--red);animation:blink 1.3s infinite}
   @keyframes blink{50%{opacity:.25}}
 
   /* ---------- demo stills (fallback grid) ---------- */
-  .shotrow{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(14px,2.2vw,32px);
-    margin-top:clamp(18px,3vh,34px);justify-items:center}
+  .shotrow{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(14px,calc(2.2*var(--vw)),32px);
+    margin-top:clamp(18px,calc(3*var(--vh)),34px);justify-items:center}
   .shot{display:flex;flex-direction:column;align-items:center;gap:14px;margin:0}
-  .shotph{height:clamp(300px,58vh,580px);aspect-ratio:380/790;border-radius:28px;overflow:hidden;
-    background:#000;box-shadow:0 16px 40px rgba(32,33,36,.18)}
+  .shotph{height:clamp(280px,calc(55*var(--vh)),600px);aspect-ratio:1178/2556;border-radius:clamp(18px,calc(2.8*var(--vh)),28px);overflow:hidden;
+    background:#000;box-shadow:0 0 0 5px #1d1d1f,0 16px 40px rgba(32,33,36,.2)}
   .shotph img{width:100%;height:100%;object-fit:cover;display:block}
-  .shot figcaption{text-align:center;font-size:clamp(13px,1.4vw,17px);color:#3c4043;line-height:1.4;max-width:22ch}
+  .shot figcaption{text-align:center;font-size:clamp(13px,calc(1.4*var(--vw)),17px);color:#3c4043;line-height:1.4;max-width:26ch}
   .shot figcaption b{display:block;font-family:var(--display);font-weight:500;color:var(--ink);margin-bottom:3px}
 
   /* ---------- svg diagrams (loop + trust boundary) ---------- */
-  .diagram{width:100%;margin-top:clamp(16px,2.6vh,32px)}
-  .diagram svg{width:100%;height:auto;display:block;max-height:48vh}
+  .diagram{width:100%;margin-top:clamp(16px,calc(2.6*var(--vh)),32px)}
+  .diagram svg{width:100%;height:auto;display:block;max-height:calc(48*var(--vh))}
   .minidia{width:100%;margin:6px 0 2px}
-  .minidia svg{width:100%;height:auto;display:block;max-height:30vh}
+  .minidia svg{width:100%;height:auto;display:block;max-height:calc(30*var(--vh))}
 
   /* ---------- "in the wild" — one app per slide ---------- */
   .wildslide{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.25fr);
-    gap:clamp(28px,4vw,72px);align-items:center;width:100%;margin-top:clamp(10px,1.8vh,22px)}
+    gap:clamp(28px,calc(4*var(--vw)),72px);align-items:center;width:100%;margin-top:clamp(10px,calc(1.8*var(--vh)),22px)}
   .wildslide .copy{max-width:46ch}
   .wildslide .hero{display:flex;align-items:center;justify-content:center;min-width:0}
-  .wildslide .hero img{max-width:100%;max-height:68vh;object-fit:contain;border-radius:18px;
+  .wildslide .hero img{max-width:100%;max-height:calc(68*var(--vh));object-fit:contain;border-radius:18px;
     border:1px solid var(--line);background:#fff;box-shadow:0 18px 48px rgba(32,33,36,.20)}
-  .wildslide .hero.phone img{max-height:76vh;border-radius:30px}
-  .wildslide .hero .yt{width:100%;aspect-ratio:16/9;max-height:68vh;border:0;border-radius:18px;
+  .wildslide .hero.phone img{max-height:calc(76*var(--vh));border-radius:30px}
+  .wildslide .hero .yt{width:100%;aspect-ratio:16/9;max-height:calc(68*var(--vh));border:0;border-radius:18px;
     box-shadow:0 18px 48px rgba(32,33,36,.22);background:#000;display:block}
-  .wild-tags{display:flex;gap:10px;flex-wrap:wrap;margin-top:clamp(14px,2.4vh,24px)}
-  .wild-tag{font-family:var(--mono);font-size:clamp(11px,1.1vw,14px);letter-spacing:.12em;text-transform:uppercase;
+  .wild-tags{display:flex;gap:10px;flex-wrap:wrap;margin-top:clamp(14px,calc(2.4*var(--vh)),24px)}
+  .wild-tag{font-family:var(--mono);font-size:clamp(11px,calc(1.1*var(--vw)),14px);letter-spacing:.12em;text-transform:uppercase;
     border:1px solid var(--line);border-radius:99px;padding:6px 13px;color:var(--muted)}
   .slide.dark .wild-tag{border-color:#3c4043;color:#9aa0a6}
 
   /* ---------- architecture / concept map ---------- */
-  .arch{position:relative;margin-top:clamp(12px,2vh,24px);max-width:110ch}
+  .arch{position:relative;margin-top:clamp(12px,calc(2*var(--vh)),24px);max-width:110ch}
   .arch::before{content:'';position:absolute;left:18px;top:16px;bottom:30px;width:2px;background:var(--line)}
-  .arow{display:grid;grid-template-columns:38px 1fr;gap:clamp(14px,1.6vw,24px);align-items:start;
-    padding-bottom:clamp(10px,1.6vh,20px)}
+  .arow{display:grid;grid-template-columns:38px 1fr;gap:clamp(14px,calc(1.6*var(--vw)),24px);align-items:start;
+    padding-bottom:clamp(10px,calc(1.6*var(--vh)),20px)}
   .arow:last-child{padding-bottom:0}
   .abadge{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;
     font-family:var(--mono);font-weight:500;font-size:15px;color:#fff;z-index:1}
-  .aname{font-family:var(--display);font-weight:500;font-size:clamp(18px,2vw,25px);letter-spacing:-.01em;line-height:1.1}
+  .aname{font-family:var(--display);font-weight:500;font-size:clamp(18px,calc(2*var(--vw)),25px);letter-spacing:-.01em;line-height:1.1}
   .aname small{font-family:var(--mono);font-weight:400;color:var(--muted);font-size:.58em;letter-spacing:.06em;margin-left:9px}
-  .arole{font-size:clamp(14px,1.45vw,18px);color:#3c4043;line-height:1.45;margin-top:3px;max-width:78ch}
+  .arole{font-size:clamp(14px,calc(1.45*var(--vw)),18px);color:#3c4043;line-height:1.45;margin-top:3px;max-width:78ch}
   .acatitem{margin-top:11px;display:inline-flex;flex-wrap:wrap;gap:7px 11px;align-items:center;
     border:1px dashed var(--line);border-radius:12px;padding:9px 14px;background:#fff}
-  .acatitem b{font-family:var(--display);font-weight:500;font-size:clamp(14px,1.4vw,17px)}
-  .acatitem .tok{font-family:var(--mono);font-size:clamp(11px,1.1vw,13px);color:var(--ink);
+  .acatitem b{font-family:var(--display);font-weight:500;font-size:clamp(14px,calc(1.4*var(--vw)),17px)}
+  .acatitem .tok{font-family:var(--mono);font-size:clamp(11px,calc(1.1*var(--vw)),13px);color:var(--ink);
     background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:2px 8px}
   .acatitem .plus{color:var(--muted);font-family:var(--mono)}
-  .aloop{margin-top:11px;display:flex;align-items:center;gap:10px;font-size:clamp(13px,1.35vw,17px);color:var(--green)}
+  .aloop{margin-top:11px;display:flex;align-items:center;gap:10px;font-size:clamp(13px,calc(1.35*var(--vw)),17px);color:var(--green)}
   .aloop b{font-size:1.3em;line-height:1}
 
   /* ---------- loop diagram ---------- */
-  .loop{display:grid;grid-template-columns:repeat(3,1fr);gap:14px 18px;margin-top:clamp(22px,3.5vh,40px);max-width:100ch}
+  .loop{display:grid;grid-template-columns:repeat(3,1fr);gap:14px 18px;margin-top:clamp(22px,calc(3.5*var(--vh)),40px);max-width:100ch}
   .step{border:1px solid var(--line);border-radius:16px;padding:16px 18px;background:#fff;position:relative}
   .step .n{font-family:var(--mono);font-size:12px;color:#fff;background:var(--ink);width:26px;height:26px;
     border-radius:99px;display:flex;align-items:center;justify-content:center;margin-bottom:10px}
   .step.s1 .n{background:var(--blue)}.step.s2 .n{background:var(--red)}.step.s3 .n{background:#F09B00}
   .step.s4 .n{background:var(--green)}.step.s5 .n{background:var(--blue)}.step.s6 .n{background:var(--red)}
-  .step b{font-family:var(--display);font-weight:500;font-size:clamp(15px,1.5vw,18px)}
+  .step b{font-family:var(--display);font-weight:500;font-size:clamp(15px,calc(1.5*var(--vw)),18px)}
   .step p{font-size:13px;color:var(--muted);margin-top:4px;line-height:1.4}
 
   /* ---------- contrast (text vs ui) ---------- */
-  .vs{display:grid;grid-template-columns:1fr auto 1fr;gap:clamp(14px,2vw,28px);align-items:stretch;margin-top:clamp(20px,3vh,36px)}
+  .vs{display:grid;grid-template-columns:1fr auto 1fr;gap:clamp(14px,calc(2*var(--vw)),28px);align-items:stretch;margin-top:clamp(20px,calc(3*var(--vh)),36px)}
   .panel{border:1px solid var(--line);border-radius:18px;padding:20px;background:#fff;display:flex;flex-direction:column;gap:10px}
-  .panel .tag{font-family:var(--mono);font-size:clamp(11px,1.1vw,14px);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  .panel .tag{font-family:var(--mono);font-size:clamp(11px,calc(1.1*var(--vw)),14px);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
   .panel .txt span{display:block;height:9px;border-radius:99px;background:#e8eaed;margin-bottom:8px}
   .panel .chips{display:flex;gap:8px;flex-wrap:wrap}
-  .panel .chip{font-size:clamp(12px,1.15vw,14px);border:1px solid var(--line);border-radius:99px;padding:6px 12px;background:var(--paper)}
+  .panel .chip{font-size:clamp(12px,calc(1.15*var(--vw)),14px);border:1px solid var(--line);border-radius:99px;padding:6px 12px;background:var(--paper)}
   .panel .chip.on{background:#e7f0ff;border-color:var(--blue);color:var(--blue)}
   .panel .uicard{border:1px solid var(--line);border-radius:12px;overflow:hidden}
   .panel .uicard .img{height:54px;background:linear-gradient(135deg,#e7f0ff,#e6f4ea)}
@@ -226,66 +232,66 @@
   .vsmid{display:flex;align-items:center;justify-content:center;font-family:var(--display);font-weight:700;color:var(--muted);font-size:20px}
 
   /* ---------- resources ---------- */
-  .res{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(14px,1.8vw,22px);margin-top:clamp(16px,2.5vh,30px)}
+  .res{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(14px,calc(1.8*var(--vw)),22px);margin-top:clamp(16px,calc(2.5*var(--vh)),30px)}
   .res a{display:flex;flex-direction:column;align-items:center;text-align:center;text-decoration:none;color:inherit;
-    border:1px solid var(--line);border-radius:16px;padding:clamp(14px,1.6vw,22px);transition:border-color .2s,transform .2s}
+    border:1px solid var(--line);border-radius:16px;padding:clamp(14px,calc(1.6*var(--vw)),22px);transition:border-color .2s,transform .2s}
   .res a:hover{border-color:var(--blue);transform:translateY(-2px)}
-  .res .qr{width:clamp(140px,20vh,224px);height:clamp(140px,20vh,224px);background:#fff;border:1px solid var(--line);
+  .res .qr{width:clamp(140px,calc(20*var(--vh)),224px);height:clamp(140px,calc(20*var(--vh)),224px);background:#fff;border:1px solid var(--line);
     border-radius:12px;padding:8px;display:flex;align-items:center;justify-content:center;margin-bottom:14px}
   .res .qr img{width:100%;height:100%;object-fit:contain;image-rendering:pixelated}
-  .res .rk{font-family:var(--mono);font-size:clamp(11px,1.1vw,13px);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
-  .res h3{font-size:clamp(17px,1.8vw,22px);margin-top:4px}
-  .res .url{font-family:var(--mono);font-size:clamp(12px,1.2vw,14px);color:var(--blue);margin-top:6px;word-break:break-all}
+  .res .rk{font-family:var(--mono);font-size:clamp(11px,calc(1.1*var(--vw)),13px);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  .res h3{font-size:clamp(17px,calc(1.8*var(--vw)),22px);margin-top:4px}
+  .res .url{font-family:var(--mono);font-size:clamp(12px,calc(1.2*var(--vw)),14px);color:var(--blue);margin-top:6px;word-break:break-all}
 
   /* ---------- title hero (two-column) ---------- */
-  .titlegrid{display:grid;grid-template-columns:1.5fr 1fr;gap:clamp(28px,5vw,72px);align-items:center;width:100%}
+  .titlegrid{display:grid;grid-template-columns:1.5fr 1fr;gap:clamp(28px,calc(5*var(--vw)),72px);align-items:center;width:100%}
   .titlecol{display:flex;flex-direction:column;justify-content:center}
-  .herocol{display:flex;flex-direction:column;align-items:flex-end;gap:clamp(14px,2.4vh,26px)}
-  .hero-photo{width:clamp(230px,26vw,360px);aspect-ratio:4/5;border-radius:20px;overflow:hidden;
+  .herocol{display:flex;flex-direction:column;align-items:flex-end;gap:clamp(14px,calc(2.4*var(--vh)),26px)}
+  .hero-photo{width:clamp(230px,calc(26*var(--vw)),360px);aspect-ratio:4/5;border-radius:20px;overflow:hidden;
     border:3px solid transparent;
     background:linear-gradient(var(--bg),var(--bg)) padding-box,
       linear-gradient(135deg,var(--blue),var(--red) 38%,var(--yellow) 66%,var(--green)) border-box;
     box-shadow:0 10px 34px rgba(32,33,36,.12)}
   .hero-photo img{width:100%;height:100%;object-fit:cover;object-position:center top;display:block}
   .hero-meta{text-align:right}
-  .hero-meta b{font-family:var(--display);font-weight:700;font-size:clamp(22px,2.3vw,32px);display:block;letter-spacing:-.01em}
+  .hero-meta b{font-family:var(--display);font-weight:700;font-size:clamp(22px,calc(2.3*var(--vw)),32px);display:block;letter-spacing:-.01em}
   .hero-meta span{display:block;color:var(--muted);font-family:var(--mono);font-weight:500;
-    font-size:clamp(12px,1.3vw,16px);letter-spacing:.1em;text-transform:uppercase;margin-top:7px}
+    font-size:clamp(12px,calc(1.3*var(--vw)),16px);letter-spacing:.1em;text-transform:uppercase;margin-top:7px}
   .hero-meta span.accent{color:var(--blue)}
 
   /* ---------- thank-you ---------- */
-  .tygrid{display:grid;grid-template-columns:.82fr 1fr;gap:clamp(28px,5vw,80px);align-items:center;width:100%}
-  .ty-photo{width:100%;max-width:clamp(280px,30vw,420px);aspect-ratio:4/5;border-radius:20px;overflow:hidden;
+  .tygrid{display:grid;grid-template-columns:.82fr 1fr;gap:clamp(28px,calc(5*var(--vw)),80px);align-items:center;width:100%}
+  .ty-photo{width:100%;max-width:clamp(280px,calc(30*var(--vw)),420px);aspect-ratio:4/5;border-radius:20px;overflow:hidden;
     border:3px solid transparent;
     background:linear-gradient(var(--bg),var(--bg)) padding-box,
       linear-gradient(135deg,var(--blue),var(--red) 38%,var(--yellow) 66%,var(--green)) border-box;
     box-shadow:0 10px 34px rgba(32,33,36,.12);justify-self:center}
   .ty-photo img{width:100%;height:100%;object-fit:cover;object-position:center top;display:block}
-  .tytitle{font-family:var(--display);font-weight:700;font-size:clamp(54px,9vw,118px);line-height:1;letter-spacing:-.02em}
-  .tyrule{width:80px;height:4px;border-radius:99px;background:var(--blue);margin:clamp(14px,2.4vh,26px) 0}
-  .ty-meta b{font-family:var(--display);font-weight:700;font-size:clamp(22px,2.4vw,34px);display:block;letter-spacing:-.01em}
-  .ty-meta span{display:block;color:var(--muted);font-size:clamp(15px,1.6vw,20px);margin-top:8px}
+  .tytitle{font-family:var(--display);font-weight:700;font-size:clamp(54px,calc(9*var(--vw)),118px);line-height:1;letter-spacing:-.02em}
+  .tyrule{width:80px;height:4px;border-radius:99px;background:var(--blue);margin:clamp(14px,calc(2.4*var(--vh)),26px) 0}
+  .ty-meta b{font-family:var(--display);font-weight:700;font-size:clamp(22px,calc(2.4*var(--vw)),34px);display:block;letter-spacing:-.01em}
+  .ty-meta span{display:block;color:var(--muted);font-size:clamp(15px,calc(1.6*var(--vw)),20px);margin-top:8px}
   .ty-meta span.tag{color:var(--blue);font-family:var(--display);font-weight:500}
-  .tyconnect{display:flex;gap:clamp(18px,2.6vw,36px);margin-top:clamp(18px,3.2vh,38px);flex-wrap:wrap}
+  .tyconnect{display:flex;gap:clamp(14px,calc(2*var(--vw)),32px);margin-top:clamp(18px,calc(3.2*var(--vh)),38px);flex-wrap:wrap}
   .tyqr{display:flex;flex-direction:column;align-items:center;gap:10px}
-  .tyqr img{width:clamp(144px,15vw,184px);height:clamp(144px,15vw,184px);border:1px solid var(--line);
+  .tyqr img{width:clamp(112px,calc(10.5*var(--vw)),176px);height:clamp(112px,calc(10.5*var(--vw)),176px);border:1px solid var(--line);
     border-radius:12px;background:#fff;padding:8px;image-rendering:pixelated}
-  .tyqr span{font-family:var(--mono);font-size:clamp(11px,1.1vw,13px);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+  .tyqr span{font-family:var(--mono);font-size:clamp(11px,calc(1.1*var(--vw)),13px);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
 
   /* ---------- community ---------- */
-  .commrow{display:flex;gap:clamp(28px,5vw,80px);margin-top:clamp(22px,3.5vh,46px);flex-wrap:wrap;align-items:flex-start}
+  .commrow{display:flex;gap:clamp(28px,calc(5*var(--vw)),80px);margin-top:clamp(22px,calc(3.5*var(--vh)),46px);flex-wrap:wrap;align-items:flex-start}
   .commcard{display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px;text-decoration:none;color:inherit;
     transition:transform .2s}
   .commcard:hover{transform:translateY(-3px)}
-  .commcard img{width:clamp(168px,19vw,220px);height:clamp(168px,19vw,220px);border:1px solid var(--line);
+  .commcard img{width:clamp(168px,calc(19*var(--vw)),220px);height:clamp(168px,calc(19*var(--vw)),220px);border:1px solid var(--line);
     border-radius:14px;background:#fff;padding:10px;image-rendering:pixelated}
-  .commcard b{font-family:var(--display);font-weight:500;font-size:clamp(17px,1.9vw,22px)}
-  .commcard span{font-family:var(--mono);font-size:clamp(11px,1.1vw,13px);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+  .commcard b{font-family:var(--display);font-weight:500;font-size:clamp(17px,calc(1.9*var(--vw)),22px)}
+  .commcard span{font-family:var(--mono);font-size:clamp(11px,calc(1.1*var(--vw)),13px);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
 
   /* ---------- big questions ---------- */
-  .qbig{font-family:var(--display);font-weight:700;font-size:clamp(72px,17vw,260px);line-height:.9;max-width:none}
-  .dmline{display:flex;align-items:center;gap:clamp(14px,1.6vw,20px)}
-  .dmline .rule{width:clamp(48px,5vw,72px);height:4px;border-radius:99px;flex-shrink:0;
+  .qbig{font-family:var(--display);font-weight:700;font-size:clamp(72px,calc(17*var(--vw)),260px);line-height:.9;max-width:none}
+  .dmline{display:flex;align-items:center;gap:clamp(14px,calc(1.6*var(--vw)),20px)}
+  .dmline .rule{width:clamp(48px,calc(5*var(--vw)),72px);height:4px;border-radius:99px;flex-shrink:0;
     background:linear-gradient(90deg,var(--blue) 0 25%,var(--red) 25% 50%,var(--yellow) 50% 75%,var(--green) 75% 100%)}
 
   /* ---------- nav hint ---------- */
@@ -300,7 +306,7 @@
     .slide{
       justify-content:flex-start;
       overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;
-      padding:clamp(24px,7vw,46px) clamp(20px,6vw,40px) 60px;
+      padding:clamp(24px,calc(7*var(--vw)),46px) clamp(20px,calc(6*var(--vw)),40px) 60px;
     }
     .slide.centered{justify-content:center}        /* short punctuation beats stay centered */
     .pageno{position:fixed}                         /* pin out of the scrolling content */
@@ -310,16 +316,51 @@
     .hero-meta{text-align:left}
     .vsmid{display:none}
     .cue{display:none}
-    .qbig{font-size:clamp(56px,16vw,120px)}         /* keep oversized type on-screen */
+    .qbig{font-size:clamp(56px,calc(16*var(--vw)),120px)}         /* keep oversized type on-screen */
   }
   @media (max-width:520px){
     /* on phones, stack the remaining multi-column grids so cells stay legible */
     .grid3,.res,.loop,.shotrow{grid-template-columns:1fr}
-    .qbig{font-size:clamp(44px,13vw,66px)}
-    .tytitle{font-size:clamp(46px,14vw,76px)}
+    .qbig{font-size:clamp(44px,calc(13*var(--vw)),66px)}
+    .tytitle{font-size:clamp(46px,calc(14*var(--vw)),76px)}
   }
   @media (prefers-reduced-motion:reduce){
     *{transition:none!important;animation:none!important}
+  }
+
+  /* feedback QR on the questions slide */
+  .qafeedback{display:flex;align-items:center;gap:16px;margin-top:clamp(20px,calc(3.6*var(--vh)),40px);text-decoration:none;color:#e8eaed}
+  .qafeedback img{width:clamp(96px,calc(13*var(--vh)),128px);height:auto;border-radius:10px;background:#fff;padding:6px;image-rendering:pixelated}
+  .qafeedback span{font-family:var(--mono);font-size:clamp(11px,calc(1.1*var(--vw)),14px);letter-spacing:.12em;text-transform:uppercase;color:#9aa0a6;max-width:22ch;text-align:left;line-height:1.6}
+
+  /* the ▶▶ badge in a clip means that stretch is sped up */
+  .ffnote{font-family:var(--mono);font-size:12px;letter-spacing:.08em;color:var(--muted);margin-top:clamp(14px,calc(2.4*var(--vh)),24px)}
+  .ffnote b{display:inline-block;background:#2c211a;color:#fff;border-radius:99px;padding:1px 9px;margin-right:6px;letter-spacing:0}
+
+  /* ---------- two code panels side by side ---------- */
+  .code2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(14px,calc(1.8*var(--vw)),24px)}
+  .code2 .codewrap{max-width:none}
+  .codewrap.dense{flex-shrink:0}
+  .codewrap.dense code{line-height:1.5;font-size:clamp(12px,calc(1.1*var(--vw)),15px)}
+  .codewrap.dense pre{padding:clamp(12px,calc(1.6*var(--vw)),20px) clamp(16px,calc(2*var(--vw)),24px)}
+
+  /* ---------- the four A2UI messages ---------- */
+  .msgs{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(10px,calc(1.4*var(--vw)),18px);margin-top:clamp(18px,calc(3*var(--vh)),30px)}
+  .msg{border:1px solid var(--line);border-radius:14px;padding:14px 16px;background:#fff}
+  .msg code{color:var(--blue);font-size:clamp(12px,calc(1.15*var(--vw)),15px);white-space:normal}
+  .msg p{font-size:clamp(14px,calc(1.4*var(--vw)),18px);color:#3c4043;margin-top:6px;line-height:1.4}
+
+  /* ---------- what's next comparison ---------- */
+  table.cmp{width:100%;border-collapse:collapse;margin-top:clamp(16px,calc(2.6*var(--vh)),28px);font-size:clamp(14px,calc(1.45*var(--vw)),19px)}
+  table.cmp th{font-family:var(--display);font-weight:500;text-align:left;padding:10px 14px;border-bottom:2px solid var(--ink)}
+  table.cmp td{padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.4;color:#3c4043}
+  table.cmp td:first-child{font-family:var(--mono);font-size:.82em;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+  table.cmp code{white-space:normal;color:var(--ink);font-size:.92em}
+
+  @media (max-width:760px){
+    .code2,.msgs{grid-template-columns:1fr}
+    .device{height:auto;width:min(calc(78*var(--vw)),360px)}
+    .shotph{height:auto;width:min(calc(70*var(--vw)),300px)}
   }
 </style>
 </head>
@@ -327,9 +368,6 @@
 <div id="progress"></div>
 <div class="deck" id="deck">
 
-  <!-- ============ ACT I — THE PROBLEM ============ -->
-
-  <!-- 1 · TITLE -->
   <section class="slide" data-act="GENERATIVE UI · FLUTTER · 2026">
     <div class="titlegrid">
       <div class="titlecol">
@@ -341,29 +379,17 @@
         <div class="hero-photo"><img src="assets/headshot.png" alt="Akansha Jain" /></div>
         <div class="hero-meta">
           <b>Akansha Jain</b>
-          <span>Senior Software Engineer — Autonation Inc.</span>
-          <span class="accent">Organiser — Flutter Delhi · FFDG New Delhi</span>
+          <span>Senior Software Engineer · AutoNation Inc.</span>
+          <span class="accent">Organiser · Flutter Delhi · FFDG New Delhi</span>
+          <span>Women Techmakers Ambassador</span>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- 2 · AUDIENCE -->
-  <section class="slide paper" data-act="ACT I · THE PROBLEM">
-    <div class="eyebrow"><span class="dot"></span> WHO THIS IS FOR</div>
-    <h2 class="mt16">This one's for you if…</h2>
-    <ul class="ticks">
-      <li><span class="n">01</span><div>You build with Flutter, and you've already added an <b>AI feature</b> or two.</div></li>
-      <li><span class="n">02</span><div>That "AI feature" is a chatbox that answers with a <b>wall of text</b>.</div></li>
-      <li><span class="n">03</span><div>You want the model to actually <b>do things</b> in your app — not just talk.</div></li>
-      <li><span class="n">04</span><div>You like to <b>ship</b>.</div></li>
-    </ul>
-  </section>
-
-  <!-- 3 · THE PROBLEM -->
   <section class="slide" data-act="ACT I · THE PROBLEM">
     <div class="eyebrow"><span class="dot" style="background:var(--red)"></span> FIG. 01 — AI IN OUR APPS TODAY</div>
-    <h2 class="mt16">We bolted a chatbot on.<br>And called it <span class="accent-red">AI</span>.</h2>
+    <h2 class="mt16">We added a chatbot.<br>And called it <span class="accent-red">AI</span>.</h2>
     <div class="vs">
       <div class="panel">
         <div class="tag">What we ship</div>
@@ -376,27 +402,23 @@
       <div class="vsmid">vs</div>
       <div class="panel">
         <div class="tag">What people wanted</div>
-        <div class="chips" style="margin-top:6px"><span class="chip on">✓ Paneer</span><span class="chip">Onion</span><span class="chip on">✓ 10 min</span></div>
-        <div class="uicard"><div class="img"></div><div class="meta"><b>Quick Paneer Wrap</b><br>10 min · easy</div></div>
+        <div class="chips" style="margin-top:6px"><span class="chip on">✓ Paneer</span><span class="chip">Onion</span><span class="chip on">✓ 15 min</span></div>
+        <div class="uicard"><div class="img"></div><div class="meta"><b>Paneer Bhurji</b><br>15 min · easy</div></div>
         <div class="btn">View recipe</div>
       </div>
     </div>
-    <p class="lead mt16">You ask a question. You get back text. You still have to read it, decide, and go tap the real UI yourself.</p>
+    <p class="lead mt16">You ask a question and get a paragraph back. Then you still have to read it, decide, and go find the right screen yourself.</p>
   </section>
 
-  <!-- 4 · PIVOT -->
   <section class="slide dark centered" data-act="ACT I · THE PROBLEM">
     <div class="eyebrow"><span class="dot"></span> THE TURN</div>
-    <div class="pull mt24">What if the model could <span class="mark">hand you the screen</span> — not just describe it?</div>
+    <div class="pull mt24">What if the model could <span class="mark">hand you the screen</span> instead of describing it?</div>
     <div class="spectrum sm mt32" style="max-width:240px"></div>
   </section>
 
-  <!-- ============ ACT II — WHAT IT IS ============ -->
-
-  <!-- 5 · THE SHIFT (old way vs new way to build journeys) -->
-  <section class="slide paper" data-act="ACT II · WHAT IT IS">
+  <section class="slide paper" data-act="ACT II · THE IDEA">
     <div class="eyebrow"><span class="dot"></span> THE SHIFT</div>
-    <h2 class="mt16">From <span class="accent-red">routes you draw</span> to <span class="accent-blue">screens it builds</span>.</h2>
+    <h2 class="mt16">From screens <span class="accent-red">you planned</span> to screens <span class="accent-blue">it builds</span>.</h2>
     <div class="grid2">
       <div class="card">
         <div class="bar b-red"></div>
@@ -416,12 +438,12 @@
             <line x1="272" y1="95" x2="358" y2="95" stroke="#5F6368" stroke-width="2" marker-end="url(#arro)"/>
           </svg>
         </div>
-        <p>Every screen drawn, every route wired by hand. The journey can only go where you predicted it would.</p>
+        <p>You draw every screen and connect them by hand. People can only go where you planned for them to go.</p>
       </div>
       <div class="card">
         <div class="bar b-blue"></div>
         <div class="idx">WITH GENUI</div>
-        <h3>The model assembles them</h3>
+        <h3>The model puts them together</h3>
         <div class="minidia">
           <svg viewBox="0 0 460 190" role="img" aria-label="With GenUI: register widgets, the model assembles the screen at runtime">
             <defs><marker id="arrn" viewBox="0 0 10 10" refX="7.5" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#5F6368"/></marker></defs>
@@ -442,66 +464,34 @@
             <rect x="332" y="130" width="94" height="18" rx="6" fill="#34A853"/>
           </svg>
         </div>
-        <p>You register the widgets; the model composes the screen for what was actually asked — and rebuilds it as the conversation moves.</p>
+        <p>You give it your widgets. It builds the screen this person needs right now, and changes it as the chat goes on.</p>
       </div>
     </div>
   </section>
 
-  <!-- 5 · WHAT IS GENUI -->
-  <section class="slide" data-act="ACT II · WHAT IT IS">
-    <div class="eyebrow"><span class="dot"></span> THE IDEA</div>
-    <h2 class="mt16">Generative UI:<br>the model builds the <span class="accent-blue">interface</span>.</h2>
-    <p class="lead mt24">Instead of replying in text, the model assembles real, interactive widgets — cards, chips, forms — out of <b>your</b> design system, shaped by what the person actually asked for.</p>
-    <p class="lead mt16">They get a screen to use. Not a transcript to read.</p>
-  </section>
-
-  <!-- 6 · THE SDK -->
-  <section class="slide paper" data-act="ACT II · WHAT IT IS">
+  <section class="slide paper" data-act="ACT II · THE IDEA">
     <div class="eyebrow"><span class="dot" style="background:var(--green)"></span> THE TOOL</div>
-    <h2 class="mt16">The Flutter <span class="accent-green">GenUI SDK</span></h2>
-    <p class="lead mt24">An experimental package from the Flutter team. It lets the model build your app's UI <b>at runtime</b> — from widgets you own, in your brand.</p>
-    <p class="lead mt16">You decide how everything looks. The model decides what to show.</p>
-    <p class="codenote mt24">⚠︎ It's early. The API still changes between versions — pin your version and expect to refactor.</p>
+    <h2 class="mt16">Generative UI, with the <span class="accent-green">GenUI SDK</span></h2>
+    <p class="lead mt24">Generative UI means the model answers with a small screen instead of a paragraph: cards, chips, a form. In Flutter you do it with <b>genui</b>, a package from the Flutter team on pub.dev.</p>
+    <p class="lead mt16">The widgets are yours, so they look like your app. The model only decides which ones to show.</p>
+    <p class="codenote mt24">⚠︎ The package calls itself "highly experimental". This talk uses genui 0.10.4. The API has changed a lot this year, so pin your version.</p>
   </section>
 
-  <!-- ============ ACT III — HOW IT WORKS ============ -->
-
-  <!-- 7 · THREE IDEAS -->
   <section class="slide" data-act="ACT III · HOW IT WORKS">
     <div class="eyebrow"><span class="dot"></span> THE WHOLE MODEL</div>
     <h2 class="mt16">Three ideas. That's it.</h2>
     <div class="grid3">
-      <div class="card"><div class="bar b-blue"></div><div class="idx">01</div><h3>The catalog is the contract</h3><p>The model can only use widgets you register. Not in the catalog? It can't use it. Your design system, enforced at runtime.</p></div>
-      <div class="card"><div class="bar b-red"></div><div class="idx">02</div><h3>It returns JSON, not code</h3><p>The model describes the UI as data. Your app turns that into real, native Flutter widgets.</p></div>
-      <div class="card"><div class="bar b-green"></div><div class="idx">03</div><h3>Interactions loop back</h3><p>A tap or a pick goes back to the model, which updates the screen. That loop is what makes it <em>generative</em>, not just dynamic.</p></div>
+      <div class="card"><div class="bar b-blue"></div><div class="idx">01</div><h3>You choose the widgets</h3><p>The model can only use widgets you register in a <b>catalog</b>. If a widget isn't in it, it can't appear.</p></div>
+      <div class="card"><div class="bar b-red"></div><div class="idx">02</div><h3>It sends a description</h3><p>The model describes the screen in JSON. Your app turns that into real Flutter widgets.</p></div>
+      <div class="card"><div class="bar b-green"></div><div class="idx">03</div><h3>Taps go back to it</h3><p>When someone taps or picks something, the model hears about it and can answer with the next screen.</p></div>
     </div>
   </section>
 
-  <!-- 8 · WHY JSON -->
-  <section class="slide paper" data-act="ACT III · HOW IT WORKS">
-    <div class="eyebrow"><span class="dot" style="background:var(--yellow)"></span> A FAIR QUESTION</div>
-    <h2 class="mt16">Why JSON — and not <span class="accent-yellow">code</span>?</h2>
-    <div class="grid3">
-      <div class="card"><div class="bar b-blue"></div><h3>Safe</h3><p>The model never runs code on your client. It sends data describing pre-approved components — nothing to inject, nothing to execute.</p></div>
-      <div class="card"><div class="bar b-red"></div><h3>Native</h3><p>That JSON maps to <b>your</b> widgets. Your fonts, spacing, theme. It looks like your app because it <em>is</em> your app.</p></div>
-      <div class="card"><div class="bar b-green"></div><h3>Streamable</h3><p>Flat JSON arrives piece by piece, so the UI builds as the model thinks — no waiting for one perfect blob.</p></div>
-    </div>
-  </section>
-
-  <!-- 9 · COLLABORATIVE -->
-  <section class="slide" data-act="ACT III · HOW IT WORKS">
-    <div class="eyebrow"><span class="dot"></span> NOT A FLUTTER-ONLY IDEA</div>
-    <h2 class="mt16">One model response.<br>Many front-ends.</h2>
-    <p class="lead mt24">Underneath sits an open protocol. The same response can render on <b class="accent-blue">Flutter</b>, <b class="accent-red">React</b>, <b class="accent-yellow">Angular</b>, or native — each drawing with its own components.</p>
-    <p class="lead mt16">Apache-2.0, built by Google with the open-source community. Flutter is one renderer that speaks it.</p>
-  </section>
-
-  <!-- 10 · A2UI -->
   <section class="slide dark" data-act="ACT III · HOW IT WORKS">
     <div class="eyebrow"><span class="dot"></span> THE PROTOCOL UNDERNEATH</div>
-    <h2 class="mt16">A2UI — a shared language for UI</h2>
+    <h2 class="mt16">A2UI: a shared language for UI</h2>
     <div class="fullform below">(Agent-to-User Interface)</div>
-    <p class="lead mt16">A2UI lets a model send an interface <b>safely across a trust boundary</b>: not text, not code, but a declarative description the client renders with its own widgets — natively across web, mobile, and desktop.</p>
+    <p class="lead mt16">The model sends a description of the screen. Your app reads it and draws it with its own widgets, so the model never runs code inside your app. The same messages can be drawn by Flutter, React, Angular or Lit.</p>
     <div class="diagram">
       <svg viewBox="0 0 1000 250" role="img" aria-label="A2UI crosses the trust boundary as data, not code">
         <defs>
@@ -514,379 +504,301 @@
         <text x="190" y="152" text-anchor="middle" font-family="Roboto,sans-serif" font-size="15" fill="#9aa0a6">proposes an interface</text>
         <rect x="660" y="70" width="300" height="120" rx="18" fill="#26282b" stroke="#3c4043"/>
         <text x="810" y="122" text-anchor="middle" font-family="'Google Sans','Roboto',sans-serif" font-weight="500" font-size="25" fill="#e8eaed">Your app</text>
-        <text x="810" y="152" text-anchor="middle" font-family="Roboto,sans-serif" font-size="15" fill="#9aa0a6">renders it in your widgets</text>
+        <text x="810" y="152" text-anchor="middle" font-family="Roboto,sans-serif" font-size="15" fill="#9aa0a6">draws it with your widgets</text>
         <line x1="500" y1="22" x2="500" y2="232" stroke="#5F6368" stroke-width="1.5" stroke-dasharray="6 6"/>
-        <text x="500" y="16" text-anchor="middle" font-family="'Roboto Mono',monospace" font-size="12" letter-spacing="2" fill="#9aa0a6">TRUST BOUNDARY</text>
+        <text x="500" y="16" text-anchor="middle" font-family="'Roboto Mono',monospace" font-size="12" letter-spacing="2" fill="#9aa0a6">ONLY DATA CROSSES HERE</text>
         <line x1="340" y1="130" x2="660" y2="130" stroke="#9aa0a6" stroke-width="2" marker-end="url(#arrb)"/>
-        <text x="500" y="112" text-anchor="middle" font-family="'Roboto Mono',monospace" font-size="13" letter-spacing="1" fill="#8ab4f8">A2UI · declarative JSON</text>
-        <text x="500" y="160" text-anchor="middle" font-family="Roboto,sans-serif" font-size="13" fill="#9aa0a6">data — never executable code</text>
+        <text x="500" y="112" text-anchor="middle" font-family="'Roboto Mono',monospace" font-size="13" letter-spacing="1" fill="#8ab4f8">A2UI · JSON messages</text>
+        <text x="500" y="160" text-anchor="middle" font-family="Roboto,sans-serif" font-size="13" fill="#9aa0a6">a description, no code</text>
       </svg>
     </div>
   </section>
 
-  <!-- 11 · THE LOOP -->
-  <section class="slide" data-act="ACT III · HOW IT WORKS">
-    <div class="eyebrow"><span class="dot"></span> FIG. 02 — THE INTERACTION LOOP</div>
-    <h2 class="mt16">Round and round.</h2>
-    <div class="diagram">
-      <svg viewBox="0 0 1000 340" role="img" aria-label="The generative interaction loop: ask, reply in UI, render, tap, refine, repeat">
-        <defs>
-          <marker id="arr" viewBox="0 0 10 10" refX="7.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-            <path d="M0,0 L10,5 L0,10 z" fill="#5F6368"/>
-          </marker>
-        </defs>
-
-        <!-- node 1 -->
-        <rect x="14" y="40" width="212" height="120" rx="18" fill="#fff" stroke="#DADCE0"/>
-        <circle cx="120" cy="66" r="15" fill="#4285F4"/>
-        <text x="120" y="71" text-anchor="middle" font-family="'Roboto Mono',monospace" font-size="14" fill="#fff">1</text>
-        <text x="120" y="108" text-anchor="middle" font-family="'Google Sans','Roboto',sans-serif" font-weight="500" font-size="20" fill="#202124">Person asks</text>
-        <text x="120" y="132" text-anchor="middle" font-family="Roboto,sans-serif" font-size="13" fill="#5F6368">“something quick</text>
-        <text x="120" y="150" text-anchor="middle" font-family="Roboto,sans-serif" font-size="13" fill="#5F6368">with paneer”</text>
-
-        <!-- node 2 -->
-        <rect x="270" y="40" width="212" height="120" rx="18" fill="#fff" stroke="#DADCE0"/>
-        <circle cx="376" cy="66" r="15" fill="#EA4335"/>
-        <text x="376" y="71" text-anchor="middle" font-family="'Roboto Mono',monospace" font-size="14" fill="#fff">2</text>
-        <text x="376" y="108" text-anchor="middle" font-family="'Google Sans','Roboto',sans-serif" font-weight="500" font-size="20" fill="#202124">Model replies</text>
-        <text x="376" y="132" text-anchor="middle" font-family="Roboto,sans-serif" font-size="13" fill="#5F6368">an A2UI description,</text>
-        <text x="376" y="150" text-anchor="middle" font-family="Roboto,sans-serif" font-size="13" fill="#5F6368">not prose</text>
-
-        <!-- node 3 -->
-        <rect x="526" y="40" width="212" height="120" rx="18" fill="#fff" stroke="#DADCE0"/>
-        <circle cx="632" cy="66" r="15" fill="#F09B00"/>
-        <text x="632" y="71" text-anchor="middle" font-family="'Roboto Mono',monospace" font-size="14" fill="#fff">3</text>
-        <text x="632" y="108" text-anchor="middle" font-family="'Google Sans','Roboto',sans-serif" font-weight="500" font-size="20" fill="#202124">App renders</text>
-        <text x="632" y="132" text-anchor="middle" font-family="Roboto,sans-serif" font-size="13" fill="#5F6368">real native widgets,</text>
-        <text x="632" y="150" text-anchor="middle" font-family="Roboto,sans-serif" font-size="13" fill="#5F6368">your brand</text>
-
-        <!-- node 4 -->
-        <rect x="782" y="40" width="212" height="120" rx="18" fill="#fff" stroke="#DADCE0"/>
-        <circle cx="888" cy="66" r="15" fill="#34A853"/>
-        <text x="888" y="71" text-anchor="middle" font-family="'Roboto Mono',monospace" font-size="14" fill="#fff">4</text>
-        <text x="888" y="108" text-anchor="middle" font-family="'Google Sans','Roboto',sans-serif" font-weight="500" font-size="20" fill="#202124">You tap / pick</text>
-        <text x="888" y="132" text-anchor="middle" font-family="Roboto,sans-serif" font-size="13" fill="#5F6368">the choice is</text>
-        <text x="888" y="150" text-anchor="middle" font-family="Roboto,sans-serif" font-size="13" fill="#5F6368">captured</text>
-
-        <!-- forward arrows -->
-        <line x1="226" y1="100" x2="270" y2="100" stroke="#5F6368" stroke-width="2" marker-end="url(#arr)"/>
-        <line x1="482" y1="100" x2="526" y2="100" stroke="#5F6368" stroke-width="2" marker-end="url(#arr)"/>
-        <line x1="738" y1="100" x2="782" y2="100" stroke="#5F6368" stroke-width="2" marker-end="url(#arr)"/>
-
-        <!-- return loop -->
-        <path d="M 888 160 C 888 292, 700 308, 500 308 C 300 308, 120 292, 120 160" fill="none" stroke="#5F6368" stroke-width="2" marker-end="url(#arr)"/>
-        <rect x="356" y="288" width="288" height="40" rx="20" fill="#202124"/>
-        <text x="500" y="313" text-anchor="middle" font-family="'Google Sans','Roboto',sans-serif" font-weight="500" font-size="15" fill="#fff">Model refines → a brand-new screen</text>
-      </svg>
+  <section class="slide paper" data-act="ACT III · HOW IT WORKS">
+    <div class="eyebrow"><span class="dot" style="background:var(--blue)"></span> WHAT'S ACTUALLY IN THE JSON</div>
+    <h2 class="mt16">The model can send four kinds of message.</h2>
+    <div class="msgs">
+      <div class="msg"><code>createSurface</code><p>Start a new screen.</p></div>
+      <div class="msg"><code>updateComponents</code><p>Add or change the widgets on it.</p></div>
+      <div class="msg"><code>updateDataModel</code><p>Change the values those widgets show.</p></div>
+      <div class="msg"><code>deleteSurface</code><p>Take a screen away.</p></div>
     </div>
-    <p class="lead" style="margin-top:clamp(8px,1.4vh,16px)">Each turn, the screen gets closer to what they meant.</p>
+    <div class="codewrap">
+      <div class="bar"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i><span class="fname">an A2UI message, shortened</span></div>
+<pre><code>{<span class="f">"updateComponents"</span>: {<span class="f">"surfaceId"</span>: <span class="s">"s2"</span>, <span class="f">"components"</span>: [
+  {<span class="f">"id"</span>: <span class="s">"root"</span>, <span class="f">"component"</span>: <span class="s">"Column"</span>, <span class="f">"children"</span>: [<span class="s">"card1"</span>, <span class="s">"card2"</span>]},
+  {<span class="f">"id"</span>: <span class="s">"card1"</span>, <span class="f">"component"</span>: <span class="s">"RecipeCard"</span>,
+   <span class="f">"recipeId"</span>: <span class="s">"paneer_bhurji"</span>, <span class="f">"reason"</span>: <span class="s">"Ready in 15 minutes with your paneer."</span>},
+  <span class="c">…</span>
+]}}</code></pre>
+    </div>
+    <p class="codenote">A flat list of widgets. A parent points at its children by id. This is A2UI v0.9, the version genui speaks.</p>
   </section>
 
-  <!-- ============ ACT IV — THE BUILD ============ -->
-
-  <!-- 12 · MEET SAGE -->
-  <section class="slide paper" data-act="ACT IV · THE BUILD">
-    <div class="eyebrow"><span class="dot" style="background:var(--green)"></span> SO I BUILT ONE</div>
-    <h2 class="mt16">Meet <span class="accent-green">Sage</span>.</h2>
-    <p class="lead mt24">A cooking assistant. Tell it what you feel like — "something quick with paneer" — and it builds the screen: preference chips, recipe cards, a full recipe you can tweak. Plain words in, a usable screen out.</p>
-    <p class="lead mt16"><b>One thing to hold onto:</b> the app owns the <span class="accent-blue">facts</span>, the model owns the <span class="accent-red">words</span>.</p>
-  </section>
-
-  <!-- 13 · DEMO -->
-  <section class="slide" data-act="ACT IV · THE BUILD">
+  <section class="slide" data-act="ACT IV · THE DEMO">
     <div class="demogrid">
       <div class="demo-copy">
         <div class="eyebrow"><span class="rec"><span class="blink"></span> REC · THE DEMO</span></div>
         <h2 class="mt16">Let's cook.</h2>
-        <p class="lead mt16">Watch the screen <b>rebuild itself</b> each turn. Nobody designed these exact states — the model assembled them from my widgets.</p>
+        <p class="lead mt16">Meet <b class="accent-green">Sage</b>, a cooking assistant for Indian home cooking. Nobody designed these exact screens. The model put each one together from my widgets.</p>
         <ul class="ticks demo-ticks">
-          <li><span class="n">01</span><div>Ask for something — <b>"quick dinner with paneer"</b></div></li>
-          <li><span class="n">02</span><div>Chips gather what's on hand → recipe cards appear</div></li>
-          <li><span class="n">03</span><div>Tap a card → the full recipe builds out</div></li>
-          <li><span class="n">04</span><div>Say <b>"no blender"</b> → it rewrites the steps in place</div></li>
+          <li><span class="n">01</span><div>Ask for <b>"something quick with paneer"</b></div></li>
+          <li><span class="n">02</span><div>Chips and a "how many people?" field appear</div></li>
+          <li><span class="n">03</span><div>Recipe cards, picked from my recipes</div></li>
+          <li><span class="n">04</span><div>The full recipe: change servings and the amounts update</div></li>
+          <li><span class="n">05</span><div>Tap <b>"Make it spicier"</b> and it rewrites the steps</div></li>
         </ul>
+        <p class="ffnote"><b>▶▶ 4×</b>sped up while we wait for the model</p>
       </div>
-      <div class="device">
-        <video controls playsinline preload="metadata">
-          <source src="assets/demos/sage_demo.mp4" type="video/mp4" />
-        </video>
-      </div>
+      <div class="device"><video muted playsinline controls preload="metadata" aria-label="Sage demo: from a request for something quick with paneer to a spicier Tomato Paneer Masala"><source src="assets/demos/v2/01-hero.mp4" type="video/mp4"></video></div>
     </div>
   </section>
 
-  <!-- 14 · DEMO STILLS (fallback for back of room) -->
-  <section class="slide paper" data-act="ACT IV · THE BUILD">
-    <div class="eyebrow"><span class="dot" style="background:var(--green)"></span> THE DEMO, FRAME BY FRAME</div>
-    <h2 class="mt16">Four turns, four screens.</h2>
-    <div class="shotrow">
-      <figure class="shot">
-        <div class="shotph"><img src="assets/demos/shots/shot-1-gather.png" alt="Preference chips gathering ingredients" /></div>
-        <figcaption><b class="accent-blue">1 · Gather</b>Chips collect what's on hand and how long you've got.</figcaption>
-      </figure>
-      <figure class="shot">
-        <div class="shotph"><img src="assets/demos/shots/shot-2-suggest.png" alt="Recipe cards suggested" /></div>
-        <figcaption><b class="accent-red">2 · Suggest</b>Recipe cards built from your data — not invented.</figcaption>
-      </figure>
-      <figure class="shot">
-        <div class="shotph"><img src="assets/demos/shots/shot-3-recipe.png" alt="Full recipe view" /></div>
-        <figcaption><b class="accent-yellow">3 · Cook</b>Tap a card → the full recipe, image and steps.</figcaption>
-      </figure>
-      <figure class="shot">
-        <div class="shotph"><img src="assets/demos/shots/shot-4-adapt.png" alt="Adapted recipe with a note" /></div>
-        <figcaption><b class="accent-green">4 · Adapt</b>"No blender" → it rewrites the steps and tells you why.</figcaption>
-      </figure>
-    </div>
-  </section>
-
-  <!-- 15 · WHAT JUST HAPPENED -->
-  <section class="slide dark" data-act="ACT IV · THE BUILD">
+  <section class="slide dark" data-act="ACT IV · THE DEMO">
     <div class="eyebrow"><span class="dot"></span> WHAT JUST HAPPENED</div>
-    <h2 class="mt16">It never invented a recipe.</h2>
-    <p class="lead mt24">It chose from the recipes I gave it, and adapted only the <b>language</b> — the steps, the tone. The cook times and ingredients came straight from my data.</p>
-    <p class="lead mt16">That split — model for words, app for facts — is the quiet trick behind the whole thing.</p>
+    <h2 class="mt16">The app owns the facts.<br>The model owns the words.</h2>
+    <p class="lead mt24">It could only pick from the 20 recipes in my app. Cook times, ingredient amounts and photos all came from my data. The model wrote the parts that are words: the reason on each card, and the new steps when I asked for it spicier.</p>
+    <p class="lead mt16">And it looks like Sage, not like Gemini, because genui's built-in widgets use my app's theme.</p>
+      </section>
+
+  <section class="slide" data-act="ACT IV · THE DEMO">
+    <div class="demogrid">
+      <div class="demo-copy">
+        <div class="eyebrow"><span class="dot"></span> UNDER THE HOOD</div>
+        <h2 class="mt16">Here's what the model actually sent.</h2>
+        <p class="lead mt16">Sage can show the raw A2UI behind every screen, and the JSON that goes back when you tap something.</p>
+        <p class="lead mt16">It's plain JSON, so a React or Angular app could draw these same messages.</p>
+      </div>
+      <div class="device"><video muted playsinline controls preload="metadata" aria-label="Sage showing the raw A2UI messages from the model and the action sent back"><source src="assets/demos/v2/02-protocol-peek.mp4" type="video/mp4"></video></div>
+    </div>
   </section>
 
-  <!-- ============ ACT V — THE CODE ============ -->
-
-  <!-- CORE CONCEPTS — THE MAP -->
   <section class="slide paper" data-act="ACT V · THE CODE">
     <div class="eyebrow"><span class="dot"></span> THE BUILDING BLOCKS</div>
-    <h2 class="mt16">How it all fits together.</h2>
-    <p class="lead" style="margin-top:clamp(6px,1vh,12px);max-width:66ch">Follow one turn, top to bottom — each piece hands off to the next, then loops back.</p>
+    <h2 class="mt16">How it fits together.</h2>
+    <p class="lead" style="margin-top:clamp(6px,calc(1*var(--vh)),12px);max-width:66ch">Follow one turn from top to bottom. Each piece hands off to the next, then it loops back.</p>
     <div class="arch">
       <div class="arow">
         <div class="abadge" style="background:var(--blue)">1</div>
         <div>
           <div class="aname">Conversation</div>
-          <div class="arole">The orchestrator — runs the turn-by-turn loop between the person, the model, and the screen.</div>
+          <div class="arole">Runs the turn loop between the person, the model and the screen.</div>
         </div>
       </div>
       <div class="arow">
         <div class="abadge" style="background:var(--red)">2</div>
         <div>
-          <div class="aname">Transport <small>+ A2UI</small></div>
-          <div class="arole">The line to the model. It streams the reply back as <b>A2UI</b> — a declarative description of UI as data, never code.</div>
+          <div class="aname">A2uiTransportAdapter</div>
+          <div class="arole">Takes the model's streamed text and pulls the A2UI messages out of it.</div>
         </div>
       </div>
       <div class="arow">
         <div class="abadge" style="background:#F09B00">3</div>
         <div>
           <div class="aname">Catalog</div>
-          <div class="arole">The contract — the only widgets the model is allowed to use.</div>
+          <div class="arole">The only widgets the model is allowed to use.</div>
           <div class="acatitem"><b>CatalogItem</b><span class="tok">name</span><span class="plus">·</span><span class="tok">dataSchema</span><span class="plus">·</span><span class="tok">widgetBuilder</span></div>
         </div>
       </div>
       <div class="arow">
         <div class="abadge" style="background:var(--green)">4</div>
         <div>
-          <div class="aname">Surface</div>
-          <div class="arole">Where a reply renders as real, native widgets from the catalog — a fresh surface each turn, so nothing overwrites the last.</div>
+          <div class="aname">SurfaceController <small>+ Surface</small></div>
+          <div class="arole">Holds every generated screen. A <b>Surface</b> widget draws one of them.</div>
         </div>
       </div>
       <div class="arow">
         <div class="abadge" style="background:var(--blue)">5</div>
         <div>
-          <div class="aname">Data model &amp; binding</div>
-          <div class="arole">The schema-checked data the model sent fills each widget; a tap or pick dispatches an event…</div>
-          <div class="aloop"><b>↺</b> …straight back to the Conversation → the next turn.</div>
+          <div class="aname">DataModel</div>
+          <div class="arole">The values the widgets show. When someone taps, an action goes…</div>
+          <div class="aloop"><b>↺</b> …back to the Conversation, and the next turn starts.</div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- 15 · CODE 01 -->
+  <section class="slide" data-act="ACT V · THE CODE">
+    <div class="eyebrow"><span class="dot" style="background:var(--red)"></span> THE PROMPT I WROTE</div>
+    <h2 class="mt16">You steer it with the <span class="accent-red">prompt</span>.</h2>
+    <div class="codewrap dense">
+      <div class="bar"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i><span class="fname">recipe_prompts.dart (3 of my 7 instructions, trimmed)</span></div>
+<pre><code><span class="c">// The flow</span>
+<span class="s">'ALWAYS follow this exact flow and never skip a step:
+ (1) gather ingredients, time and number of people using input components;
+ (2) show multiple recipe cards to choose from;
+ (3) only after the user taps a card, show that full recipe.'</span>
+
+<span class="c">// The facts stay mine: the app fills in this list from its own data</span>
+<span class="s">'Reference recipes ONLY by an id from this list, and NEVER invent an id:
+ - tomato_paneer_masala: Tomato Paneer Masala (20 min, medium; …)
+ - …'</span>
+
+<span class="c">// A way out</span>
+<span class="s">'If the user asks for something none of those recipes reasonably satisfy
+ (for example a burger…), do NOT force an unrelated recipe. Instead, briefly
+ and warmly say you don't have that recipe yet…'</span></code></pre>
+    </div>
+    <p class="codenote">Plain English. genui's <code style="font-size:inherit;color:var(--ink)">PromptBuilder</code> wraps it with the A2UI rules and the schema of every widget in my catalog. All together that's about 16k tokens, and it goes out with every request.</p>
+  </section>
+
   <section class="slide" data-act="ACT V · THE CODE">
     <div class="eyebrow"><span class="dot" style="background:var(--blue)"></span> CODE 01 — THE CONTRACT</div>
     <h2 class="mt16">A widget the model is <span class="accent-blue">allowed</span> to use</h2>
-    <div class="codewrap">
-      <div class="bar"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i><span class="fname">recipe_card.dart</span></div>
+    <div class="codewrap dense">
+      <div class="bar"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i><span class="fname">recipe_card.dart (trimmed)</span></div>
 <pre><code><span class="k">final</span> recipeCardItem = <span class="k">CatalogItem</span>(
   name: <span class="s">'RecipeCard'</span>,
-  <span class="c">// The schema only accepts an id — not a title, not a price.</span>
-  <span class="c">// The model can point at a recipe, never invent one.</span>
-  dataSchema: S.object(properties: {
-    <span class="f">'recipeId'</span>: S.string(),
-    <span class="f">'reason'</span>: S.string(), <span class="c">// the one thing it may write freely</span>
-  }, required: [<span class="s">'recipeId'</span>]),
-  widgetBuilder: (ctx) {
-    <span class="k">final</span> recipe = recipeById(ctx.data[<span class="s">'recipeId'</span>]);
-    <span class="k">return</span> RecipeCard(recipe: recipe); <span class="c">// your widget, your brand</span>
+  <span class="c">// It takes an id, not a title or a cook time.</span>
+  <span class="c">// The model can point at one of my recipes. It can't make one up.</span>
+  dataSchema: S.object(
+    properties: {
+      <span class="f">'recipeId'</span>: S.string(),
+      <span class="f">'reason'</span>: A2uiSchemas.stringReference(), <span class="c">// the only free text</span>
+    },
+    required: [<span class="s">'recipeId'</span>],
+  ),
+  widgetBuilder: (itemContext) {
+    <span class="k">final</span> data = itemContext.data <span class="k">as</span> JsonMap;
+    <span class="k">return</span> RecipeLookup(                <span class="c">// finds the id in my data</span>
+      dataContext: itemContext.dataContext,
+      recipeId: data[<span class="s">'recipeId'</span>],
+      builder: (context, recipe) =&gt; <span class="c">/* my card widget */</span>,
+    );
   },
 );</code></pre>
     </div>
-    <p class="codenote">name + schema + builder. The schema is the leash — it's how you stop the model hallucinating recipes that don't exist.</p>
+    <p class="codenote">Name, schema, builder. If the model sends an id I don't have, the card says "Unknown recipe" instead of showing something made up.</p>
   </section>
 
-  <!-- 16 · CODE 02 -->
   <section class="slide" data-act="ACT V · THE CODE">
-    <div class="eyebrow"><span class="dot" style="background:var(--red)"></span> CODE 02 — FACTS vs WORDS</div>
-    <h2 class="mt16">App owns facts. Model owns <span class="accent-red">words</span>.</h2>
-    <div class="codewrap">
-      <div class="bar"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i><span class="fname">recipe_view.dart</span></div>
-<pre><code>  <span class="k">final</span> recipe = recipeById(recipeId);     <span class="c">// FACTS: from my data</span>
-  <span class="k">final</span> modelSteps = data[<span class="s">'steps'</span>];        <span class="c">// WORDS: from the model</span>
+    <div class="eyebrow"><span class="dot" style="background:var(--green)"></span> CODE 03 — LOGIC THAT RUNS ON THE PHONE</div>
+    <h2 class="mt16">Some taps never reach the <span class="accent-green">model</span>.</h2>
+    <div class="code2">
+      <div class="codewrap">
+        <div class="bar"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i><span class="fname">from the model: bind servings</span></div>
+<pre><code>{<span class="f">"component"</span>: <span class="s">"RecipeView"</span>,
+ <span class="f">"recipeId"</span>: <span class="s">"dal_tadka"</span>,
+ <span class="f">"servings"</span>: {<span class="f">"path"</span>: <span class="s">"/servings"</span>}}
 
-  <span class="c">// Use the model's adapted steps if it sent any —</span>
-  <span class="c">// e.g. "no blender" — otherwise fall back to mine.</span>
-  <span class="k">final</span> steps = (modelSteps != <span class="k">null</span> &amp;&amp; modelSteps.isNotEmpty)
-      ? modelSteps
-      : recipe.steps;</code></pre>
+<span class="c">// my stepper writes the value</span>
+dataContext.update(
+  DataPath(servingsPath), value);</code></pre>
+      </div>
+      <div class="codewrap">
+        <div class="bar"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i><span class="fname">from the model: check and format</span></div>
+<pre><code><span class="f">"checks"</span>: [{<span class="f">"condition"</span>: {<span class="f">"call"</span>: <span class="s">"numeric"</span>,
+  <span class="f">"args"</span>: {<span class="f">"value"</span>: {<span class="f">"path"</span>: <span class="s">"/servings"</span>},
+           <span class="f">"min"</span>: 1, <span class="f">"max"</span>: 12}},
+  <span class="f">"message"</span>: <span class="s">"Between 1 and 12 people"</span>}]
+
+<span class="f">"text"</span>: {<span class="f">"call"</span>: <span class="s">"formatString"</span>, <span class="c">…</span>
+  <span class="s">"Cooking for ${/servings} ${pluralize(…)}"</span>}</code></pre>
+      </div>
     </div>
-    <p class="codenote">The model rewrites the phrasing. The cook time, the ingredients, the image — those are never up for negotiation.</p>
+    <p class="codenote">The model wires widgets to values once. After that the phone does the work. <code style="font-size:inherit;color:var(--ink)">numeric</code>, <code style="font-size:inherit;color:var(--ink)">formatString</code> and <code style="font-size:inherit;color:var(--ink)">pluralize</code> are functions registered in genui's basic catalog, so the model can call them but can't invent new ones.</p>
   </section>
 
-  <!-- 17 · CODE 03 -->
-  <section class="slide" data-act="ACT V · THE CODE">
-    <div class="eyebrow"><span class="dot" style="background:var(--green)"></span> CODE 03 — THE SEAM</div>
-    <h2 class="mt16">Swap the model in <span class="accent-green">one file</span></h2>
-    <div class="codewrap">
-      <div class="bar"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i><span class="fname">recipe_backend.dart</span></div>
-<pre><code>  <span class="c">// No API key in the app — Firebase AI Logic holds it.</span>
-  _model = FirebaseAI.googleAI().generativeModel(
-    model: <span class="s">'gemini-3.1-flash-lite'</span>,
-    systemInstruction: Content.system(buildSystemInstruction()),
-  );
+  <section class="slide dark" data-act="ACT VI · LESSONS">
+    <div class="eyebrow"><span class="dot"></span> FIG. 03 — WHAT I LEARNED</div>
+    <h2 class="mt16">Four things I learned<br>the hard way.</h2>
+    <p class="lead mt24">They only came up once I used the app for real.</p>
+  </section>
 
-  <span class="c">// genui just needs streamed text. Feed each chunk in.</span>
-  <span class="k">await for</span> (<span class="k">final</span> res <span class="k">in</span> chat.sendMessageStream(content)) {
-    _adapter.addChunk(res.text);     <span class="c">// the backend-agnostic seam</span>
-  }</code></pre>
+  <section class="slide" data-act="ACT VI · LESSONS">
+    <div class="demogrid">
+      <div class="demo-copy">
+        <div class="eyebrow"><span class="dot" style="background:var(--green)"></span> LESSON 01</div>
+        <h2 class="mt16">Not every tap needs the <span class="accent-green">model</span>.</h2>
+        <p class="lead mt16">Changing servings, or typing how many people you're cooking for, never calls Gemini. The phone does the maths and the checks.</p>
+        <p class="lead mt16">It's instant, and it doesn't cost a request.</p>
+      </div>
+      <div class="device"><video muted playsinline controls preload="metadata" aria-label="Changing servings on Paneer Bhurji rescales every amount instantly"><source src="assets/demos/v2/03-data-binding.mp4" type="video/mp4"></video></div>
     </div>
-    <p class="codenote">genui doesn't care which model you use. Change providers later and this is the only file you touch.</p>
   </section>
 
-  <!-- ============ ACT VI — HONEST ENGINEERING ============ -->
-
-  <!-- 18 · TRADEOFFS INTRO -->
-  <section class="slide dark" data-act="ACT VI · HONEST ENGINEERING">
-    <div class="eyebrow"><span class="dot"></span> FIG. 03 — THE PART TALKS SKIP</div>
-    <h2 class="mt16">What the happy path<br>doesn't tell you.</h2>
-    <p class="lead mt24">Four things I learned building this — the kind you only find out by shipping.</p>
+  <section class="slide paper" data-act="ACT VI · LESSONS">
+    <div class="demogrid">
+      <div class="demo-copy">
+        <div class="eyebrow"><span class="dot" style="background:var(--red)"></span> LESSON 02</div>
+        <h2 class="mt16">Models make mistakes. <span class="accent-red">Check</span> before you show.</h2>
+        <p class="lead mt16">Sometimes the model forgets a widget, or uses one that isn't in the catalog. Sage checks each screen before showing it. If something's missing, it holds the screen back, tells the model what's wrong, and shows the fixed one.</p>
+        <p class="codenote mt16">In this clip I break the reply on purpose with a debug button, so you can watch the repair.</p>
+      </div>
+      <div class="device"><video muted playsinline controls preload="metadata" aria-label="A broken reply is caught, the model is asked to rebuild, and the fixed recipe cards appear"><source src="assets/demos/v2/04-self-healing.mp4" type="video/mp4"></video></div>
+    </div>
   </section>
 
-  <!-- 19 · TRADEOFF 1 -->
-  <section class="slide" data-act="ACT VI · HONEST ENGINEERING">
-    <div class="eyebrow"><span class="dot" style="background:var(--red)"></span> TRADEOFF 01</div>
-    <h2 class="mt16">The fence cuts <span class="accent-red">both ways</span>.</h2>
-    <p class="lead mt24">Locking the model to your data kills hallucination. It also means the moment someone asks for something you don't have, it has nothing honest to say.</p>
-    <p class="lead mt16">Ask for a burger from a paneer menu, and a naive build will <b>force paneer on you</b>. You have to teach it to say "I don't have that — here's what I can do."</p>
+  <section class="slide" data-act="ACT VI · LESSONS">
+    <div class="demogrid">
+      <div class="demo-copy">
+        <div class="eyebrow"><span class="dot" style="background:var(--blue)"></span> LESSON 03</div>
+        <h2 class="mt16">Teach it to say <span class="accent-blue">no</span>.</h2>
+        <p class="lead mt16">If the model can only use your data, it needs a way out. Ask Sage for a burger and it tells you it doesn't have one, instead of pushing paneer at you.</p>
+        <p class="lead mt16">That took a few lines in the prompt.</p>
+      </div>
+      <div class="device"><video muted playsinline controls preload="metadata" aria-label="Asked for a burger, Sage says it doesn't have one and suggests what it can cook"><source src="assets/demos/v2/05-honesty.mp4" type="video/mp4"></video></div>
+    </div>
   </section>
 
-  <!-- 20 · TRADEOFF 2 -->
-  <section class="slide paper" data-act="ACT VI · HONEST ENGINEERING">
-    <div class="eyebrow"><span class="dot" style="background:var(--blue)"></span> TRADEOFF 02</div>
-    <h2 class="mt16">Decide who owns the <span class="accent-blue">truth</span>.</h2>
-    <p class="lead mt24">The model is wonderful with language and careless with facts. So don't ask it to remember your prices or your inventory.</p>
-    <p class="lead mt16">Let it own the words. Let your app own the facts. Once you draw that line, a lot of scary failure modes just… disappear.</p>
+  <section class="slide paper" data-act="ACT VI · LESSONS">
+    <div class="eyebrow"><span class="dot" style="background:var(--yellow)"></span> LESSON 04</div>
+    <h2 class="mt16">Every turn has a <span class="accent-yellow">cost</span>.</h2>
+    <p class="lead mt24">Every request sends that 16k-token prompt again. My free-tier project allowed 250,000 input tokens a minute. That's only about 15 requests, and I hit it often while testing.</p>
+    <p class="lead mt16">The cheapest fix is doing small things on the phone, like servings and validation. After that, choose your plan with this in mind.</p>
   </section>
 
-  <!-- 21 · TRADEOFF 3 -->
-  <section class="slide" data-act="ACT VI · HONEST ENGINEERING">
-    <div class="eyebrow"><span class="dot" style="background:var(--yellow)"></span> TRADEOFF 03</div>
-    <h2 class="mt16">Cleaning up the screen<br>is <span class="accent-yellow">your</span> job.</h2>
-    <p class="lead mt24">Generative UI keeps adding. Nothing gets tidied unless you tidy it. And the model controls each screen's identity — a smaller model that reuses an id will quietly paint over your last one.</p>
-    <p class="lead mt16">Model quality isn't abstract here. It shows up directly in your UX.</p>
-  </section>
-
-  <!-- 22 · TRADEOFF 4 -->
-  <section class="slide paper" data-act="ACT VI · HONEST ENGINEERING">
-    <div class="eyebrow"><span class="dot" style="background:var(--green)"></span> TRADEOFF 04</div>
-    <h2 class="mt16">It's a chattier loop<br>than a chatbot.</h2>
-    <p class="lead mt24">One thing the person does can be <b>several</b> model calls — gather, show, refine. So you hit rate limits sooner than a plain chat app would.</p>
-    <p class="lead mt16">Pick your model tier with that in mind, and design your "thinking…" states for real.</p>
-  </section>
-
-  <!-- ============ ACT VII — IN THE WILD ============ -->
-
-  <!-- IN THE WILD — INTRO -->
   <section class="slide paper" data-act="ACT VII · IN THE WILD">
     <div class="eyebrow"><span class="dot"></span> NOT JUST MY DEMO</div>
     <h2 class="mt16">GenUI in the <span class="accent-blue">wild</span>.</h2>
-    <p class="lead mt24">Sage is my weekend toy. But this isn't a lab trick — over the past year, real teams have shipped real GenUI apps.</p>
-    <p class="lead mt16">Three worth knowing: one from the <b>Flutter team</b>, one from a <b>top agency</b>, and one from a <b>solo GDE</b>.</p>
-    <ul class="ticks" style="margin-top:clamp(16px,2.5vh,30px)">
-      <li><span class="n" style="color:var(--blue)">01</span><div><b>GenLatte</b> — the Flutter team's playful Gemini demo</div></li>
-      <li><span class="n" style="color:var(--green)">02</span><div><b>VGV Finances</b> — Very Good Ventures, at Google Cloud Next ’26</div></li>
-      <li><span class="n" style="color:var(--red)">03</span><div><b>Finnish&nbsp;it</b> — a Flutter GDE's app, shown live at Google I/O ’26</div></li>
+    <p class="lead mt24">Three projects already using it:</p>
+    <ul class="ticks" style="margin-top:clamp(16px,calc(2.5*var(--vh)),30px)">
+      <li><span class="n" style="color:var(--blue)">01</span><div><b>GenLatte</b>, the Flutter team's AI coffee shop at Cloud Next (it came back to Google I/O under a new name)</div></li>
+      <li><span class="n" style="color:var(--green)">02</span><div><b>Life Goal Simulator</b>, Very Good Ventures' finance demo at Google Cloud Next ’26</div></li>
+      <li><span class="n" style="color:var(--red)">03</span><div><b>Finnish&nbsp;It</b>, a GDE's language app that's already in production</div></li>
     </ul>
   </section>
 
-  <!-- IN THE WILD — GENLATTE -->
-  <section class="slide" data-act="ACT VII · IN THE WILD">
-    <div class="eyebrow"><span class="dot" style="background:var(--blue)"></span> GENUI IN THE WILD · 1 OF 3</div>
-    <div class="wildslide">
-      <div class="copy">
-        <h2 class="mt8">GenLatte</h2>
-        <p class="lead mt16">The Flutter team's own GenUI demo. A couple of playful taps, and Gemini composes a personalized latte — Dash dreams it up while the screen assembles itself.</p>
-        <div class="wild-tags">
-          <span class="wild-tag">Flutter team</span><span class="wild-tag">Gemini</span><span class="wild-tag">GenUI demo</span>
-        </div>
-      </div>
-      <div class="hero"><iframe class="yt" src="https://www.youtube.com/embed/-NLK4gpT0m4?start=27&amp;end=186&amp;rel=0&amp;modestbranding=1" title="GenLatte demo — Craig, Flutter GenUI" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe></div>
-    </div>
+  <section class="slide" data-act="ACT VIII · WHAT'S NEXT">
+    <div class="eyebrow"><span class="dot"></span> WHERE THIS IS HEADED · OCT 2026</div>
+    <h2 class="mt16">genui is being split up.</h2>
+    <table class="cmp">
+      <tr><th></th><th>Today: <code>genui</code></th><th>Announced: <code>a2ui_core</code> · <code>a2ui_agent</code> · <code>a2ui_flutter</code></th></tr>
+      <tr><td>Shape</td><td>One package does it all: prompt, parsing, conversation, rendering</td><td>Three packages: the protocol, the agent side (prompt and parsing), and the Flutter renderer</td></tr>
+      <tr><td>Status</td><td>On pub.dev, 0.10.4</td><td>Early. <code>a2ui_core</code> is 0.3.0. The agent and Flutter packages are pre-releases, and <code>a2ui_flutter</code> is installed from GitHub for now</td></tr>
+      <tr><td>A2UI</td><td>v0.9</td><td><code>a2ui_core</code> reads v0.9 up to v1.0. The agent and Flutter packages speak v0.9 for now</td></tr>
+      <tr><td>Your code</td><td>What you saw today</td><td>A different API, so expect to migrate</td></tr>
+    </table>
+    <p class="lead mt24">A2UI itself is moving too. v0.9.1 is the current release, and v1.0 is a release candidate: the app and the model can call each other's functions, and one screen can mix widgets from several catalogs.</p>
   </section>
 
-  <!-- IN THE WILD — VGV FINANCES -->
-  <section class="slide paper" data-act="ACT VII · IN THE WILD">
-    <div class="eyebrow"><span class="dot" style="background:var(--green)"></span> GENUI IN THE WILD · 2 OF 3</div>
-    <div class="wildslide">
-      <div class="copy">
-        <h2>VGV Finances</h2>
-        <p class="lead mt16">Very Good Ventures' AI financial planner, built for Google Cloud Next 2026. Ask about a goal — “retire by 50?” — and it renders sliders, charts and chips on the fly. The model builds the screen, not a paragraph.</p>
-        <div class="wild-tags">
-          <span class="wild-tag">Very Good Ventures</span><span class="wild-tag">Cloud Next ’26</span><span class="wild-tag">Firebase AI</span>
-        </div>
-      </div>
-      <div class="hero"><img src="assets/wild/vgv-finances.png" alt="VGV Finances — Very Good Ventures' GenUI financial planner" /></div>
-    </div>
-  </section>
-
-  <!-- IN THE WILD — FINNISH IT -->
-  <section class="slide" data-act="ACT VII · IN THE WILD">
-    <div class="eyebrow"><span class="dot" style="background:var(--red)"></span> GENUI IN THE WILD · 3 OF 3</div>
-    <div class="wildslide">
-      <div class="copy">
-        <h2>Finnish&nbsp;it</h2>
-        <p class="lead mt16">A language-learning app by Flutter GDE Cagatay Ulusoy. Each lesson's UI is generated on the fly to fit the drill — and it was shown live in the Google I/O “What's new in Flutter” session.</p>
-        <div class="wild-tags">
-          <span class="wild-tag">Flutter GDE</span><span class="wild-tag">Google I/O ’26</span><span class="wild-tag">Community</span>
-        </div>
-      </div>
-      <div class="hero phone"><img src="assets/wild/finnish.png" alt="Finnish it — Cagatay Ulusoy's GenUI language app" /></div>
-    </div>
-  </section>
-
-  <!-- ============ ACT VIII — WRAP ============ -->
-
-  <!-- 23 · WHEN TO USE -->
-  <section class="slide" data-act="ACT VII · WRAP">
-    <div class="eyebrow"><span class="dot"></span> A HONEST RULE OF THUMB</div>
+  <section class="slide" data-act="ACT IX · WRAP">
+    <div class="eyebrow"><span class="dot"></span> A RULE OF THUMB</div>
     <h2 class="mt16">When to reach for it.</h2>
     <div class="grid2">
-      <div class="card"><div class="bar b-green"></div><h3>Great fit</h3><p>When the screen should change with intent — exploring, deciding, narrowing down, or taking in a photo / voice / messy input.</p></div>
-      <div class="card"><div class="bar b-red"></div><h3>Probably overkill</h3><p>A static form. A settings page. A fixed flow you already know. A good plain screen still wins more often than people admit.</p></div>
+      <div class="card"><div class="bar b-green"></div><h3>Great fit</h3><p>The right screen depends on what the person wants: exploring, comparing, narrowing things down, or making sense of a photo.</p></div>
+      <div class="card"><div class="bar b-red"></div><h3>Probably overkill</h3><p>A settings page, a login form, a checkout flow you already know. A well-designed fixed screen still wins there.</p></div>
     </div>
-    <p class="lead mt24">A chatbot that builds UI isn't always the answer. Use it where the <em>uncertainty</em> lives.</p>
+    <p class="lead mt24">Use it where you can't predict which screen someone needs.</p>
   </section>
 
-  <!-- RESOURCES -->
-  <section class="slide paper" data-act="ACT VII · WRAP">
+  <section class="slide paper" data-act="ACT IX · WRAP">
     <div class="eyebrow"><span class="dot"></span> TAKE THIS HOME</div>
     <h2 class="mt16">Resources.</h2>
     <div class="res">
       <a href="https://docs.flutter.dev/ai/genui" target="_blank" rel="noopener">
         <div class="qr"><img src="assets/qr/res-genui-docs.png" alt="GenUI docs QR" /></div>
-        <div class="rk">Flutter team</div><h3>GenUI docs &amp; get-started</h3>
+        <div class="rk">Flutter docs</div><h3>GenUI SDK for Flutter</h3>
         <div class="url">docs.flutter.dev/ai/genui</div>
       </a>
       <a href="https://codelabs.developers.google.com/codelabs/genui-intro" target="_blank" rel="noopener">
         <div class="qr"><img src="assets/qr/res-codelab.png" alt="Codelab QR" /></div>
-        <div class="rk">Official codelab</div><h3>Build one yourself</h3>
+        <div class="rk">Official codelab</div><h3>Build a GenUI app</h3>
         <div class="url">codelabs.developers.google.com</div>
       </a>
       <a href="https://www.youtube.com/watch?v=tXeyaV1gVJk" target="_blank" rel="noopener">
-        <div class="qr"><img src="assets/qr/res-video.png" alt="Flutter + A2UI = GenUI talk QR" /></div>
-        <div class="rk">Flutter team</div><h3>Flutter + A2UI = GenUI</h3>
+        <div class="qr"><img src="assets/qr/res-video.png" alt="Flutter + A2UI = GenUI video QR" /></div>
+        <div class="rk">Flutter · YouTube</div><h3>Flutter + A2UI = GenUI</h3>
         <div class="url">youtu.be/tXeyaV1gVJk</div>
       </a>
       <a href="https://a2ui.org/" target="_blank" rel="noopener">
@@ -895,7 +807,7 @@
         <div class="url">a2ui.org</div>
       </a>
       <a href="https://github.com/jakansha2001/recipe_genui" target="_blank" rel="noopener">
-        <div class="qr"><img src="assets/qr/res-repo.png" alt="Demo repo QR" /></div>
+        <div class="qr"><img src="assets/qr/res-repo.png" alt="Sage demo repo QR" /></div>
         <div class="rk">The Sage demo</div><h3>Clone the code</h3>
         <div class="url">github.com/jakansha2001/recipe_genui</div>
       </a>
@@ -907,58 +819,60 @@
     </div>
   </section>
 
-  <!-- 26 · CLOSING QUOTE -->
-  <section class="slide dark centered" data-act="ACT VII · WRAP">
+  <section class="slide dark centered" data-act="ACT IX · WRAP">
     <div class="eyebrow"><span class="dot"></span> ONE LAST THOUGHT</div>
-    <div class="pull mt24">GenUI turns a model that <span class="mark">talks</span> into one that <span class="mark">builds</span>. The fun part is the rails you put around it.</div>
+    <div class="pull mt24">Give the model <span class="mark">your widgets</span>. Keep the <span class="mark">facts</span> in your app. <span class="mark">Check</span> what it sends.</div>
     <div class="spectrum sm mt32" style="max-width:240px"></div>
   </section>
 
-  <!-- 27 · THANK YOU -->
-  <section class="slide" data-act="ACT VII · WRAP">
+  <section class="slide" data-act="ACT IX · WRAP">
     <div class="tygrid">
       <div class="ty-photo"><img src="assets/headshot.png" alt="Akansha Jain" /></div>
       <div class="tycol">
         <h1 class="tytitle">Thank&nbsp;<span class="accent-blue">you.</span></h1>
-        <div class="spectrum" style="max-width:300px;margin:clamp(16px,2.6vh,28px) 0"></div>
+        <div class="spectrum" style="max-width:300px;margin:clamp(16px,calc(2.6*var(--vh)),28px) 0"></div>
         <div class="ty-meta">
           <b>Akansha Jain</b>
-          <span>Senior Software Engineer — Autonation Inc.</span>
+          <span>Senior Software Engineer · AutoNation Inc.</span>
+          <span>Women Techmakers Ambassador</span>
           <span class="tag">Happy to talk Flutter, GenUI, or whatever you're building.</span>
         </div>
         <div class="tyconnect">
           <div class="tyqr"><img src="assets/qr/website.png" alt="akanshajain.dev QR" /><span>akanshajain.dev</span></div>
           <div class="tyqr"><img src="assets/qr/linkedin.png" alt="LinkedIn QR" /><span>LinkedIn</span></div>
+          <div class="tyqr"><img src="assets/qr/feedback.png" alt="Feedback form QR" /><span>Feedback</span></div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- COME BUILD WITH US — COMMUNITY -->
-  <section class="slide" data-act="ACT VII · WRAP">
+  <section class="slide" data-act="ACT IX · WRAP">
     <div class="eyebrow"><span class="dot" style="background:var(--green)"></span> COME BUILD WITH US</div>
     <h2 class="mt16">Two Delhi communities, always open.</h2>
-    <p class="lead mt24">I help organise <b>Flutter Delhi</b> and <b>FFDG New Delhi</b> — talks, meetups, and a room full of people figuring this out together. Scan in, say hi.</p>
+    <p class="lead mt24">I help organise <b>Flutter Delhi</b> and <b>FFDG New Delhi</b>: talks, meetups, and a room full of people figuring this stuff out together. Scan in and say hi.</p>
     <div class="commrow">
       <a class="commcard" href="https://www.commudle.com/communities/flutter-delhi" target="_blank" rel="noopener">
-        <img src="assets/qr/community-flutter-delhi.png" alt="Flutter Delhi on Commudle — QR" />
+        <img src="assets/qr/community-flutter-delhi.png" alt="Flutter Delhi on Commudle QR" />
         <b>Flutter Delhi</b><span>Commudle</span>
       </a>
       <a class="commcard" href="https://luma.com/ffdgnewdelhi" target="_blank" rel="noopener">
-        <img src="assets/qr/community-ffdg.png" alt="FFDG New Delhi on Luma — QR" />
+        <img src="assets/qr/community-ffdg.png" alt="FFDG New Delhi on Luma QR" />
         <b>FFDG New Delhi</b><span>Luma</span>
       </a>
     </div>
   </section>
 
-  <!-- 28 · Q&A -->
-  <section class="slide dark centered" data-act="ACT VII · WRAP">
+  <section class="slide dark centered" data-act="ACT IX · WRAP">
     <div class="eyebrow"><span class="dot"></span> OVER TO YOU</div>
     <div class="pull qbig mt24">Questions<span class="mark">?</span></div>
     <div class="dmline mt24">
       <span class="rule"></span>
-      <p class="lead" style="margin:0"><span class="accent-green">Or DM me after —</span> I read every message.</p>
+      <p class="lead" style="margin:0"><span class="accent-green">Or message me after.</span> I read every one.</p>
     </div>
+    <a class="qafeedback" href="https://forms.gle/miVRsBinjcJg8rdN6" target="_blank" rel="noopener">
+      <img src="assets/qr/feedback.png" alt="Feedback form QR" />
+      <span>How was this talk? Scan to leave feedback</span>
+    </a>
   </section>
 
 </div>
@@ -966,6 +880,31 @@
 <div id="hint">← → or space to move · F for fullscreen</div>
 
 <script>
+  // Desktop: lay every slide out on a canvas 900px tall and as wide as the
+  // screen's shape (4:3 up to 21:9), then scale it to fit. The deck looks the
+  // same on a laptop, a projector or a 4K monitor. Phones keep the scrolling layout.
+  const deck = document.getElementById('deck');
+  function fit(){
+    const vw = window.innerWidth, vh = window.innerHeight, root = document.documentElement.style;
+    if (vw <= 760){
+      deck.classList.remove('fit'); deck.removeAttribute('style');
+      root.removeProperty('--vw'); root.removeProperty('--vh');
+      return;
+    }
+    const H = 900, W = Math.round(Math.min(2100, Math.max(1200, H * vw / vh)));
+    const scale = Math.min(vw / W, vh / H);
+    root.setProperty('--vw', W / 100 + 'px');
+    root.setProperty('--vh', H / 100 + 'px');
+    deck.classList.add('fit');
+    Object.assign(deck.style, {
+      width: W + 'px', height: H + 'px',
+      left: (vw - W * scale) / 2 + 'px', top: (vh - H * scale) / 2 + 'px',
+      transform: `scale(${scale})`,
+    });
+  }
+  window.addEventListener('resize', fit);
+  fit();
+
   const slides = Array.from(document.querySelectorAll('.slide'));
   const total = slides.length;
   let i = 0;
@@ -981,9 +920,17 @@
   });
 
   const progress = document.getElementById('progress');
+  // each demo clip plays from the start when its slide opens, and stops when you leave
+  function syncVideos(){
+    slides.forEach((s,idx)=>s.querySelectorAll('video').forEach(v=>{
+      if(idx===i){ v.currentTime = 0; v.play().catch(()=>{}); }
+      else v.pause();
+    }));
+  }
   function show(n){
     i = Math.max(0, Math.min(total-1, n));
     slides.forEach((s,idx)=>s.classList.toggle('active', idx===i));
+    syncVideos();
     progress.style.width = ((i)/(total-1))*100 + '%';
     location.hash = i+1;
   }
@@ -999,7 +946,7 @@
   });
 
   // click right/left half to navigate (ignore clicks on links/video)
-  document.getElementById('deck').addEventListener('click', e=>{
+  deck.addEventListener('click', e=>{
     if(e.target.closest('a,video,button,iframe')) return;
     (e.clientX > window.innerWidth/2) ? next() : prev();
   });
