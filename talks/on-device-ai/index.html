@@ -14,6 +14,7 @@
  "(Keep this under 30 seconds.) Hi everyone, I'm Akansha. I'm a senior software engineer at AutoNation, and I help organise Flutter Delhi and FFDG New Delhi. In the next half hour we'll look at AI apps where the model runs on the phone itself, with no server involved. I'll show you a working app, walk you through the code, and tell you about the things that broke while I was building it.",
  "Think about any AI feature you've built or used recently. Most of them work the same way. Your app sends whatever the user typed, photographed or recorded over the network to a model running on someone else's GPU, and the answer comes back the same way. (Point at the arrows.) That round trip is what I want to question today.",
  "(One line per card, don't read them out.) That trip to the server costs you in four ways. Latency: the user waits for the network before they see anything. Cost: you pay per token, so the more people use the feature, the bigger the bill. Privacy: whatever the user shared has left their phone. And availability: with no signal, the feature just doesn't work. (Optional) Quick show of hands, who has shipped a feature that stopped working the moment someone went offline?",
+ "(Let them read it, then move on — don't explain the joke.) Every one of those four costs comes from the same thing: the request leaving the device. So the fix is not a better API. It is not making the call at all.",
  "(Say it slowly, then pause for about three seconds.) So what if the model lived inside your app? (The circle around \"inside\" is the edge of the device. It shows up again on the architecture slide.)",
  "So which model can actually run inside an app? Let me introduce Gemma.",
  "Gemma 4 comes in five sizes today. (There were four at launch in April. The 12B was added later.) The two on the left, E2B and E4B, are meant for phones, laptops and browsers. They have a 128K-token context and accept text, images and audio. The E stands for \"effective\". Per-Layer Embeddings keep their working memory close to that of a much smaller model. We're using E2B. (Don't spend long on the right-hand column.)",
@@ -32,17 +33,22 @@
  "(Check the room audio before you move to this slide.) This runs twice, and nothing in it is sped up. The first time, three models take a turn: Whisper Tiny writes down what I said, Gemma 4 answers, Inflect-Nano speaks it — watch the transcript appear before the answer does. Then I flip the switch and ask the same thing again. Gemma takes the recording itself, the Transcribe step is struck out, and there is no transcript at all, just the answer. Two models instead of three. None of it touches the cloud.",
  "(Slow down. This is the moment the whole talk builds up to.) Watch the Wi-Fi icon. (Turn it off.) There's no network at all now. Same prompt, same speed. (Wait a couple of seconds after the answer appears.) And that's really the whole point of this talk.",
  "Before the code, here is what was actually running. Three models, and each one does one job. Whisper Tiny, 151 MB, turns my voice into text — it listens in thirty-second windows, which is why the app stops recording at twenty-five seconds. Gemma 4 E2B, 2.6 GB, is the one doing the thinking in every demo you just saw: text, images and audio in, the answer out. Audio is the newer part — Gemma 4 can answer the recording itself, with no transcription step, and then Whisper is not in the loop at all. Inflect-Nano, 36 MB, turns the answer back into speech — English only, and fast enough that the conversation doesn't stall. (Last line.) About 2.8 GB in total, downloaded once, and after that nothing leaves the device. Now let me show you the code that installs them.",
+ "(Beat, then move on.) Everything you just watched — the photo, the reasoning, the tools, the voice — ran with the Wi-Fi off. Nobody in the room could tell from the outside, and neither can your users. That is the whole point.",
  "Now let's look at the code. Everything on the next few slides uses the current flutter_edge_ai API, and it's the same code that's running in the app you just saw.",
  "You need two packages: the core and the LiteRT-LM engine. Then there's one call in main, where you initialize flutter_edge_ai and give it the engine. (Point at the highlighted lines.) This is the big 1.0 change, and if you leave it out, the app still compiles. You'll also need Flutter 3.44 or newer. And notice what's gone: the last version of this talk needed a Hugging Face token and a .env file. The Gemma 4 build we use is public, so you don't need either anymore.",
  "There are three calls here. installModel downloads the model once, about 2.6 GB, and if the file is already on the device it just marks the model as active. getActiveModel loads it onto the GPU, and createChat starts a conversation. One thing people often mix up: maxTokens is the context window, not the length of the reply. If you want to limit the reply, use maxOutputTokens. (Point at the yellow lines.) Get either of these wrong and the app still compiles — it fails later, when the model loads or when a tool call comes back as plain text.",
  "First you add the message, then you loop over the response stream. Text tokens build up the answer and thinking tokens build up the reasoning, which is what you saw in the thinking demo. ModelResponse is a sealed class, so the compiler makes you handle every case. And sending an image is just a different kind of message: withImage instead of text.",
  "Most talks only show you the happy path. These are the things that actually broke while I was building this app, so they don't break for you.",
  "My first voice turns kept getting cut off mid-sentence, and nothing anywhere said why. (Point at the 5s card.) Speech-to-text models are exported with one fixed window. Moonshine Tiny's is five seconds — it is literally in the filename — and anything past it is thrown away silently. (Point at 30s.) Whisper Tiny gives you thirty seconds, which is what makes a real conversational turn possible, so that is what the demo uses. (Point at the third card.) I cap the recorder at twenty-five seconds and show a countdown, so nobody runs past the window. Shorter audio is padded, so stopping early costs nothing. (If asked: the same applies to whichever model you pick — check the window it was exported with.)",
+ "This is the face. Nothing crashed, nothing was logged, the app looked completely healthy — and half of every sentence was gone.",
  "(Read the reply out loud, then point at ソース.) That word is Japanese for \"source\", right in the middle of an English sentence. These models know many languages, and with loose sampling the Japanese word can win over the English one. What helped was tighter sampling, telling the model which language to use, and, for speech, removing characters the English voice can't pronounce. To be honest, it's rarer now, but it still happens. It's a small model.",
+ "I did not pick those numbers. Temperature 1.0, topP 0.95, topK 64 are what Google suggests for this model, and they are tuned for a much bigger one. On a 2B model running on a phone, that much freedom is how a Japanese word ends up in the middle of an English sentence.",
  "And this is not hypothetical. Pixel Recorder summarises your recording with Gemini Nano, and Google says it works with no internet connection. Apple Intelligence rewrites and summarises on a three-billion-parameter model running on the phone. Chrome ships Gemini Nano inside the browser, reachable from JavaScript. And the last one is my favourite: Google AI Edge Gallery is on the Play Store and the App Store, and it runs the same Gemma 4 E2B you watched in my demo. (If someone asks which devices or versions: availability moves between releases — point them at the platform release notes.)",
+ "I am not telling you to throw the cloud away. (Point at the labels.) Most real apps use both: the cloud for the hardest questions, the device for everything that should not leave the phone. Pick per feature, not per app.",
  "(People will take photos of this slide, so keep moving.) You need Flutter 3.44 or newer. Add two packages and register the engine. Then the platform setup: iOS 15, minSdk 30 and arm64 on Android, and on macOS a deployment target of 14.0, with Swift Package Manager doing the rest. flutteredge.ai has the exact snippets. Install the model, no token needed. And then turn off your Wi-Fi.",
  "(Give people a few seconds to scan.) If you want to build this yourself, I've written a codelab. It's 16 steps, about 90 minutes, and it takes you from an empty Flutter project to streaming chat, vision, reasoning and tool calling with Gemma 4 E2B, including the setup for Android, iOS and macOS. No token and no server needed.",
  "(Leave this up for at least ten seconds so people can scan the codes.) Here's the demo app, the package, the docs, the exact model file I used, and my article on why I think on-device AI changes mobile architecture.",
+ "(Smile, let them laugh, then go straight into the last line.) That was my face too, the first time a 2.6 GB model answered me with the Wi-Fi off.",
  "(Stand still. Say the first line, pause, then say the second one slowly. Don't add anything after it.)",
  "Thank you so much. (Point at the QR codes.) That's my website and my LinkedIn. I'm always happy to chat about Flutter, Gemma, or whatever you're building."
 ]
@@ -386,7 +392,7 @@ section[data-deck-active] .spin { animation: spin 60s linear infinite; }
     </div>
   </div>
 </div>
-<div class="foot"><span class="mark"><span class="g4"><i></i><i></i><i></i><i></i></span>Building On-Device AI Apps with Flutter &amp; Gemma</span><span class="pg">01 / 34</span></div>
+<div class="foot"><span class="mark"><span class="g4"><i></i><i></i><i></i><i></i></span>Building On-Device AI Apps with Flutter &amp; Gemma</span><span class="pg">01 / 40</span></div>
 </section>
 <section data-label="Every AI feature has the same shape">
 <img class="evt-corner" src="assets/devfest-jalandhar-2026.png" alt="DevFest Jalandhar 2026">
@@ -411,7 +417,7 @@ section[data-deck-active] .spin { animation: spin 60s linear infinite; }
     <div class="card p" style="width:430px;height:360px;display:flex;flex-direction:column;justify-content:space-between;background:var(--surface-2)"><div class="icon-tile" style="background:var(--surface-3);color:var(--ink)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H7a5 5 0 1 1 .9-9.9A6 6 0 0 1 19 11a4 4 0 0 1-1.5 8z"/></svg></div><div><div class="h3">Someone else's GPU</div><div class="small" style="margin-top:8px;font-size:26px">Runs the model and replies</div></div></div>
   </div>
 </div>
-<div class="foot"><span class="mark"><span class="g4"><i></i><i></i><i></i><i></i></span>Building On-Device AI Apps with Flutter &amp; Gemma</span><span class="pg">02 / 34</span></div>
+<div class="foot"><span class="mark"><span class="g4"><i></i><i></i><i></i><i></i></span>Building On-Device AI Apps with Flutter &amp; Gemma</span><span class="pg">02 / 40</span></div>
 </section>
 <section data-label="What the network hop costs">
 <img class="evt-corner" src="assets/devfest-jalandhar-2026.png" alt="DevFest Jalandhar 2026">
@@ -425,8 +431,18 @@ section[data-deck-active] .spin { animation: spin 60s linear infinite; }
     <div class="r d5s"><div class="card" style="display:flex;flex-direction:column;gap:30px;background:var(--surface);height:100%"><div class="icon-tile" style="background:var(--surface-3);color:var(--ink-2)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><defs><mask id="icon-mask-6"><rect width="24" height="24" fill="#fff" stroke="none"/><path d="M3 3l18 18" stroke="#000" stroke-width="4.6"/></mask></defs><g mask="url(#icon-mask-6)"><path d="M1.5 9.3a15 15 0 0 1 21 0"/><path d="M5 12.9a10 10 0 0 1 14 0"/><path d="M8.5 16.4a5 5 0 0 1 7 0"/><path d="M12 20h.01"/></g><path d="M3 3l18 18"/></svg></div><div class="h3">Availability</div><p class="body" style="font-size:31px">No signal means no feature, whether that's on a flight or on patchy mobile data.</p></div></div>
   </div>
 </div>
-<div class="foot"><span class="mark"><span class="g4"><i></i><i></i><i></i><i></i></span>Building On-Device AI Apps with Flutter &amp; Gemma</span><span class="pg">03 / 34</span></div>
+<div class="foot"><span class="mark"><span class="g4"><i></i><i></i><i></i><i></i></span>Building On-Device AI Apps with Flutter &amp; Gemma</span><span class="pg">03 / 40</span></div>
 </section>
+<section data-label="Meme · No API, no bill">
+<img class="evt-corner" src="assets/devfest-jalandhar-2026.png" alt="DevFest Jalandhar 2026">
+<div class="pad" style="justify-content:center;align-items:center">
+  <img class="r d1s" src="assets/memes/roll-safe.jpg" alt="Roll Safe meme" style="width:900px;display:block;border-radius:var(--r-lg);box-shadow:0 30px 70px rgba(0,0,0,.45);filter:brightness(1.12) saturate(1.06)">
+  <p class="kicker r d2s" style="color:var(--green-hi);margin-top:38px;text-align:center">The cheapest request</p>
+  <p class="lead ink r d2s" style="font-size:52px;line-height:1.2;margin-top:14px;text-align:center">Can’t get a surprise API bill if you never call the API.</p>
+</div>
+<div class="foot"><span class="mark"><span class="g4"><i></i><i></i><i></i><i></i></span>Building On-Device AI Apps with Flutter &amp; Gemma</span><span class="pg">04 / 40</span></div>
+</section>
+
 <section data-label="What if there were no hop">
 <img class="evt-corner" src="assets/devfest-jalandhar-2026.png" alt="DevFest Jalandhar 2026">
 <div class="pad center" style="align-items:flex-start">
@@ -437,7 +453,7 @@ section[data-deck-active] .spin { animation: spin 60s linear infinite; }
       <span class="c-blue">inside</span></span><br>your app?
   </h2>
 </div>
-<div class="foot"><span class="mark"><span class="g4"><i></i><i></i><i></i><i></i></span>Building On-Device AI Apps with Flutter &amp; Gemma</span><span class="pg">04 / 34</span></div>
+<div class="foot"><span class="mark"><span class="g4"><i></i><i></i><i></i><i></i></span>Building On-Device AI Apps with Flutter &amp; Gemma</span><span class="pg">05 / 40</span></div>
 </section>
 
 <section data-label="Section · Meet Gemma" class="field yellow">
@@ -448,7 +464,7 @@ section[data-deck-active] .spin { animation: spin 60s linear infinite; }
   <h2 class="d1 r d1s" style="margin-top:40px">Meet<br>Gemma</h2>
   <p class="lead r d2s" style="color:rgba(32,33,36,.72);margin-top:34px;max-width:900px">Google's family of open models, including the one we'll run on the device today.</p>
 </div>
-<div class="foot"><span class="mark"><span class="g4"><i></i><i></i><i></i><i></i></span>Building On-Device AI Apps with Flutter &amp; Gemma</span><span class="pg">05 / 34</span></div>
+<div class="foot"><span class="mark"><span class="g4"><i></i><i></i><i></i><i></i></span>Building On-Device AI Apps with Flutter &amp; Gemma</span><span class="pg">06 / 40</span></div>
 </section>
 
 
@@ -479,7 +495,7 @@ section[data-deck-active] .spin { animation: spin 60s linear infinite; }
     </div>
   </div>
 </div>
-<div class="foot"><span class="mark"><span class="g4"><i></i><i></i><i></i><i></i></span>Building On-Device AI Apps with Flutter &amp; Gemma</span><span class="pg">06 / 34</span></div>
+<div class="foot"><span class="mark"><span class="g4"><i></i><i></i><i></i><i></i></span>Building On-Device AI Apps with Flutter &amp; Gemma</span><span class="pg">07 / 40</span></div>
 </section>
 <section data-label="Five words">
 <img class="evt-corner" src="assets/devfest-jalandhar-2026.png" alt="DevFest Jalandhar 2026">
@@ -495,7 +511,7 @@ section[data-deck-active] .spin { animation: spin 60s linear infinite; }
     <div style="border-top:2px solid var(--outline)"></div>
   </div>
 </div>
-<div class="foot"><span class="mark"><span class="g4"><i></i><i></i><i></i><i></i></span>Building On-Device AI Apps with Flutter &amp; Gemma</span><span class="pg">07 / 34</span></div>
+<div class="foot"><span class="mark"><span class="g4"><i></i><i></i><i></i><i></i></span>Building On-Device AI Apps with Flutter &amp; Gemma</span><span class="pg">08 / 40</span></div>
 </section>
 <section data-label="How far on-device models have come">
 <img class="evt-corner" src="assets/devfest-jalandhar-2026.png" alt="DevFest Jalandhar 2026">
@@ -518,7 +534,7 @@ section[data-deck-active] .spin { animation: spin 60s linear infinite; }
   </div>
   <p class="small r d4s" style="margin-top:26px">Speeds from the litert-community/gemma-4-E2B-it-litert-lm model card: 1,024-token prompt, 256 generated tokens, 2,048-token context. Parameters and languages from Google's Gemma 4 E2B model card.</p>
 </div>
-<div class="foot"><span class="mark"><span class="g4"><i></i><i></i><i></i><i></i></span>Building On-Device AI Apps with Flutter &amp; Gemma</span><span class="pg">08 / 34</span></div>
+<div class="foot"><span class="mark"><span class="g4"><i></i><i></i><i></i><i></i></span>Building On-Device AI Apps with Flutter &amp; Gemma</span><span class="pg">09 / 40</span></div>
 </section>
 <section data-label="Industries that need it">
 <img class="evt-corner" src="assets/devfest-jalandhar-2026.png" alt="DevFest Jalandhar 2026">
@@ -544,7 +560,7 @@ section[data-deck-active] .spin { animation: spin 60s linear infinite; }
     </div>
   </div>
 </div>
-<div class="foot"><span class="mark"><span class="g4"><i></i><i></i><i></i><i></i></span>Building On-Device AI Apps with Flutter &amp; Gemma</span><span class="pg">09 / 34</span></div>
+<div class="foot"><span class="mark"><span class="g4"><i></i><i></i><i></i><i></i></span>Building On-Device AI Apps with Flutter &amp; Gemma</span><span class="pg">10 / 40</span></div>
 </section>
 <section data-label="Section · How it works" class="field green">
 <div class="field-shape spin" style="right:-220px;top:-160px;width:1000px;height:1000px"><svg viewBox="0 0 100 100" style="fill:rgba(255,255,255,.10)"><use href="#sh-clover8"/></svg></div>
@@ -554,7 +570,7 @@ section[data-deck-active] .spin { animation: spin 60s linear infinite; }
   <h2 class="d1 r d1s" style="margin-top:40px">How it<br>works</h2>
   <p class="lead r d2s" style="color:rgba(255,255,255,.82);margin-top:34px;max-width:900px">From your Dart code down to the chip.</p>
 </div>
-<div class="foot"><span class="mark"><span class="g4"><i></i><i></i><i></i><i></i></span>Building On-Device AI Apps with Flutter &amp; Gemma</span><span class="pg">10 / 34</span></div>
+<div class="foot"><span class="mark"><span class="g4"><i></i><i></i><i></i><i></i></span>Building On-Device AI Apps with Flutter &amp; Gemma</span><span class="pg">11 / 40</span></div>
 </section>
 <section data-label="The stack">
 <img class="evt-corner" src="assets/devfest-jalandhar-2026.png" alt="DevFest Jalandhar 2026">
@@ -584,7 +600,7 @@ section[data-deck-active] .spin { animation: spin 60s linear infinite; }
     </div>
   </div>
 </div>
-<div class="foot"><span class="mark"><span class="g4"><i></i><i></i><i></i><i></i></span>Building On-Device AI Apps with Flutter &amp; Gemma</span><span class="pg">11 / 34</span></div>
+<div class="foot"><span class="mark"><span class="g4"><i></i><i></i><i></i><i></i></span>Building On-Device AI Apps with Flutter &amp; Gemma</span><span class="pg">12 / 40</span></div>
 </section>
 <section data-label="A small core, plus engines">
 <img class="evt-corner" src="assets/devfest-jalandhar-2026.png" alt="DevFest Jalandhar 2026">
@@ -613,7 +629,7 @@ section[data-deck-active] .spin { animation: spin 60s linear infinite; }
     </div>
   </div>
 </div>
-<div class="foot"><span class="mark"><span class="g4"><i></i><i></i><i></i><i></i></span>Building On-Device AI Apps with Flutter &amp; Gemma</span><span class="pg">12 / 34</span></div>
+<div class="foot"><span class="mark"><span class="g4"><i></i><i></i><i></i><i></i></span>Building On-Device AI Apps with Flutter &amp; Gemma</span><span class="pg">13 / 40</span></div>
 </section>
 <section data-label="One file, every platform">
 <img class="evt-corner" src="assets/devfest-jalandhar-2026.png" alt="DevFest Jalandhar 2026">
@@ -633,7 +649,7 @@ section[data-deck-active] .spin { animation: spin 60s linear infinite; }
     </div>
   </div>
 </div>
-<div class="foot"><span class="mark"><span class="g4"><i></i><i></i><i></i><i></i></span>Building On-Device AI Apps with Flutter &amp; Gemma</span><span class="pg">13 / 34</span></div>
+<div class="foot"><span class="mark"><span class="g4"><i></i><i></i><i></i><i></i></span>Building On-Device AI Apps with Flutter &amp; Gemma</span><span class="pg">14 / 40</span></div>
 </section>
 
 <section data-label="Other models">
@@ -676,7 +692,7 @@ section[data-deck-active] .spin { animation: spin 60s linear infinite; }
     </div>
   </div>
 </div>
-<div class="foot"><span class="mark"><span class="g4"><i></i><i></i><i></i><i></i></span>Building On-Device AI Apps with Flutter &amp; Gemma</span><span class="pg">14 / 34</span></div>
+<div class="foot"><span class="mark"><span class="g4"><i></i><i></i><i></i><i></i></span>Building On-Device AI Apps with Flutter &amp; Gemma</span><span class="pg">15 / 40</span></div>
 </section>
 <section data-label="Section · The demo" class="field red">
 <div class="field-shape spin" style="right:-200px;top:-140px;width:1000px;height:1000px"><svg viewBox="0 0 100 100" style="fill:rgba(255,255,255,.10)"><use href="#sh-cookie12"/></svg></div>
@@ -686,7 +702,7 @@ section[data-deck-active] .spin { animation: spin 60s linear infinite; }
   <h2 class="d1 r d1s" style="margin-top:40px">Let me<br>show you</h2>
   <p class="lead r d2s" style="color:rgba(255,255,255,.84);margin-top:34px;max-width:900px">One Flutter app running Gemma 4 E2B, entirely on the device.</p>
 </div>
-<div class="foot"><span class="mark"><span class="g4"><i></i><i></i><i></i><i></i></span>Building On-Device AI Apps with Flutter &amp; Gemma</span><span class="pg">15 / 34</span></div>
+<div class="foot"><span class="mark"><span class="g4"><i></i><i></i><i></i><i></i></span>Building On-Device AI Apps with Flutter &amp; Gemma</span><span class="pg">16 / 40</span></div>
 </section>
 
 <section data-label="Demo · Vision">
@@ -790,8 +806,18 @@ section[data-deck-active] .spin { animation: spin 60s linear infinite; }
   </div>
   <p class="lead r d5s" style="margin-top:40px;font-size:34px">About 2.8 GB in total. <span class="ink">Downloaded once, then nothing leaves the device.</span></p>
 </div>
-<div class="foot"><span class="mark"><span class="g4"><i></i><i></i><i></i><i></i></span>Building On-Device AI Apps with Flutter &amp; Gemma</span><span class="pg">21 / 34</span></div>
+<div class="foot"><span class="mark"><span class="g4"><i></i><i></i><i></i><i></i></span>Building On-Device AI Apps with Flutter &amp; Gemma</span><span class="pg">22 / 40</span></div>
 </section>
+<section data-label="Meme · Still works offline">
+<img class="evt-corner" src="assets/devfest-jalandhar-2026.png" alt="DevFest Jalandhar 2026">
+<div class="pad" style="justify-content:center;align-items:center">
+  <img class="r d1s" src="assets/memes/party-corner.jpg" alt="Guy in the corner of a party meme" style="width:580px;display:block;border-radius:var(--r-lg);box-shadow:0 30px 70px rgba(0,0,0,.45);background:#fff;padding:22px;box-sizing:content-box">
+  <p class="kicker r d2s" style="color:var(--blue-hi);margin-top:38px;text-align:center">Wi-Fi off, still answering</p>
+  <p class="lead ink r d2s" style="font-size:52px;line-height:1.2;margin-top:14px;text-align:center">they don’t know this whole thing still works in airplane mode</p>
+</div>
+<div class="foot"><span class="mark"><span class="g4"><i></i><i></i><i></i><i></i></span>Building On-Device AI Apps with Flutter &amp; Gemma</span><span class="pg">23 / 40</span></div>
+</section>
+
 <section data-label="Section · Build it" class="field blue">
 <div class="field-shape spin" style="right:-220px;top:-160px;width:1000px;height:1000px"><svg viewBox="0 0 100 100" style="fill:rgba(255,255,255,.10)"><use href="#sh-clover8"/></svg></div>
 <div class="field-shape p d2s" style="right:250px;bottom:160px;width:240px;height:240px"><svg viewBox="0 0 100 100" style="fill:#fff"><use href="#sh-cookie9"/></svg></div>
@@ -800,7 +826,7 @@ section[data-deck-active] .spin { animation: spin 60s linear infinite; }
   <h2 class="d1 r d1s" style="margin-top:40px">Build it</h2>
   <p class="lead r d2s" style="color:rgba(255,255,255,.84);margin-top:34px;max-width:960px">The code behind the demo, exactly as it runs.</p>
 </div>
-<div class="foot"><span class="mark"><span class="g4"><i></i><i></i><i></i><i></i></span>Building On-Device AI Apps with Flutter &amp; Gemma</span><span class="pg">22 / 34</span></div>
+<div class="foot"><span class="mark"><span class="g4"><i></i><i></i><i></i><i></i></span>Building On-Device AI Apps with Flutter &amp; Gemma</span><span class="pg">24 / 40</span></div>
 </section>
 <section data-label="Code · Setup">
 <img class="evt-corner" src="assets/devfest-jalandhar-2026.png" alt="DevFest Jalandhar 2026">
@@ -831,7 +857,7 @@ section[data-deck-active] .spin { animation: spin 60s linear infinite; }
     </div>
   </div>
 </div>
-<div class="foot"><span class="mark"><span class="g4"><i></i><i></i><i></i><i></i></span>Building On-Device AI Apps with Flutter &amp; Gemma</span><span class="pg">23 / 34</span></div>
+<div class="foot"><span class="mark"><span class="g4"><i></i><i></i><i></i><i></i></span>Building On-Device AI Apps with Flutter &amp; Gemma</span><span class="pg">25 / 40</span></div>
 </section>
 <section data-label="Code · Install and load">
 <img class="evt-corner" src="assets/devfest-jalandhar-2026.png" alt="DevFest Jalandhar 2026">
@@ -874,7 +900,7 @@ section[data-deck-active] .spin { animation: spin 60s linear infinite; }
     </div>
   </div>
 </div>
-<div class="foot"><span class="mark"><span class="g4"><i></i><i></i><i></i><i></i></span>Building On-Device AI Apps with Flutter &amp; Gemma</span><span class="pg">24 / 34</span></div>
+<div class="foot"><span class="mark"><span class="g4"><i></i><i></i><i></i><i></i></span>Building On-Device AI Apps with Flutter &amp; Gemma</span><span class="pg">26 / 40</span></div>
 </section>
 <section data-label="Code · Stream the reply">
 <img class="evt-corner" src="assets/devfest-jalandhar-2026.png" alt="DevFest Jalandhar 2026">
@@ -915,18 +941,19 @@ section[data-deck-active] .spin { animation: spin 60s linear infinite; }
     </div>
   </div>
 </div>
-<div class="foot"><span class="mark"><span class="g4"><i></i><i></i><i></i><i></i></span>Building On-Device AI Apps with Flutter &amp; Gemma</span><span class="pg">25 / 34</span></div>
+<div class="foot"><span class="mark"><span class="g4"><i></i><i></i><i></i><i></i></span>Building On-Device AI Apps with Flutter &amp; Gemma</span><span class="pg">27 / 40</span></div>
 </section>
 
 <section data-label="Section · What I learned" class="field yellow">
 <div class="field-shape spin" style="right:-180px;top:-120px;width:980px;height:980px"><svg viewBox="0 0 100 100" style="fill:rgba(32,33,36,.10)"><use href="#sh-cookie12"/></svg></div>
 <div class="field-shape p d2s" style="right:230px;bottom:160px;width:240px;height:240px"><svg viewBox="0 0 100 100" style="fill:#202124"><use href="#sh-clover8"/></svg></div>
+<img class="r d3s" src="assets/memes/this-is-fine.jpg" alt="This Is Fine meme" style="position:absolute;right:110px;bottom:150px;width:660px;border-radius:var(--r-lg);box-shadow:0 30px 70px rgba(32,33,36,.35);z-index:4">
 <div class="pad center">
   <div class="r"><span class="num">05</span></div>
   <h2 class="d1 r d1s" style="margin-top:40px">What broke</h2>
-  <p class="lead r d2s" style="color:rgba(32,33,36,.74);margin-top:34px;max-width:980px">The parts most talks skip. All of these happened while I was building this app.</p>
+  <p class="lead r d2s" style="color:rgba(32,33,36,.74);margin-top:34px;max-width:820px">The parts most talks skip. All of these happened while I was building this app.</p>
 </div>
-<div class="foot"><span class="mark"><span class="g4"><i></i><i></i><i></i><i></i></span>Building On-Device AI Apps with Flutter &amp; Gemma</span><span class="pg">26 / 34</span></div>
+<div class="foot"><span class="mark"><span class="g4"><i></i><i></i><i></i><i></i></span>Building On-Device AI Apps with Flutter &amp; Gemma</span><span class="pg">28 / 40</span></div>
 </section>
 
 <section data-label="Lesson · Speech has a fixed window">
@@ -953,8 +980,18 @@ section[data-deck-active] .spin { animation: spin 60s linear infinite; }
     </div>
   </div>
 </div>
-<div class="foot"><span class="mark"><span class="g4"><i></i><i></i><i></i><i></i></span>Building On-Device AI Apps with Flutter &amp; Gemma</span><span class="pg">27 / 34</span></div>
+<div class="foot"><span class="mark"><span class="g4"><i></i><i></i><i></i><i></i></span>Building On-Device AI Apps with Flutter &amp; Gemma</span><span class="pg">29 / 40</span></div>
 </section>
+<section data-label="Meme · Silent failure">
+<img class="evt-corner" src="assets/devfest-jalandhar-2026.png" alt="DevFest Jalandhar 2026">
+<div class="pad" style="justify-content:center;align-items:center">
+  <img class="r d1s" src="assets/memes/harold.jpg" alt="Hide the Pain Harold meme" style="width:900px;display:block;border-radius:var(--r-lg);box-shadow:0 30px 70px rgba(0,0,0,.45)">
+  <p class="kicker r d2s" style="color:var(--red-hi);margin-top:38px;text-align:center">No error, no log</p>
+  <p class="lead ink r d2s" style="font-size:52px;line-height:1.2;margin-top:14px;text-align:center">It worked. It just stopped listening after five seconds.</p>
+</div>
+<div class="foot"><span class="mark"><span class="g4"><i></i><i></i><i></i><i></i></span>Building On-Device AI Apps with Flutter &amp; Gemma</span><span class="pg">30 / 40</span></div>
+</section>
+
 <section data-label="Lesson · Small models code-switch">
 <img class="evt-corner" src="assets/devfest-jalandhar-2026.png" alt="DevFest Jalandhar 2026">
 <div class="pad">
@@ -980,8 +1017,18 @@ section[data-deck-active] .spin { animation: spin 60s linear infinite; }
     </div>
   </div>
 </div>
-<div class="foot"><span class="mark"><span class="g4"><i></i><i></i><i></i><i></i></span>Building On-Device AI Apps with Flutter &amp; Gemma</span><span class="pg">28 / 34</span></div>
+<div class="foot"><span class="mark"><span class="g4"><i></i><i></i><i></i><i></i></span>Building On-Device AI Apps with Flutter &amp; Gemma</span><span class="pg">31 / 40</span></div>
 </section>
+<section data-label="Meme · Confused by the reply">
+<img class="evt-corner" src="assets/devfest-jalandhar-2026.png" alt="DevFest Jalandhar 2026">
+<div class="pad" style="justify-content:center;align-items:center">
+  <img class="r d1s" src="assets/memes/confused.jpg" alt="Confused face meme" style="width:560px;display:block;border-radius:var(--r-lg);box-shadow:0 30px 70px rgba(0,0,0,.45)">
+  <p class="kicker r d2s" style="color:var(--yellow-hi);margin-top:38px;text-align:center">I followed the instructions</p>
+  <p class="lead ink r d2s" style="font-size:52px;line-height:1.2;margin-top:14px;text-align:center">Me, reading an English answer with a Japanese word in it.</p>
+</div>
+<div class="foot"><span class="mark"><span class="g4"><i></i><i></i><i></i><i></i></span>Building On-Device AI Apps with Flutter &amp; Gemma</span><span class="pg">32 / 40</span></div>
+</section>
+
 <section data-label="Shipped products">
 <img class="evt-corner" src="assets/devfest-jalandhar-2026.png" alt="DevFest Jalandhar 2026">
 <div class="pad">
@@ -1006,8 +1053,28 @@ section[data-deck-active] .spin { animation: spin 60s linear infinite; }
     </div>
   </div>
 </div>
-<div class="foot"><span class="mark"><span class="g4"><i></i><i></i><i></i><i></i></span>Building On-Device AI Apps with Flutter &amp; Gemma</span><span class="pg">29 / 34</span></div>
+<div class="foot"><span class="mark"><span class="g4"><i></i><i></i><i></i><i></i></span>Building On-Device AI Apps with Flutter &amp; Gemma</span><span class="pg">33 / 40</span></div>
 </section>
+<section data-label="Meme · Don’t be this guy">
+<img class="evt-corner" src="assets/devfest-jalandhar-2026.png" alt="DevFest Jalandhar 2026">
+<div class="pad" style="justify-content:center">
+  <p class="kicker r" style="color:var(--red-hi)">Don’t be this guy</p>
+  <h2 class="h1 r d1s" style="margin-top:10px">It isn’t <span class="c-red">either-or.</span></h2>
+  <div class="row" style="align-items:center;gap:70px;margin-top:40px">
+    <div class="r d2s" style="position:relative;flex-shrink:0">
+      <img src="assets/memes/distracted-boyfriend.jpg" alt="Distracted Boyfriend meme" style="width:1010px;display:block;border-radius:var(--r-lg);box-shadow:0 30px 70px rgba(0,0,0,.45)">
+      <span style="position:absolute;transform:translate(-50%,-50%);background:rgba(15,17,20,.82);color:#fff;font-size:26px;font-weight:700;letter-spacing:-.01em;padding:10px 18px;border-radius:999px;white-space:nowrap;left:21%;top:70%">the model on the device</span>
+      <span style="position:absolute;transform:translate(-50%,-50%);background:rgba(15,17,20,.82);color:#fff;font-size:26px;font-weight:700;letter-spacing:-.01em;padding:10px 18px;border-radius:999px;white-space:nowrap;left:53%;top:63%">you, after this talk</span>
+      <span style="position:absolute;transform:translate(-50%,-50%);background:rgba(15,17,20,.82);color:#fff;font-size:26px;font-weight:700;letter-spacing:-.01em;padding:10px 18px;border-radius:999px;white-space:nowrap;left:82%;top:64%">the cloud API</span>
+    </div>
+    <div class="r d3s" style="flex:1">
+      <p class="body" style="font-size:31px;line-height:1.45">Most real apps use <span class="ink">both</span>. The cloud for the hardest questions, the device for everything that shouldn’t leave the phone.</p>
+    </div>
+  </div>
+</div>
+<div class="foot"><span class="mark"><span class="g4"><i></i><i></i><i></i><i></i></span>Building On-Device AI Apps with Flutter &amp; Gemma</span><span class="pg">34 / 40</span></div>
+</section>
+
 
 <section data-label="Get started">
 <img class="evt-corner" src="assets/devfest-jalandhar-2026.png" alt="DevFest Jalandhar 2026">
@@ -1024,7 +1091,7 @@ section[data-deck-active] .spin { animation: spin 60s linear infinite; }
   </div>
   <p class="small r d5s" style="margin-top:auto;font-size:24px">The codelab on the next slide walks through every one of these steps, including the platform setup.</p>
 </div>
-<div class="foot"><span class="mark"><span class="g4"><i></i><i></i><i></i><i></i></span>Building On-Device AI Apps with Flutter &amp; Gemma</span><span class="pg">30 / 34</span></div>
+<div class="foot"><span class="mark"><span class="g4"><i></i><i></i><i></i><i></i></span>Building On-Device AI Apps with Flutter &amp; Gemma</span><span class="pg">35 / 40</span></div>
 </section>
 <section data-label="Codelab">
 <img class="evt-corner" src="assets/devfest-jalandhar-2026.png" alt="DevFest Jalandhar 2026">
@@ -1048,7 +1115,7 @@ section[data-deck-active] .spin { animation: spin 60s linear infinite; }
     </div>
   </div>
 </div>
-<div class="foot"><span class="mark"><span class="g4"><i></i><i></i><i></i><i></i></span>Building On-Device AI Apps with Flutter &amp; Gemma</span><span class="pg">31 / 34</span></div>
+<div class="foot"><span class="mark"><span class="g4"><i></i><i></i><i></i><i></i></span>Building On-Device AI Apps with Flutter &amp; Gemma</span><span class="pg">36 / 40</span></div>
 </section>
 <section data-label="Resources">
 <img class="evt-corner" src="assets/devfest-jalandhar-2026.png" alt="DevFest Jalandhar 2026">
@@ -1063,8 +1130,18 @@ section[data-deck-active] .spin { animation: spin 60s linear infinite; }
     <div class="r d6s"><div class="card" style="background:var(--surface);display:flex;flex-direction:column;align-items:center;gap:20px;padding:30px 14px;height:100%"><div style="background:#fff;padding:13px;border-radius:26px;box-shadow:0 0 0 5px var(--blue)"><img src="assets/qr/article.png" alt="" style="width:262px;height:262px;display:block;image-rendering:pixelated"></div><div style="text-align:center"><div class="h3" style="font-size:31px">My article</div><div class="small" style="font-size:19px;margin-top:8px">Why I think on-device AI changes mobile architecture</div></div></div></div>
   </div>
 </div>
-<div class="foot"><span class="mark"><span class="g4"><i></i><i></i><i></i><i></i></span>Building On-Device AI Apps with Flutter &amp; Gemma</span><span class="pg">32 / 34</span></div>
+<div class="foot"><span class="mark"><span class="g4"><i></i><i></i><i></i><i></i></span>Building On-Device AI Apps with Flutter &amp; Gemma</span><span class="pg">37 / 40</span></div>
 </section>
+<section data-label="Meme · You after this talk">
+<img class="evt-corner" src="assets/devfest-jalandhar-2026.png" alt="DevFest Jalandhar 2026">
+<div class="pad" style="justify-content:center;align-items:center">
+  <img class="r d1s" src="assets/memes/surprised-pikachu.png" alt="Surprised Pikachu meme" style="width:650px;display:block;border-radius:var(--r-lg);box-shadow:0 30px 70px rgba(0,0,0,.45)">
+  <p class="kicker r d2s" style="color:var(--yellow-hi);margin-top:38px;text-align:center">Same face I had</p>
+  <p class="lead ink r d2s" style="font-size:52px;line-height:1.2;margin-top:14px;text-align:center">You, after learning about on-device AI.</p>
+</div>
+<div class="foot"><span class="mark"><span class="g4"><i></i><i></i><i></i><i></i></span>Building On-Device AI Apps with Flutter &amp; Gemma</span><span class="pg">38 / 40</span></div>
+</section>
+
 <section data-label="The one sentence">
 <img class="evt-corner" src="assets/devfest-jalandhar-2026.png" alt="DevFest Jalandhar 2026">
 <div class="field-shape spin" style="right:-260px;bottom:-320px;width:1100px;height:1100px"><svg viewBox="0 0 100 100" style="fill:var(--surface)"><use href="#sh-cookie12"/></svg></div>
@@ -1072,7 +1149,7 @@ section[data-deck-active] .spin { animation: spin 60s linear infinite; }
   <p class="lead r" style="font-size:52px">On-device AI isn't replacing cloud AI.</p>
   <p class="r d1s" style="font-size:96px;line-height:1.06;font-weight:650;letter-spacing:-.03em;margin:34px 0 0;max-width:1560px">It's unlocking a different class of app — one that's <span class="c-red">private</span>, <span class="c-green">offline-capable</span>, and <span class="c-yellow">free to scale</span>.</p>
 </div>
-<div class="foot"><span class="mark"><span class="g4"><i></i><i></i><i></i><i></i></span>Building On-Device AI Apps with Flutter &amp; Gemma</span><span class="pg">33 / 34</span></div>
+<div class="foot"><span class="mark"><span class="g4"><i></i><i></i><i></i><i></i></span>Building On-Device AI Apps with Flutter &amp; Gemma</span><span class="pg">39 / 40</span></div>
 </section>
 <section data-label="Thank you">
 <img class="evt-title evt-left" src="assets/devfest-jalandhar-2026.png" alt="DevFest Jalandhar 2026">
@@ -1108,7 +1185,7 @@ section[data-deck-active] .spin { animation: spin 60s linear infinite; }
     </div>
   </div>
 </div>
-<div class="foot"><span class="mark"><span class="g4"><i></i><i></i><i></i><i></i></span>Building On-Device AI Apps with Flutter &amp; Gemma</span><span class="pg">34 / 34</span></div>
+<div class="foot"><span class="mark"><span class="g4"><i></i><i></i><i></i><i></i></span>Building On-Device AI Apps with Flutter &amp; Gemma</span><span class="pg">40 / 40</span></div>
 </section>
 
 </deck-stage>
